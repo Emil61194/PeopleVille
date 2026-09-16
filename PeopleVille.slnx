@@ -4,5 +4,6 @@
     <Deploy />
   </Project>
   <Project Path="PeopleVille.Core/PeopleVille.Core.csproj" Id="66719d4c-09c1-44b3-908d-ac72670fc39b" />
+  <Project Path="PeopleVille.Engine/PeopleVille.Engine.csproj" Id="c3655c1e-644a-427c-b6e2-9009ede6480b" />
   <Project Path="PeopleVille.Server/PeopleVille.Server.csproj" />
 </Solution>
