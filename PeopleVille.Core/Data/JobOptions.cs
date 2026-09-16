@@ -4,13 +4,9 @@ using System.Text;
 
 namespace PeopleVille.Core.Data
 {
-    public class Job
+    public class JobOptions
     {
-        public static List<string> JobTitles = new List<string>
-        {
-            "Software Engineer", "Data Scientist", "Product Manager", "UX Designer", "Marketing Specialist",
-            "Sales Representative", "Financial Analyst", "Human Resources Manager", "Operations Manager", "Customer Support Specialist"
-        };
+
 
         public static List<decimal> JobSalaries = new List<decimal>
         {
