@@ -9,7 +9,7 @@ namespace PeopleVille.Engine
         private World? world;
         private int? currentTime;
         public bool doPause = false;
-        public event Action Tick;
+        public event Action? Tick;
 
         public void Initialize(string filePath = "")
         {
