@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="peopleville.client/peopleville.client.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="PeopleVille.Server/PeopleVille.Server.csproj" />
+</Solution>
