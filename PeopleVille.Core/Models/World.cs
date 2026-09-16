@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using PeopleVille.Core.Interfaces;
 
 namespace PeopleVille.Core.Models
 {
@@ -14,6 +15,7 @@ namespace PeopleVille.Core.Models
         public List<BankAccount>? BankAccount { get; set; }
         public List<Job>? Jobs { get; set; }
         public List<ShoppingCenter>? ShoppingCenters { get; set; }
+        public List<IWorkplace>? Workplaces { get; set; }
         public List<House>? Houses { get; set; }
         public List<Apartment>? Apartments { get; set; }
         public List<School>? Schools { get; set; }
