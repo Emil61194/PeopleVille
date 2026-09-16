@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
+using PeopleVille.Core.Models;
 
 namespace PeopleVille.Engine
 {
