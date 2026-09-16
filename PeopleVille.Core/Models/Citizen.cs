@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PeopleVille.Core.Models.Home;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -11,5 +12,6 @@ namespace PeopleVille.Core.Models
         public DateTime Birth { get; set; }
         public int Gender { get; set; }
         public Job? Job { get; set; }
+        public Building? CurrentLocation { get; set; }
     }
 }
