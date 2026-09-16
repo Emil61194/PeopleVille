@@ -1,21 +1,31 @@
 ﻿using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
+using PeopleVille.Core.Models;
 
 namespace PeopleVille.Engine
 {
     public class GameEngine
     {
+        private World? world;
         private int? currentTime;
         public bool doPause = false;
-        public void Run(string filePath = "")
-        {
-            World world = CheckSave(filePath);
+        public event Action? Tick;
 
+        public void Initialize(string filePath = "")
+        {
+            world = CheckSave(filePath);
+            foreach (Citizen citizen in world.Citizens)
+            {
+                Tick += citizen.DoSomething;
+            }
+        }
+        public void Run()
+        {
             while (true)
             {
                 // Tid, (wait e.g 1 second) CHECK
                 // Citizens do something ( With Events - Delegete)
-                //// Check if citizen is adult, then work if person a job 
+                Tick?.Invoke();
 
 
 
@@ -33,7 +43,6 @@ namespace PeopleVille.Engine
                     //
                 }
             }
-
         }
 
         public World CheckSave(string filePath)
