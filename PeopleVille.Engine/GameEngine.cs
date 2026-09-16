@@ -75,6 +75,7 @@ namespace PeopleVille.Engine
             save.Schools = schoolBuilder.BuildSchools();
 
             save.Jobs = new List<Job>();
+            save.Jobs = JobsBuilder.BuildJobs(save);
 
             CitizenBuilder citizenBuilder = new CitizenBuilder();
             save.Citizens = citizenBuilder.BuildCitizens(save);
