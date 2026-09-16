@@ -8,9 +8,7 @@ namespace PeopleVille.Engine
 {
     public class World
     {
-        private int time;
-        private int weekDay;
-
+        public DateTime currentDateTime = DateTime.UtcNow;
         public List<Citizen>? Citizens { get; set; }
         public List<BankAccount>? BankAccount { get; set; }
         public List<Job>? Jobs { get; set; }
@@ -18,28 +16,5 @@ namespace PeopleVille.Engine
         public List<House>? Houses { get; set; }
         public List<Apartment>? Apartments { get; set; }
         public List<School>? Schools { get; set; }
-
-        public int Time
-        {
-            get => time;
-            set
-            {
-                if (value >= 24)
-                    time = 1;
-                else
-                    time = value;
-            }
-        }
-        public int WeekDay
-        {
-            get => weekDay;
-            set
-            {
-                if (value >= 7)
-                    weekDay = 1;
-                else
-                    weekDay = value;
-            }
-        }
     }
 }

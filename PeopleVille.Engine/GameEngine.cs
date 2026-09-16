@@ -7,7 +7,6 @@ namespace PeopleVille.Engine
     public class GameEngine
     {
         private World? world;
-        private int? currentTime;
         public bool doPause = false;
         public event Action? Tick;
 
@@ -34,7 +33,7 @@ namespace PeopleVille.Engine
                 // When Ciitzens home at eating house, reduce private home inventory
 
                 // Wait 1 second
-                world.Time++;
+                world.currentDateTime.AddHours(1);
                 Thread.Sleep(1000);
                 // if pause, 
                 while (doPause)
