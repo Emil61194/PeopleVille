@@ -27,7 +27,7 @@ namespace PeopleVille.Core.Models
             {
                 CurrentLocation = HomeAddress;
             }
-            else if (yearsOld > 18 && Job != null && Job.WorkStartTime < world.Time && Job.WorkEndTime > world.Time)
+            else if (yearsOld > 18 && Job != null && Job.Workplace.WorkStartTime < world.Time && Job.Workplace.WorkEndTime > world.Time)
             {
                 CurrentLocation = Job.Workplace.Address;
             }

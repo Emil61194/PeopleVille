@@ -18,10 +18,10 @@ namespace PeopleVille.Engine.Builders
             string[] firstNames = Core.Data.FirstName.MaleFirstNames.Concat(Core.Data.FirstName.FemaleFirstNames).ToArray();
             string[] lastNames = Core.Data.LastName.LastNames.ToArray();
             string[] addresses = Core.Data.Address.AddressList.ToArray();
-            string[] jobTitles = Core.Data.Job.JobTitles.ToArray();
-            decimal[] jobSalaries = Core.Data.Job.JobSalaries.ToArray();
-            int[] jobWorkStartTimes = Core.Data.Job.JobWorkStartTimes.ToArray();
-            int[] jobWorkEndTimes = Core.Data.Job.JobWorkEndTimes.ToArray();
+            string[] jobTitles = Core.Data.JobOptions.JobTitles.ToArray();
+            decimal[] jobSalaries = Core.Data.JobOptions.JobSalaries.ToArray();
+            int[] jobWorkStartTimes = Core.Data.JobOptions.JobWorkStartTimes.ToArray();
+            int[] jobWorkEndTimes = Core.Data.JobOptions.JobWorkEndTimes.ToArray();
             var workplaces = Assembly.GetExecutingAssembly()
                 .GetTypes()
                 .Where(t => typeof(IWorkplace).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)
