@@ -6,7 +6,7 @@ namespace PeopleVille.Core.Data
 {
     public class LastName
     {
-        public static List<string> LastNames = new List<string>
+        public static string[] LastNames = new string[]
         {
                 "Andersen", "Jensen", "Nielsen", "Hansen", "Pedersen",
     "Christensen", "Larsen", "Sørensen", "Rasmussen", "Madsen"

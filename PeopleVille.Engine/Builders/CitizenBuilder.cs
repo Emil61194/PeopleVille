@@ -17,7 +17,7 @@ namespace PeopleVille.Engine.Builders
 
             string[] firstNames = Core.Data.FirstName.MaleFirstNames.Concat(Core.Data.FirstName.FemaleFirstNames).ToArray();
             string[] lastNames = Core.Data.LastName.LastNames.ToArray();
-            string[] addresses = Core.Data.Address.AddressList.ToArray();
+            List<string> addresses = Core.Data.Address.AddressList;
             string[] jobTitles = Core.Data.Job.JobTitles.ToArray();
             decimal[] jobSalaries = Core.Data.Job.JobSalaries.ToArray();
             int[] jobWorkStartTimes = Core.Data.Job.JobWorkStartTimes.ToArray();
@@ -32,7 +32,7 @@ namespace PeopleVille.Engine.Builders
             {
                 string firstName = firstNames[rnd.Next(firstNames.Length)];
                 string lastName = lastNames[rnd.Next(lastNames.Length)];
-                string address = addresses[rnd.Next(addresses.Length)];
+                string address = addresses[rnd.Next(addresses.Count)];
 
                 Citizen citizen = new Citizen(world, id: i + 1, firstName, lastName, DateTime.Now.AddYears(-rnd.Next(0, 70)), rnd.Next(0, 10), address)
                 {
@@ -47,6 +47,7 @@ namespace PeopleVille.Engine.Builders
                     }
 
                 };
+                addresses.Remove(address);s
                 world.Citizens?.Add(citizen);
 
             }

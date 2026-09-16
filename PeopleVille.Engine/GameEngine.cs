@@ -67,16 +67,20 @@ namespace PeopleVille.Engine
         public World InitializeCity()
         {
             World save = new World();
-            save.ShoppingCenters = new List<ShoppingCenter>();
 
-            save.Schools = new List<School>();
+            ShoppingCenterBuilder shoppingCenterBuilder = new ShoppingCenterBuilder();
+            save.ShoppingCenters = shoppingCenterBuilder.BuildShoppingCenters();
+
+            SchoolBuilder schoolBuilder = new SchoolBuilder();
+            save.Schools = schoolBuilder.BuildSchools();
 
             save.Jobs = new List<Job>();
 
             CitizenBuilder citizenBuilder = new CitizenBuilder();
             save.Citizens = citizenBuilder.BuildCitizens(save);
 
-            save.Houses = new List<House>(); // Amount of homes is dependent on the amount of last names 
+            HouseBuilder houseBuilder = new HouseBuilder();
+            save.Houses = houseBuilder.BuildHouses(save);
 
             save.Apartments = new List<Apartment>(); // Amount of homes is dependent on the amount of last names 
 

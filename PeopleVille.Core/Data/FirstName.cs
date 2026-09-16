@@ -6,7 +6,7 @@ namespace PeopleVille.Core.Data
 {
     public class FirstName
     {
-        public static List<string> MaleFirstNames = new List<string>
+        public static string[] MaleFirstNames = new string[]
         {
             "James",
             "John",
@@ -19,7 +19,7 @@ namespace PeopleVille.Core.Data
             "Thomas",
             "Charles",
         };
-        public static List<string> FemaleFirstNames = new List<string>
+        public static string[] FemaleFirstNames = new string[]
         {
             "Mary",
             "Patricia",
