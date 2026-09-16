@@ -14,7 +14,7 @@ namespace PeopleVille.Server
             builder.Services.AddOpenApi();
 
             var app = builder.Build();
-
+            // dont accept
             app.UseDefaultFiles();
             app.MapStaticAssets();
 

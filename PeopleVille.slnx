@@ -3,5 +3,6 @@
     <Build />
     <Deploy />
   </Project>
+  <Project Path="PeopleVille.Core/PeopleVille.Core.csproj" Id="66719d4c-09c1-44b3-908d-ac72670fc39b" />
   <Project Path="PeopleVille.Server/PeopleVille.Server.csproj" />
 </Solution>
