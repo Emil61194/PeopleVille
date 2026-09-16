@@ -20,7 +20,6 @@
     <ProjectReference Include="..\peopleville.client\peopleville.client.esproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\PeopleVille.Engine\PeopleVille.Engine.csproj" />
   </ItemGroup>
 
 </Project>
