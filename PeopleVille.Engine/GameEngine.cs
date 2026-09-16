@@ -1,6 +1,7 @@
-﻿using System.Security.Cryptography.X509Certificates;
+﻿using PeopleVille.Core.Models;
+using PeopleVille.Core.Models.Home;
+using PeopleVille.Engine.Builders;
 using System.Text.Json;
-using PeopleVille.Core.Models;
 
 namespace PeopleVille.Engine
 {
@@ -66,13 +67,21 @@ namespace PeopleVille.Engine
         public World InitializeCity()
         {
             World save = new World();
-            save.Citizens = new List<Core.Models.Citizen>();
-            save.BankAccount = new List<Core.Models.BankAccount>();
-            save.Jobs = new List<Core.Models.Job>();
-            save.ShoppingCenters = new List<Core.Models.Home.ShoppingCenter>();
-            save.Houses = new List<Core.Models.Home.House>();
-            save.Apartments = new List<Core.Models.Home.Apartment>();
-            save.Schools = new List<Core.Models.Home.School>();
+            save.ShoppingCenters = new List<ShoppingCenter>();
+
+            save.Schools = new List<School>();
+
+            save.Jobs = new List<Job>();
+
+            CitizenBuilder citizenBuilder = new CitizenBuilder();
+            save.Citizens = citizenBuilder.BuildCitizens(save);
+
+            save.Houses = new List<House>(); // Amount of homes is dependent on the amount of last names 
+
+            save.Apartments = new List<Apartment>(); // Amount of homes is dependent on the amount of last names 
+
+            save.BankAccount = new List<BankAccount>();
+            
             return save;
         }
     }
