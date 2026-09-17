@@ -8,7 +8,6 @@ namespace PeopleVille.Engine
     public class GameEngine
     {
         private World? _world;
-        private int? _currentTime;
         public bool _doPause = false;
         public event Action? Tick;
 
@@ -32,7 +31,6 @@ namespace PeopleVille.Engine
         {
             while (true)
             {
-                _world.Time++;
                 Tick?.Invoke();
 
 
@@ -41,7 +39,7 @@ namespace PeopleVille.Engine
 
 
                 // Wait 1 second
-                world.currentDateTime.AddHours(1);
+                _world.currentDateTime.AddHours(1);
                 Thread.Sleep(1000);
                 while (_doPause)
                 {
