@@ -5,4 +5,5 @@
   </Project>
   <Project Path="PeopleVille.Core/PeopleVille.Core.csproj" Id="66719d4c-09c1-44b3-908d-ac72670fc39b" />
   <Project Path="PeopleVille.Server/PeopleVille.Server.csproj" />
+  <Project Path="PeopleVille.Test/PeopleVille.Test.csproj" Id="0f2443cf-a91b-4191-b69a-51c755a6997a" />
 </Solution>
