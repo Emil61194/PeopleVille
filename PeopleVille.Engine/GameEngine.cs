@@ -7,18 +7,32 @@ namespace PeopleVille.Engine
 {
     public class GameEngine
     {
-        private World? world;
-        private int? currentTime;
-        public bool doPause = false;
+        private World? _world;
+        private int? _currentTime;
+        public bool _doPause = false;
         public event Action? Tick;
 
-        public void Initialize(string filePath = "")
+        public bool Initialize(string? filePath = null)
         {
-            world = CheckSave(filePath);
-            foreach (Citizen citizen in world.Citizens)
+            if (filePath == null)
             {
-                Tick += citizen.DoSomething;
+                _world = InitializeCity();
             }
+            else
+            {
+                World? worldCandidate = CheckSave(filePath);
+
+                if (worldCandidate == null) return false;
+                _world = worldCandidate;
+            }
+            
+            // TODO: fix null reference (its actually null)
+            foreach (Citizen citizen in _world.Citizens)
+            {
+                Tick += citizen.DoSomething; 
+            }
+
+            return true;
         }
         public void Run()
         {
@@ -35,10 +49,10 @@ namespace PeopleVille.Engine
                 // When Ciitzens home at eating house, reduce private home inventory
 
                 // Wait 1 second
-                world.Time++;
+                _world.Time++;
                 Thread.Sleep(1000);
                 // if pause, 
-                while (doPause)
+                while (_doPause)
                 {
                     // Check for user input to resume or exit
                     //
@@ -46,22 +60,18 @@ namespace PeopleVille.Engine
             }
         }
 
-        public World CheckSave(string filePath)
+        public World? CheckSave(string filePath)
         {
             if (File.Exists(filePath))
             {
                 World? save = JsonSerializer.Deserialize<World>(File.ReadAllText(filePath));
-                if (save == null)
+                if (save != null)
                 {
-                    throw new Exception("Save file is empty or corrupted.");
+                    return save;
                 }
-                return save;
+                throw new Exception("Save file is empty or corrupted.");
             }
-            else
-            {
-                throw new NotImplementedException();
-                return InitializeCity();
-            }
+            throw new Exception("Required file not found" + filePath);
         }
 
         public World InitializeCity()
