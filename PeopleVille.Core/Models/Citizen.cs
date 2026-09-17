@@ -18,13 +18,13 @@ namespace PeopleVille.Core.Models
 
         public required string CurrentLocation { get; set; }
         BankAccount BankAccount { get; set; } = new BankAccount();
+        public School? School { get; set; }
 
         public void DoSomething()
         {
-            TimeSpan age = DateTime.Now - Birth;
-            int yearsOld = (int)(age.TotalDays / 365.25);
-    
-            if (world.Time > 21 || world.Time < 6)
+            int yearsOld = DateTime.Now.Year - Birth.Year;
+
+            if (Job.Workplace.WorkStartTime > world.Time && Job.Workplace.WorkEndTime < world.Time)
             {
                 CurrentLocation = HomeAddress;
             }
@@ -36,9 +36,9 @@ namespace PeopleVille.Core.Models
             {
                 CurrentLocation = HomeAddress; // Maybe later on activites for jobless people
             }
-            else if (yearsOld < 18)
+            else if (yearsOld < 18 && School.StartTime < world.Time && School.EndTime > world.Time)
             {
-                CurrentLocation = HomeAddress; // Add school later on
+                CurrentLocation = School.Address;
             }
 
         }

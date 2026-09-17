@@ -14,7 +14,7 @@ namespace PeopleVille.Core.Interfaces
         public JobTitle JobTitle { get; set; }
         public int JobCapacity { get; set; }
 
-        public int WorkStartTime { get; set; }
-        public int WorkEndTime { get; set; }
+        public DateTime WorkStartTime { get; set; }
+        public DateTime WorkEndTime { get; set; }
     }
 }
