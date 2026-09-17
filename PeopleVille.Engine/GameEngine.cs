@@ -69,21 +69,22 @@ namespace PeopleVille.Engine
             World save = new World();
 
             ShoppingCenterBuilder shoppingCenterBuilder = new ShoppingCenterBuilder();
-            save.ShoppingCenters = shoppingCenterBuilder.BuildShoppingCenters();
+            shoppingCenterBuilder.BuildShoppingCenters(save);
 
             SchoolBuilder schoolBuilder = new SchoolBuilder();
-            save.Schools = schoolBuilder.BuildSchools();
+            schoolBuilder.BuildSchools(save);
 
             save.Jobs = new List<Job>();
-            save.Jobs = JobsBuilder.BuildJobs(save);
-
-            CitizenBuilder citizenBuilder = new CitizenBuilder();
-            save.Citizens = citizenBuilder.BuildCitizens(save);
+            JobsBuilder.BuildJobs(save);
 
             HouseBuilder houseBuilder = new HouseBuilder();
-            save.Houses = houseBuilder.BuildHouses(save);
+            houseBuilder.BuildHouses(save);
 
-            save.Apartments = new List<Apartment>(); // Amount of homes is dependent on the amount of last names 
+            ApartmentBuilder apartmentBuilder = new ApartmentBuilder();
+            apartmentBuilder.BuildApartments(save);
+
+            CitizenBuilder citizenBuilder = new CitizenBuilder();
+            citizenBuilder.BuildCitizens(save);
 
             save.BankAccount = new List<BankAccount>();
             

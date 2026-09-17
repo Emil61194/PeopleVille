@@ -1,4 +1,5 @@
-﻿using PeopleVille.Core.Models.Home;
+﻿using PeopleVille.Core.Models;
+using PeopleVille.Core.Models.Home;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,9 +8,8 @@ namespace PeopleVille.Engine.Builders
 {
     public class SchoolBuilder
     {
-        public List<School> BuildSchools()
+        public void BuildSchools(World world)
         {
-            List<School> schools = new List<School>();
             List<string> addresses = Core.Data.Address.AddressList;
 
             Random rnd = new Random();
@@ -23,9 +23,8 @@ namespace PeopleVille.Engine.Builders
                    EndTime = DateTime.Today.AddHours(rnd.Next(14, 17))
                };
                 addresses.Remove(school.Address); 
-                schools.Add(school);
+                world.Schools.Add(school);
             }
-            return schools;
         }
     }
 }

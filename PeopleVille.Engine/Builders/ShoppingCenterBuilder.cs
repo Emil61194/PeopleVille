@@ -1,4 +1,5 @@
-﻿using PeopleVille.Core.Models.Home;
+﻿using PeopleVille.Core.Models;
+using PeopleVille.Core.Models.Home;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,7 +8,7 @@ namespace PeopleVille.Engine.Builders
 {
     public class ShoppingCenterBuilder
     {
-        public List<ShoppingCenter> BuildShoppingCenters()
+        public void BuildShoppingCenters(World world)
         {
             List<ShoppingCenter> shoppingCenters = new List<ShoppingCenter>();
             List<string> addresses = Core.Data.Address.AddressList;
@@ -21,9 +22,8 @@ namespace PeopleVille.Engine.Builders
                     Address = addresses[rnd.Next(addresses.Count)]
                 };
                 addresses.Remove(shoppingCenter.Address);
-                shoppingCenters.Add(shoppingCenter);
+                world.ShoppingCenters.Add(shoppingCenter);
             }
-            return shoppingCenters;
         }
 
     }
