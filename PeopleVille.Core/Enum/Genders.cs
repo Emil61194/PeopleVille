@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace PeopleVille.Core.Enum
+﻿namespace PeopleVille.Core.Enum
 {
     public enum Genders
     {

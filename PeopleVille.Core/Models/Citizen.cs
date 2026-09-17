@@ -1,8 +1,4 @@
 ﻿using PeopleVille.Core.Models.Home;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Tracing;
-using System.Text;
 
 namespace PeopleVille.Core.Models
 {

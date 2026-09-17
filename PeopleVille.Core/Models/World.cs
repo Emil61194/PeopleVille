@@ -1,15 +1,10 @@
-﻿using PeopleVille.Core.Models.Home;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using PeopleVille.Core.Interfaces;
+﻿using PeopleVille.Core.Interfaces;
+using PeopleVille.Core.Models.Home;
 
 namespace PeopleVille.Core.Models
 {
     public class World
     {
-        private int time;
-        private int weekDay;
         public DateTime currentDateTime = DateTime.UtcNow;
         public List<Citizen> Citizens { get; set; } = new List<Citizen>();
         public List<BankAccount> BankAccount { get; set; } = new List<BankAccount>();
