@@ -17,6 +17,7 @@ namespace PeopleVille.Core.Models
         public Job? Job { get; set; }
 
         public required string CurrentLocation { get; set; }
+        BankAccount BankAccount { get; set; } = new BankAccount();
 
         public void DoSomething()
         {
