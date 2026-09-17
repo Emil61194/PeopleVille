@@ -10,7 +10,7 @@ namespace PeopleVille.Engine.Builders
 {
     public class CitizenBuilder
     {
-        public List<Citizen> BuildCitizens(World world)
+        public List<Citizen> BuildCitizens(World world, Action? tickAction)
         {
             Random rnd = new Random();
             int citizenAmount = rnd.Next(20, 100);
@@ -47,10 +47,11 @@ namespace PeopleVille.Engine.Builders
                     }
 
                 };
-                addresses.Remove(address);s
+                addresses.Remove(address);
                 world.Citizens?.Add(citizen);
-
+                tickAction += citizen.DoSomething;
             }
+            
             return world.Citizens ?? new List<Citizen>();
         }
     }

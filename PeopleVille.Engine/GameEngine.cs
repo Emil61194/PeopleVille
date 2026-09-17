@@ -26,12 +26,6 @@ namespace PeopleVille.Engine
                 _world = worldCandidate;
             }
             
-            // TODO: fix null reference (its actually null)
-            foreach (Citizen citizen in _world.Citizens)
-            {
-                Tick += citizen.DoSomething; 
-            }
-
             return true;
         }
         public void Run()
@@ -88,7 +82,7 @@ namespace PeopleVille.Engine
             save.Jobs = JobsBuilder.BuildJobs(save);
 
             CitizenBuilder citizenBuilder = new CitizenBuilder();
-            save.Citizens = citizenBuilder.BuildCitizens(save);
+            save.Citizens = citizenBuilder.BuildCitizens(save, Tick);
 
             HouseBuilder houseBuilder = new HouseBuilder();
             save.Houses = houseBuilder.BuildHouses(save);
