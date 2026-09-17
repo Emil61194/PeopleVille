@@ -1,6 +1,5 @@
-using PeopleVille.Core.Models;
-using PeopleVille.Core.Data;
 using PeopleVille.Core.Interfaces;
+using PeopleVille.Core.Models;
 
 namespace PeopleVille.Engine.Builders;
 
@@ -16,6 +15,6 @@ public static class JobsBuilder
                 world.Jobs.Add(new Job(workplace));
             }
         }
-        
+
     }
 }

@@ -1,13 +1,6 @@
-﻿using PeopleVille.Core.Data;
-using PeopleVille.Core.Enum;
-using PeopleVille.Core.Interfaces;
+﻿using PeopleVille.Core.Enum;
 using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace PeopleVille.Engine.Builders
 {
@@ -37,6 +30,10 @@ namespace PeopleVille.Engine.Builders
 
                 (string address, world) = GetAddress(world, lastName, rnd);
 
+                DateTime age = DateTime.Now.AddYears(-rnd.Next(0, 70));
+                int yearsOld = DateTime.Now.Year - age.Year;
+
+
                 Citizen citizen = new Citizen(world: world,
                     id: i + 1,
                     firstName: firstName,
@@ -48,7 +45,12 @@ namespace PeopleVille.Engine.Builders
                     Job = chosenJob,
                     CurrentLocation = address
                 };
-                //jobs.Remove(chosenJob);
+
+                if (yearsOld < 18)
+                {
+                    citizen.School = world.Schools[rnd.Next(world.Schools.Count)];
+                }
+
                 world.Citizens?.Add(citizen);
                 tickAction += citizen.DoSomething;
 
@@ -78,12 +80,10 @@ namespace PeopleVille.Engine.Builders
                 int addressFloor = currentApartmentsInAddress % apartment.Floors + 1; // unsure
 
                 string apartmentAddress = $"{apartment.Address}, {addressFloor}. {currentApartmentsInAddress + 1}";
-                //world.Apartments.Remove(apartment);
                 return (apartmentAddress, world);
             }
 
             House house = houses[rnd.Next(houses.Count)];
-            //world.Houses.Remove(house);
             return (house.Address, world);
         }
     }

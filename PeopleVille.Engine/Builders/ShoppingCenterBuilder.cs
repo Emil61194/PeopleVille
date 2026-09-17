@@ -1,8 +1,5 @@
 ﻿using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace PeopleVille.Engine.Builders
 {
@@ -19,6 +16,8 @@ namespace PeopleVille.Engine.Builders
             {
                 ShoppingCenter shoppingCenter = new ShoppingCenter
                 {
+                    FoodPrice = rnd.Next(2, 5),
+                    WaterPrice = rnd.Next(2, 5),
                     Address = addresses[rnd.Next(addresses.Count)]
                 };
                 addresses.Remove(shoppingCenter.Address);
