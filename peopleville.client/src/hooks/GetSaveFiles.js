@@ -1,8 +1,13 @@
 export async function GetSaveFiles() {
-  //example api endpoint
-  const url = "https://api.example.com/savefiles";
-  const response = await fetch(url);
+  const response = await fetch("http://localhost:5045/get/savefiles");
+  if (!response.ok) {
+    throw new Error("Unable to load save files");
+  }
+
   const data = await response.json();
-  // Process the data and return the list of save files
-  return data.saveFiles; // Assuming the API returns an object with a 'saveFiles' property
+  if (!Array.isArray(data)) {
+    throw new Error("Save files response was not an array");
+  }
+
+  return data;
 }
