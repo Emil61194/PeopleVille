@@ -15,30 +15,34 @@ namespace PeopleVille.Server.Controllers
             this.environment = environment;
         }
 
-        [HttpGet("/get/savefile")]
+        private record SaveFileInfo(string filename, string modifyDate, string size);
+        
+        [HttpGet("/get/savefiles")]
         public async Task<IActionResult> GetSaveFileDataAsJson()
         {
-            string saveFilePath = Path.GetFullPath(Path.Combine(
+            string saveFilesDirectory = Path.GetFullPath(Path.Combine(
                 environment.ContentRootPath,
                 "..",
                 "PeopleVille.Core",
-                "saves",
-                "test_save.json"));
-
-            if (!System.IO.File.Exists(saveFilePath))
+                "saves"
+                ));
+            
+            
+            if (!Directory.Exists(saveFilesDirectory))
             {
-                return NotFound("The test save file could not be found.");
+                return NotFound("Save Files Directory Not Found, attemped path: " + saveFilesDirectory);
+            }
+            string[] saveFiles = Directory.GetFiles(saveFilesDirectory);
+
+            List<SaveFileInfo> saveFilesInfo = new List<SaveFileInfo>();
+
+            foreach (string saveFile in saveFiles)
+            {
+                FileInfo saveFileInfo = new FileInfo(saveFile);
+                saveFilesInfo.Add(new  SaveFileInfo(saveFileInfo.Name, saveFileInfo.LastWriteTime.ToString(), saveFileInfo.Length.ToString()));  
             }
 
-            await using FileStream saveFile = System.IO.File.OpenRead(saveFilePath);
-            JsonNode? saveData = await JsonNode.ParseAsync(saveFile);
-
-            if (saveData == null)
-            {
-                BadRequest("Unable to parse save data from JSON file");
-            }
-
-            return new JsonResult(saveData);
+            return new JsonResult(saveFilesInfo);
         }
     }
 }
