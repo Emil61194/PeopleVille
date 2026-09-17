@@ -20,6 +20,15 @@ namespace PeopleVille.Core.Models
         public List<Apartment> Apartments { get; set; } = new List<Apartment>();
         public List<School> Schools { get; set; } = new List<School>();
 
+        public List<Citizen>? Citizens { get; set; }
+        public List<BankAccount>? BankAccount { get; set; }
+        public List<Job>? Jobs { get; set; }
+        public List<ShoppingCenter>? ShoppingCenters { get; set; }
+        public List<House>? Houses { get; set; }
+        public List<Apartment>? Apartments { get; set; }
+        public List<School>? Schools { get; set; }
+        public bool IsNight { get; set; }
+
         public int Time
         {
             get => time;
@@ -29,6 +38,8 @@ namespace PeopleVille.Core.Models
                     time = 1;
                 else
                     time = value;
+                if (time < 6 && time > 21) IsNight = true;
+                else IsNight = false;
             }
         }
         public int WeekDay
