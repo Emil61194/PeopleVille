@@ -3,7 +3,7 @@ using PeopleVille.Core.Interfaces;
 
 namespace PeopleVille.Core.Models.Home
 {
-    public class ShoppingCenter : Building, IWorkplace
+    public class ShoppingCenter : Building
     {
         public override required string Address { get; set; }
         public JobTitle JobTitle { get; set; } = Data.JobTitle.Cashier;
