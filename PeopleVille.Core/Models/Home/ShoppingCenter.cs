@@ -14,5 +14,7 @@ namespace PeopleVille.Core.Models.Home
         
         public int WorkStartTime { get; set; }
         public int WorkEndTime { get; set; }
+        public decimal FoodPrice { get; set; }
+        public decimal WaterPrice { get; set; }
     }
 }
