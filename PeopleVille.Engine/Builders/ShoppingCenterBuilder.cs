@@ -11,7 +11,7 @@ namespace PeopleVille.Engine.Builders
         public void BuildShoppingCenters(World world)
         {
             List<ShoppingCenter> shoppingCenters = new List<ShoppingCenter>();
-            List<string> addresses = Core.Data.Address.AddressList;
+            List<string> addresses = Core.Data.Address.AddressList.ToList();
 
             Random rnd = new Random();
             int shoppingCenterCount = rnd.Next(1, 3);
@@ -23,6 +23,7 @@ namespace PeopleVille.Engine.Builders
                 };
                 addresses.Remove(shoppingCenter.Address);
                 world.ShoppingCenters.Add(shoppingCenter);
+                world.Workplaces.Add(shoppingCenter);
             }
         }
 

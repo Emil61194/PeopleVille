@@ -48,7 +48,7 @@ namespace PeopleVille.Engine.Builders
                     Job = chosenJob,
                     CurrentLocation = address
                 };
-                jobs.Remove(chosenJob);
+                //jobs.Remove(chosenJob);
                 world.Citizens?.Add(citizen);
                 tickAction += citizen.DoSomething;
 
@@ -78,12 +78,12 @@ namespace PeopleVille.Engine.Builders
                 int addressFloor = currentApartmentsInAddress % apartment.Floors + 1; // unsure
 
                 string apartmentAddress = $"{apartment.Address}, {addressFloor}. {currentApartmentsInAddress + 1}";
-                world.Apartments.Remove(apartment);
+                //world.Apartments.Remove(apartment);
                 return (apartmentAddress, world);
             }
 
             House house = houses[rnd.Next(houses.Count)];
-            world.Houses.Remove(house);
+            //world.Houses.Remove(house);
             return (house.Address, world);
         }
     }

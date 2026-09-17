@@ -12,7 +12,7 @@ namespace PeopleVille.Engine.Builders
         public void BuildApartments(World world)
         {
             Random rnd = new Random();
-            List<string> addresses = Core.Data.Address.AddressList;
+            List<string> addresses = Core.Data.Address.AddressList.ToList();
             string[] usedAddresses = world.Workplaces.SelectMany(w => w.Address).Select(a => a.ToString()).ToArray();
             usedAddresses = usedAddresses.Concat(world.Houses.SelectMany(h => h.Address).Select(a => a.ToString())).ToArray();
             addresses = addresses.Except(usedAddresses).ToList();

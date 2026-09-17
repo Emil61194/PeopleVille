@@ -77,13 +77,13 @@ namespace PeopleVille.Engine
             JobsBuilder.BuildJobs(save);
 
             HouseBuilder houseBuilder = new HouseBuilder();
-            houseBuilder.BuildHouses(save, Tick);
+            houseBuilder.BuildHouses(save);
 
             ApartmentBuilder apartmentBuilder = new ApartmentBuilder();
             apartmentBuilder.BuildApartments(save);
 
             CitizenBuilder citizenBuilder = new CitizenBuilder();
-            citizenBuilder.BuildCitizens(save);
+            citizenBuilder.BuildCitizens(save,Tick);
 
             save.BankAccount = new List<BankAccount>();
             
