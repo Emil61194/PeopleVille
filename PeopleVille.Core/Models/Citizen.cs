@@ -24,11 +24,11 @@ namespace PeopleVille.Core.Models
             TimeSpan age = DateTime.Now - Birth;
             int yearsOld = (int)(age.TotalDays / 365.25);
     
-            if (world.Time > 21 || world.Time < 6)
+            if (world.currentDateTime.Hour > 21 || world.currentDateTime.Hour < 6)
             {
                 CurrentLocation = HomeAddress;
             }
-            else if (yearsOld > 18 && Job != null && Job.Workplace.WorkStartTime < world.Time && Job.Workplace.WorkEndTime > world.Time)
+            else if (yearsOld > 18 && Job != null && Job.Workplace.WorkStartTime < world.currentDateTime.Hour && Job.Workplace.WorkEndTime > world.currentDateTime.Hour)
             {
                 CurrentLocation = Job.Workplace.Address;
             }
