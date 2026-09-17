@@ -32,24 +32,19 @@ namespace PeopleVille.Engine
         {
             while (true)
             {
-                // Tid, (wait e.g 1 second) CHECK
-                // Citizens do something ( With Events - Delegete)
+                _world.Time++;
                 Tick?.Invoke();
 
 
 
                 // Random stuff happening ( e.g heatstroke, lack of supplies in town = death, virus ) 
 
-                // When Ciitzens home at eating house, reduce private home inventory
 
                 // Wait 1 second
-                _world.Time++;
                 Thread.Sleep(1000);
-                // if pause, 
                 while (_doPause)
                 {
                     // Check for user input to resume or exit
-                    //
                 }
             }
         }
