@@ -13,7 +13,7 @@ namespace PeopleVille.Engine.Builders
 {
     public class CitizenBuilder
     {
-        public void BuildCitizens(World world)
+        public void BuildCitizens(World world, Action? tickAction)
         {
             Random rnd = new Random();
             int citizenAmount = rnd.Next(40, 100);
@@ -50,6 +50,7 @@ namespace PeopleVille.Engine.Builders
                 };
                 jobs.Remove(chosenJob);
                 world.Citizens?.Add(citizen);
+                tickAction += citizen.DoSomething;
 
             }
         }
