@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using PeopleVille.Core.Interfaces;
 
 namespace PeopleVille.Core.Models
 {
@@ -9,6 +10,15 @@ namespace PeopleVille.Core.Models
     {
         private int time;
         private int weekDay;
+        public DateTime currentDateTime = DateTime.UtcNow;
+        public List<Citizen> Citizens { get; set; } = new List<Citizen>();
+        public List<BankAccount> BankAccount { get; set; } = new List<BankAccount>();
+        public List<Job> Jobs { get; set; } = new List<Job>();
+        public List<ShoppingCenter> ShoppingCenters { get; set; } = new List<ShoppingCenter>();
+        public List<IWorkplace> Workplaces { get; set; } = new List<IWorkplace>();
+        public List<House> Houses { get; set; } = new List<House>();
+        public List<Apartment> Apartments { get; set; } = new List<Apartment>();
+        public List<School> Schools { get; set; } = new List<School>();
 
         public List<Citizen>? Citizens { get; set; }
         public List<BankAccount>? BankAccount { get; set; }

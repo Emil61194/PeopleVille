@@ -11,7 +11,7 @@ namespace PeopleVille.Core.Models.Home
         public int Floors { get; set; }
         public int CitizenCapacity { get; set; }
         public override required string Address { get; set; }
-        public override int FoodInventory { get; set; }
-        public override int WaterInventory { get; set; }
+        public int FoodInventory { get; set; }
+        public int WaterInventory { get; set; }
     }
 }

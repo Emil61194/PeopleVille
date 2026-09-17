@@ -6,17 +6,18 @@ using System.Text;
 
 namespace PeopleVille.Core.Models
 {
-    public class Citizen(World world, int id, string firstName, string lastName, DateTime birth, int gender)
+    public class Citizen(World world, int id, string firstName, string lastName, DateTime birth, int gender, string homeAddress)
     {
         public int Id { get; set; } = id;
         public string FirstName { get; } = firstName;
         public string LastName { get; } = lastName;
         public DateTime Birth { get; } = birth;
         public int Gender { get; } = gender;
+        public string HomeAddress { get; set; } = homeAddress;
         public Job? Job { get; set; }
-        public string HomeAddress { get; set; }
 
         public required string CurrentLocation { get; set; }
+        BankAccount BankAccount { get; set; } = new BankAccount();
 
         public void DoSomething()
         {
@@ -27,7 +28,7 @@ namespace PeopleVille.Core.Models
             {
                 CurrentLocation = HomeAddress;
             }
-            else if (yearsOld > 18 && Job != null && Job.WorkStartTime < world.Time && Job.WorkEndTime > world.Time)
+            else if (yearsOld > 18 && Job != null && Job.Workplace.WorkStartTime < world.Time && Job.Workplace.WorkEndTime > world.Time)
             {
                 CurrentLocation = Job.Workplace.Address;
             }

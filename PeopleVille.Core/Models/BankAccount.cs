@@ -8,5 +8,6 @@ namespace PeopleVille.Core.Models
     {
         public Citizen Owner { get; set; }
         public decimal Balance { get; set; }
+        public List<int> Transactions { get; set; }
     }
 }
