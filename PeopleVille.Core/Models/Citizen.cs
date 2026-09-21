@@ -156,7 +156,7 @@ namespace PeopleVille.Core.Models
 
                 if (homeWithMostFood is House house)
                 {
-                    house.BankAccount.Balance -= 10;
+                    house.FoodInventory -= 10;
 
                     if (home is House currentHouse)
                     {
@@ -170,7 +170,7 @@ namespace PeopleVille.Core.Models
                 }
                 else if (homeWithMostFood is Apartment apartment)
                 {
-                    apartment.BankAccount.Balance -= 10;
+                    apartment.FoodInventory -= 10;
                     if (home is House currentHouse)
                     {
                         currentHouse.FoodInventory += 10;
@@ -183,7 +183,7 @@ namespace PeopleVille.Core.Models
 
                 if (homeWithMostWater is House house2)
                 {
-                    house2.BankAccount.Balance -= 10;
+                    house2.WaterInventory -= 10;
                     if (home is House currentHouse)
                     {
                         currentHouse.WaterInventory += 10;
@@ -195,7 +195,7 @@ namespace PeopleVille.Core.Models
                 }
                 else if (homeWithMostWater is Apartment apartment2)
                 {
-                    apartment2.BankAccount.Balance -= 10;
+                    apartment2.WaterInventory -= 10;
                     if (home is House currentHouse)
                     {
                         currentHouse.WaterInventory += 10;
