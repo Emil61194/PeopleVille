@@ -39,7 +39,11 @@ namespace PeopleVille.Engine
 
 
                 // Wait 1 second
-                _world?.currentDateTime.AddHours(1);
+                if (_world != null)
+                {
+                    _world.currentDateTime = _world.currentDateTime.AddHours(1);
+                }
+
                 Thread.Sleep(1000);
                 while (_doPause)
                 {
