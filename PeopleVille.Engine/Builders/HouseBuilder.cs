@@ -1,8 +1,5 @@
 ﻿using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace PeopleVille.Engine.Builders
 {
@@ -15,7 +12,7 @@ namespace PeopleVille.Engine.Builders
             string[] usedAddresses = world.Workplaces.SelectMany(w => w.Address).Select(a => a.ToString()).ToArray();
             addresses = addresses.Except(usedAddresses).ToList();
 
-            int houseCount = rnd.Next(20, 50); 
+            int houseCount = rnd.Next(20, 50);
 
             for (int i = 0; i < houseCount; i++)
             {

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace PeopleVille.Core.Data
+﻿namespace PeopleVille.Core.Data
 {
     public class FirstName
     {

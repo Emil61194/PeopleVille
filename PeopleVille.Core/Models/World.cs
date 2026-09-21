@@ -1,8 +1,5 @@
-﻿using PeopleVille.Core.Models.Home;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using PeopleVille.Core.Interfaces;
+﻿using PeopleVille.Core.Interfaces;
+using PeopleVille.Core.Models.Home;
 
 namespace PeopleVille.Core.Models
 {

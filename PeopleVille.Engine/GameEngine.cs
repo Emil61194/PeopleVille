@@ -32,8 +32,8 @@ namespace PeopleVille.Engine
             while (true)
             {
                 Tick?.Invoke();
-
-
+                
+                
 
                 // Random stuff happening ( e.g heatstroke, lack of supplies in town = death, virus ) 
 
