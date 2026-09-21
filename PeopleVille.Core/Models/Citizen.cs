@@ -15,7 +15,7 @@ namespace PeopleVille.Core.Models
         public required string CurrentLocation { get; set; }
         public School? School { get; set; }
 
-        public void DoSomething()
+        public void PerformHourlyRoutine()
         {
             int currentHour = world.currentDateTime.Hour;
             int yearsOld = world.currentDateTime.Year - Birth.Year;
@@ -60,6 +60,21 @@ namespace PeopleVille.Core.Models
         }
 
         private void AddMoney()
+        {
+            Building home = FindHome();
+
+            if (home is House house)
+            {
+                house.BankAccount.Balance += Job!.Workplace.Salary;
+
+            }
+            else if (home is Apartment apartment)
+            {
+                apartment.BankAccount.Balance += Job!.Workplace.Salary;
+            }
+        }
+
+        private Building FindHome()
         {
             Building home = FindHome();
 
