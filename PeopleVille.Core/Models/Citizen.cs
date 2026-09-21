@@ -76,21 +76,6 @@ namespace PeopleVille.Core.Models
 
         private Building FindHome()
         {
-            Building home = FindHome();
-
-            if (home is House house)
-            {
-                house.BankAccount.Balance += Job!.Workplace.Salary;
-
-            }
-            else if (home is Apartment apartment)
-            {
-                apartment.BankAccount.Balance += Job!.Workplace.Salary;
-            }
-        }
-
-        private Building FindHome()
-        {
             return world.Houses
                 .Cast<Building>()
                 .Concat(world.Apartments)
