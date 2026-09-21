@@ -73,8 +73,8 @@ namespace PeopleVille.Engine.Builders
                 }
 
                 world.Citizens?.Add(citizen);
-                RoutineAction routineAction = citizen.PerformHourlyRoutine;
-                engine.Tick += routineAction.Invoke;
+                tickAction += citizen.PerformHourlyRoutine;
+
             }
         }
 
