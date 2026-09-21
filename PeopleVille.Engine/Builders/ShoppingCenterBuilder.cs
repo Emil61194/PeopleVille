@@ -18,7 +18,11 @@ namespace PeopleVille.Engine.Builders
                 {
                     FoodPrice = rnd.Next(2, 5),
                     WaterPrice = rnd.Next(2, 5),
-                    Address = addresses[rnd.Next(addresses.Count)]
+                    Address = addresses[rnd.Next(addresses.Count)],
+                    JobCapacity = rnd.Next(5, 15),
+                    Salary = rnd.Next(15, 30),
+                    WorkStartTime = rnd.Next(8, 10),
+                    WorkEndTime = rnd.Next(16, 18)
                 };
                 addresses.Remove(shoppingCenter.Address);
                 world.ShoppingCenters.Add(shoppingCenter);
