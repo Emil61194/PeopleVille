@@ -52,7 +52,7 @@ namespace PeopleVille.Engine.Builders
                 }
 
                 world.Citizens?.Add(citizen);
-                tickAction += citizen.DoSomething;
+                tickAction += citizen.PerformHourlyRoutine;
 
             }
         }
