@@ -1,17 +1,9 @@
-﻿using PeopleVille.Core.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Reflection.Metadata;
-using System.Text;
+using PeopleVille.Core.Interfaces;
 
 namespace PeopleVille.Core.Models
 {
-    public class Job
+    public class Job(IWorkplace workspace)
     {
-        public required string Title { get; set; }
-        public decimal Salary { get; set; }
-        public int WorkStartTime { get; set; }
-        public int WorkEndTime { get; set; }
-        public required IWorkplace Workplace { get; set; }
+        public IWorkplace Workplace { get; set; } = workspace;
     }
 }
