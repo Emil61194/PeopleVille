@@ -1,4 +1,9 @@
 
+using PeopleVille.Engine;
+using PeopleVille.Server.Hubs;
+using PeopleVille.Server.Infrastructure;
+using PeopleVille.Server.Services;
+
 namespace PeopleVille.Server
 {
     public class Program
@@ -6,6 +11,10 @@ namespace PeopleVille.Server
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddSingleton<GameService>();
+            builder.Services.AddSingleton<GameEngine>();
+            builder.Services.AddSingleton<IEventPublisher, SignalREventPublisher>();
+            builder.Services.AddSingleton<EventPublisher>();
 
             // Add services to the container.
             builder.Services.AddCors(options =>
@@ -40,6 +49,8 @@ namespace PeopleVille.Server
 
 
             app.MapControllers();
+            
+            app.MapHub<GameHub>("/hubs/match/{matchId:int}");
 
             app.MapFallbackToFile("/index.html");
 
