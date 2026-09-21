@@ -1,54 +1,103 @@
 ﻿/* global styling */
 #root {
-    font-size: 16px;
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 2rem;
-    text-align: center;
+  font-size: 16px;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
 }
 
 /* custom text color */
 h1 {
-    color: rgb(210, 220, 220); /* white */
+  color: rgb(210, 220, 220); /* white */
 }
 
 p {
-    color: rgb(170, 220, 220); /* cyan */
+  color: rgb(170, 220, 220); /* cyan */
 }
 
 #tableDescription {
-    color: rgb(220, 110, 110); /* red */
+  color: rgb(220, 110, 110); /* red */
 }
 
 /* map container styling */
 #mapContainer {
-    display: flex;
-    flex: 1 1 auto; /* { grow, shrink, basis } */
-    flex-flow: row wrap; /* { direction, wrap } */
-    justify-content: center;
-    align-content: center;
-    padding: 1rem;
-    gap: 1rem 2rem; /* { row, column } */
+  display: flex;
+  flex: 1 1 auto; /* { grow, shrink, basis } */
+  flex-flow: row wrap; /* { direction, wrap } */
+  justify-content: center;
+  align-content: center;
+  padding: 1rem;
+  gap: 1rem 2rem; /* { row, column } */
 }
 
 #mapContainer > #menuDiv {
-    border: .15rem ridge orange;
-    border-radius: .5rem;
-    display: grid;
-    grid-template-columns: auto auto auto;
-    grid-template-rows: auto auto auto;
-    padding: .5rem;
-    align-items: center;
-    min-width: 2rem;
-    min-height: 2rem;
-    gap: 1rem .5rem;
+  border: 0.15rem ridge orange;
+  border-radius: 0.5rem;
+  display: grid;
+  grid-template-columns: auto auto auto;
+  grid-template-rows: auto auto auto;
+  padding: 0.5rem;
+  align-items: center;
+  min-width: 2rem;
+  min-height: 2rem;
+  gap: 1rem 0.5rem;
 }
 
 #mapContainer > #menuDiv > div {
-    border: .11rem groove orange;
-    border-radius: .5rem;
-    padding: .4rem .6rem;
-    min-width: 1rem;
-    min-height: 1rem;
-    gap: 1rem 2rem;
+  border: 0.11rem groove orange;
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  min-width: 1rem;
+  min-height: 1rem;
+  gap: 1rem 2rem;
+}
+
+.LoadSaveButton {
+  aspect-ratio: 4 / 1;
+  width: 20%;
+}
+
+.LoadSavesPrompt {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  width: 40%;
+  aspect-ratio: 3/3;
+  overflow-y: auto;
+  transform: translateX(-50%);
+  background-color: brown;
+  padding: 1rem;
+  border: 0.15rem ridge orange;
+  border-radius: 0.5rem;
+}
+
+.LoadSavesPromptOverlay {
+  position: fixed;
+  inset: 0;
+}
+
+.SaveFile {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  border: 0.11rem groove orange;
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  min-width: 1rem;
+  min-height: 1rem;
+  gap: 1rem 2rem;
+  margin: 0.5rem 0;
+}
+
+.SaveFile p {
+  margin: 0;
+}
+
+.SaveFile p:first-child {
+  justify-self: center;
+}
+
+.SaveFile p:last-child {
+  justify-self: end;
 }

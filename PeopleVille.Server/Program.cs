@@ -8,6 +8,15 @@ namespace PeopleVille.Server
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAny", policy =>
+                {
+                    policy.AllowAnyOrigin()
+                          .AllowAnyMethod()
+                          .AllowAnyHeader();
+                });
+            });
 
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -23,6 +32,7 @@ namespace PeopleVille.Server
             {
                 app.MapOpenApi();
             }
+            app.UseCors("AllowAny");
 
             app.UseHttpsRedirection();
 
