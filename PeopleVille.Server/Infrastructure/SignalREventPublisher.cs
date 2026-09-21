@@ -9,8 +9,6 @@ public class SignalREventPublisher(IHubContext<GameHub> hubContext) : IEventPubl
 {
     public Task PublishEventAsync(object EventData)
     {
-        return hubContext.Clients
-            .All
-            .SendAsync("Event", EventData);
+        return hubContext.Clients.All.SendAsync("Event", EventData);
     }
 }

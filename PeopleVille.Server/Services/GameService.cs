@@ -1,14 +1,27 @@
 using PeopleVille.Engine;
+using Microsoft.AspNetCore.Hosting;
 
 namespace PeopleVille.Server.Services;
 
 public class GameService(GameEngine gameEngine)
 {
     public readonly GameEngine GameEngine = gameEngine;
-    public bool TryInitialize(string file)
+    public bool TryInitialize(string filename)
     {
-        bool world = gameEngine.Initialize(file);
-        if (world) return true;
+        string saveFilesDirectory = Path.GetFullPath(Path.Combine(
+            AppContext.BaseDirectory,
+            "..",
+            "PeopleVille.Core",
+            "saves"
+        ));
+            
+        string fullPath = saveFilesDirectory +  filename;
+        FileInfo file =  new FileInfo(fullPath);
+        if (file.Exists)
+        {
+            bool world = gameEngine.Initialize(fullPath);
+            if (world) return true;
+        }
         return false;
     }
 }
