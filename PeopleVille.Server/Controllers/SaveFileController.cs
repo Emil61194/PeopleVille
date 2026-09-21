@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Mvc;
+using PeopleVille.Server.Services;
 
 namespace PeopleVille.Server.Controllers
 {
@@ -8,11 +9,13 @@ namespace PeopleVille.Server.Controllers
     [Route("[controller]")]
     public class SaveFileController : ControllerBase
     {
-        private readonly IWebHostEnvironment environment;
+        private readonly IWebHostEnvironment _environment;
+        private readonly GameService _gameService;
 
-        public SaveFileController(IWebHostEnvironment environment)
+        public SaveFileController(IWebHostEnvironment environment, GameService gameService)
         {
-            this.environment = environment;
+            _environment = environment;
+            _gameService = gameService;
         }
 
         private record SaveFileInfo(string filename, string modifyDate, string size);
@@ -21,7 +24,7 @@ namespace PeopleVille.Server.Controllers
         public async Task<IActionResult> GetSaveFileDataAsJson()
         {
             string saveFilesDirectory = Path.GetFullPath(Path.Combine(
-                environment.ContentRootPath,
+                _environment.ContentRootPath,
                 "..",
                 "PeopleVille.Core",
                 "saves"
@@ -43,6 +46,14 @@ namespace PeopleVille.Server.Controllers
             }
 
             return new JsonResult(saveFilesInfo);
+        }
+
+        [HttpGet("/get/savefiles/{filename}")]
+        public async Task<IActionResult> TrySaveFile(string filename)
+        {
+            bool valid = _gameService.TryInitialize(filename);
+            if (valid) return Ok();
+            return NotFound("File not Found or corrupted");
         }
     }
 }

@@ -74,6 +74,7 @@ namespace PeopleVille.Core.Models
             }
         }
 
+
         private Building FindHome()
         {
             return world.Houses

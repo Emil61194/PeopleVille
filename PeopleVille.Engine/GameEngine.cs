@@ -5,9 +5,11 @@ using System.Text.Json;
 
 namespace PeopleVille.Engine
 {
-    public class GameEngine
+    public class GameEngine(EventPublisher eventPublisher)
     {
         private World? _world;
+        private EventPublisher _eventPublisher =  eventPublisher;
+        public bool Ready = false;
         public bool _doPause = false;
         public event Action? Tick;
 
@@ -23,6 +25,7 @@ namespace PeopleVille.Engine
 
                 if (worldCandidate == null) return false;
                 _world = worldCandidate;
+                Ready = true;
             }
             
             return true;
