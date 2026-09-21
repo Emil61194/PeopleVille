@@ -6,6 +6,11 @@ namespace PeopleVille.Server
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddSingleton<GameService>();
+            builder.Services.AddSingleton<GameEngine>();
+            builder.Services.AddSingleton<SaveService>();
+            builder.Services.AddSingleton<IEventPublisher, SignalREventPublisher>();
+            builder.Services.AddSingleton<EventPublisher>();
 
             // Add services to the container.
             builder.Services.AddCors(options =>

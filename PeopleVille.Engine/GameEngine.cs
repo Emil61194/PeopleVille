@@ -8,6 +8,9 @@ namespace PeopleVille.Engine
     public class GameEngine
     {
         private World? _world;
+        private EventPublisher _eventPublisher =  eventPublisher;
+        public World? CurrentWorld => _world;
+        public bool Ready = false;
         public bool _doPause = false;
         public event Action? Tick;
 
