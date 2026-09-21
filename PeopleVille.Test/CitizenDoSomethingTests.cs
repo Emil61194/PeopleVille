@@ -16,7 +16,7 @@ namespace PeopleVille.Test
             citizen.Job = new Job(workplace);
             citizen.CurrentLocation = workplace.Address;
 
-            citizen.DoSomething();
+            citizen.PerformHourlyRoutine();
 
             Assert.AreEqual(home.Address, citizen.CurrentLocation);
         }
@@ -27,7 +27,7 @@ namespace PeopleVille.Test
             (World world, Citizen citizen, House home) = CreateCitizen(6, 1990);
             citizen.CurrentLocation = "Away";
 
-            citizen.DoSomething();
+            citizen.PerformHourlyRoutine();
 
             Assert.AreEqual(home.Address, citizen.CurrentLocation);
         }
@@ -43,7 +43,7 @@ namespace PeopleVille.Test
                 EndTime = world.currentDateTime.Date.AddHours(15)
             };
 
-            citizen.DoSomething();
+            citizen.PerformHourlyRoutine();
 
             Assert.AreEqual(citizen.School.Address, citizen.CurrentLocation);
         }
@@ -55,7 +55,7 @@ namespace PeopleVille.Test
             ShoppingCenter workplace = CreateWorkplace("Workplace", 9, 17);
             citizen.Job = new Job(workplace);
 
-            citizen.DoSomething();
+            citizen.PerformHourlyRoutine();
 
             Assert.AreEqual(workplace.Address, citizen.CurrentLocation);
         }
@@ -76,7 +76,7 @@ namespace PeopleVille.Test
             };
             world.ShoppingCenters.Add(shoppingCenter);
 
-            citizen.DoSomething();
+            citizen.PerformHourlyRoutine();
 
             Assert.AreEqual(shoppingCenter.Address, citizen.CurrentLocation);
         }
@@ -87,7 +87,7 @@ namespace PeopleVille.Test
             (World world, Citizen citizen, House home) = CreateCitizen(10, 2010);
             citizen.CurrentLocation = "Away";
 
-            citizen.DoSomething();
+            citizen.PerformHourlyRoutine();
 
             Assert.AreEqual(home.Address, citizen.CurrentLocation);
         }
