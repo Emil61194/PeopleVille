@@ -14,8 +14,8 @@ namespace PeopleVille.Server.Controllers
 
         public SaveFileController(IWebHostEnvironment environment, GameService gameService)
         {
-            this._environment = environment;
-            this._gameService = gameService;
+            _environment = environment;
+            _gameService = gameService;
         }
 
         private record SaveFileInfo(string filename, string modifyDate, string size);
