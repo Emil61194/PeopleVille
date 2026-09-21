@@ -140,21 +140,21 @@ namespace PeopleVille.Core.Models
 
             if (rnd.Next(0, 2) == 0) // 50% chance for begging to succeed
             {
-                Building homeWithMostFood = world.Houses
+                Building? homeWithMostFood = world.Houses
                     .Cast<Building>()
                     .Concat(world.Apartments)
-                    .Where(h => h != home)
+                    .Where(h => h != home && (h is House h1 ? h1.FoodInventory >= 10 : (h as Apartment)!.FoodInventory >= 10))
                     .OrderByDescending(h => h is House h1 ? h1.FoodInventory : (h as Apartment)!.FoodInventory)
-                    .First();
+                    .FirstOrDefault();
 
-                Building homeWithMostWater = world.Houses
+                Building? homeWithMostWater = world.Houses
                     .Cast<Building>()
                     .Concat(world.Apartments)
-                    .Where(h => h != home)
+                    .Where(h => h != home && (h is House h1 ? h1.WaterInventory >= 10 : (h as Apartment)!.WaterInventory >= 10))
                     .OrderByDescending(h => h is House h1 ? h1.WaterInventory : (h as Apartment)!.WaterInventory)
-                    .First()!;
+                    .FirstOrDefault();
 
-                if (homeWithMostFood is House house)
+                if (homeWithMostFood != null && homeWithMostFood is House house)
                 {
                     house.FoodInventory -= 10;
 
@@ -168,7 +168,7 @@ namespace PeopleVille.Core.Models
                     }
 
                 }
-                else if (homeWithMostFood is Apartment apartment)
+                else if (homeWithMostFood != null && homeWithMostFood is Apartment apartment)
                 {
                     apartment.FoodInventory -= 10;
                     if (home is House currentHouse)
