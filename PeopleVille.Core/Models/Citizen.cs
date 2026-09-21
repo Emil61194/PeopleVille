@@ -15,7 +15,7 @@ namespace PeopleVille.Core.Models
         public required string CurrentLocation { get; set; }
         public School? School { get; set; }
 
-        public void DoSomething()
+        public void PerformHourlyRoutine()
         {
             int currentHour = world.currentDateTime.Hour;
             int yearsOld = world.currentDateTime.Year - Birth.Year;
