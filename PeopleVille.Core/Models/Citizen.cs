@@ -20,6 +20,11 @@ namespace PeopleVille.Core.Models
             int currentHour = world.currentDateTime.Hour;
             int yearsOld = world.currentDateTime.Year - Birth.Year;
 
+            if (Job != null && currentHour == 0) // paycheck
+            {
+                AddMoney();
+            }
+
             if (world.currentDateTime.Date < Birth.Date.AddYears(yearsOld))
             {
                 yearsOld--;
@@ -29,7 +34,7 @@ namespace PeopleVille.Core.Models
 
             if (currentHour == 22) // eating time
             {
-                world = Eat(world);
+                Eat();
                 return;
             }
 
@@ -38,9 +43,9 @@ namespace PeopleVille.Core.Models
                 return;
             }
 
-            if (GetHomeResources(world) && currentHour >= 7 && currentHour < 9 && world.ShoppingCenters.Count > 0) // shopping time
+            if (GetHomeResources() && currentHour >= 7 && currentHour < 9 && world.ShoppingCenters.Count > 0) // shopping time
             {
-                world = ReduceHomeBalance(world);
+                ReduceHomeBalance();
                 return;
             }
 
@@ -54,17 +59,32 @@ namespace PeopleVille.Core.Models
             }
         }
 
-        private Building? FindHome(World world)
+        private void AddMoney()
+        {
+            Building home = FindHome();
+
+            if (home is House house)
+            {
+                house.BankAccount.Balance += Job!.Workplace.Salary;
+
+            }
+            else if (home is Apartment apartment)
+            {
+                apartment.BankAccount.Balance += Job!.Workplace.Salary;
+            }
+        }
+
+        private Building FindHome()
         {
             return world.Houses
                 .Cast<Building>()
                 .Concat(world.Apartments)
-                .FirstOrDefault(home => home.Address == HomeAddress);
+                .FirstOrDefault(home => home.Address == HomeAddress)!; // no homeless yet so can be nullforgiven
         }
 
-        private bool GetHomeResources(World world)
+        private bool GetHomeResources()
         {
-            Building home = FindHome(world);
+            Building home = FindHome();
 
             if (home is House house)
             {
@@ -80,9 +100,9 @@ namespace PeopleVille.Core.Models
             }
         }
 
-        private World Eat(World world)
+        private void Eat()
         {
-            Building home = FindHome(world);
+            Building home = FindHome();
             Random rnd = new Random();
 
             int foodConsumed = rnd.Next(2, 5);
@@ -91,11 +111,7 @@ namespace PeopleVille.Core.Models
             if (home is House house)
             {
 
-                if (foodConsumed > house.FoodInventory || waterConsumed > house.WaterInventory)
-                {
-                    return world; // citizen dies when eating
-                }
-                else
+                if (foodConsumed < house.FoodInventory || waterConsumed < house.WaterInventory)
                 {
                     house.FoodInventory -= foodConsumed;
                     house.WaterInventory -= waterConsumed;
@@ -103,21 +119,16 @@ namespace PeopleVille.Core.Models
             }
             else if (home is Apartment apartment)
             {
-                if (foodConsumed > apartment.FoodInventory || waterConsumed > apartment.WaterInventory)
-                {
-                    return world; // citizen dies when eating
-                }
-                else
+                if (foodConsumed < apartment.FoodInventory || waterConsumed < apartment.WaterInventory)
                 {
                     apartment.FoodInventory -= foodConsumed;
                     apartment.WaterInventory -= waterConsumed;
                 }
             }
-            return world;
         }
-        private World ReduceHomeBalance(World world)
+        private void ReduceHomeBalance()
         {
-            Building home = FindHome(world);
+            Building home = FindHome();
             Random rnd = new Random();
             ShoppingCenter? shoppingCenter = world.ShoppingCenters[rnd.Next(world.ShoppingCenters.Count)];
 
@@ -147,7 +158,6 @@ namespace PeopleVille.Core.Models
                     CurrentLocation = shoppingCenter.Address;
                 }
             }
-            return world;
         }
     }
 }
