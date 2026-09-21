@@ -181,7 +181,7 @@ namespace PeopleVille.Core.Models
                     }
                 }
 
-                if (homeWithMostWater is House house2)
+                if (homeWithMostWater != null && homeWithMostWater is House house2)
                 {
                     house2.WaterInventory -= 10;
                     if (home is House currentHouse)
@@ -193,7 +193,7 @@ namespace PeopleVille.Core.Models
                         currentApartment.WaterInventory += 10;
                     }
                 }
-                else if (homeWithMostWater is Apartment apartment2)
+                else if (homeWithMostWater != null && homeWithMostWater is Apartment apartment2)
                 {
                     apartment2.WaterInventory -= 10;
                     if (home is House currentHouse)
