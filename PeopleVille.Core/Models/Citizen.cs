@@ -116,6 +116,10 @@ namespace PeopleVille.Core.Models
                     house.FoodInventory -= foodConsumed;
                     house.WaterInventory -= waterConsumed;
                 }
+                else
+                {
+                    BegForMoney(home, rnd);
+                }
             }
             else if (home is Apartment apartment)
             {
@@ -124,8 +128,86 @@ namespace PeopleVille.Core.Models
                     apartment.FoodInventory -= foodConsumed;
                     apartment.WaterInventory -= waterConsumed;
                 }
+                else
+                {
+                    BegForMoney(home, rnd);
+                }
             }
         }
+
+        private void BegForMoney(Building home, Random rnd)
+        {
+
+            if (rnd.Next(0, 2) == 0) // 50% chance for begging to succeed
+            {
+                Building homeWithMostFood = world.Houses
+                    .Cast<Building>()
+                    .Concat(world.Apartments)
+                    .Where(h => h != home)
+                    .OrderByDescending(h => h is House h1 ? h1.FoodInventory : (h as Apartment)!.FoodInventory)
+                    .First();
+
+                Building homeWithMostWater = world.Houses
+                    .Cast<Building>()
+                    .Concat(world.Apartments)
+                    .Where(h => h != home)
+                    .OrderByDescending(h => h is House h1 ? h1.WaterInventory : (h as Apartment)!.WaterInventory)
+                    .First()!;
+
+                if (homeWithMostFood is House house)
+                {
+                    house.BankAccount.Balance -= 10;
+
+                    if (home is House currentHouse)
+                    {
+                        currentHouse.FoodInventory += 10;
+                    }
+                    else if (home is Apartment currentApartment)
+                    {
+                        currentApartment.FoodInventory += 10;
+                    }
+
+                }
+                else if (homeWithMostFood is Apartment apartment)
+                {
+                    apartment.BankAccount.Balance -= 10;
+                    if (home is House currentHouse)
+                    {
+                        currentHouse.FoodInventory += 10;
+                    }
+                    else if (home is Apartment currentApartment)
+                    {
+                        currentApartment.FoodInventory += 10;
+                    }
+                }
+
+                if (homeWithMostWater is House house2)
+                {
+                    house2.BankAccount.Balance -= 10;
+                    if (home is House currentHouse)
+                    {
+                        currentHouse.WaterInventory += 10;
+                    }
+                    else if (home is Apartment currentApartment)
+                    {
+                        currentApartment.WaterInventory += 10;
+                    }
+                }
+                else if (homeWithMostWater is Apartment apartment2)
+                {
+                    apartment2.BankAccount.Balance -= 10;
+                    if (home is House currentHouse)
+                    {
+                        currentHouse.WaterInventory += 10;
+                    }
+                    else if (home is Apartment currentApartment)
+                    {
+                        currentApartment.WaterInventory += 10;
+                    }
+                }
+            }
+        }
+
         private void ReduceHomeBalance()
         {
             Building home = FindHome();
