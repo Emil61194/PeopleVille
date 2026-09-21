@@ -58,7 +58,7 @@ namespace PeopleVille.Engine
                     _world.currentDateTime = _world.currentDateTime.AddHours(1);
                 }
 
-                await Task.Delay(1000);
+                Thread.Sleep(1000);
                 while (_doPause)
                 {
                     await Task.Delay(50);
