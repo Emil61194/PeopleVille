@@ -104,37 +104,13 @@ namespace PeopleVille.Core.Models
             if (home is House house)
             {
                 house.BankAccount.Balance += Job!.Workplace.Salary;
-                actions.Add(new CitizenOperation
-                {
-                    CitizenId = Id,
-                    FirstName = FirstName,
-                    LastName = LastName,
-                    Gender = Gender == 0 ? "Male" : "Female",
-                    HomeAddress = HomeAddress,
-                    CurrentLocation = CurrentLocation,
-                    IsAdult = (world.currentDateTime.Year - Birth.Year) >= 18,
-                    IsEmployed = Job != null,
-                    Message = $"{this.FirstName} {this.LastName} Received salary of {Job!.Workplace.Salary} at {world.currentDateTime}"
-                });
+
             }
             else if (home is Apartment apartment)
             {
                 apartment.BankAccount.Balance += Job!.Workplace.Salary;
-                actions.Add(new CitizenOperation
-                {
-                    CitizenId = Id,
-                    FirstName = FirstName,
-                    LastName = LastName,
-                    Gender = Gender == 0 ? "Male" : "Female",
-                    HomeAddress = HomeAddress,
-                    CurrentLocation = CurrentLocation,
-                    IsAdult = (world.currentDateTime.Year - Birth.Year) >= 18,
-                    IsEmployed = Job != null,
-                    Message = $"{this.FirstName} {this.LastName} Received salary of {Job!.Workplace.Salary} at {world.currentDateTime}"
-                });
             }
         }
-
 
         private Building FindHome()
         {
@@ -177,18 +153,6 @@ namespace PeopleVille.Core.Models
                 {
                     house.FoodInventory -= foodConsumed;
                     house.WaterInventory -= waterConsumed;
-                    actions.Add(new HouseOperation {
-                        Address = house.Address,
-                        CitizenCapacity = house.CitizenCapacity,
-                        FoodInventory = house.FoodInventory,
-                        WaterInventory = house.WaterInventory,
-                        BankAccountBalance = (int)house.BankAccount.Balance,
-                        Message = $"{this.FirstName} {this.LastName} Consumed {foodConsumed} units of food and {waterConsumed} units of water at {world.currentDateTime}"
-                    });
-                }
-                else
-                {
-                    BegForMoney(home, rnd);
                 }
             }
             else if (home is Apartment apartment)
@@ -197,177 +161,9 @@ namespace PeopleVille.Core.Models
                 {
                     apartment.FoodInventory -= foodConsumed;
                     apartment.WaterInventory -= waterConsumed;
-                    actions.Add(new ApartmentOperation
-                    {
-                        Address = apartment.Address,
-                        CitizenCapacity = apartment.CitizenCapacity,
-                        Floors = apartment.Floors,
-                        Rent = (int)apartment.Rent,
-                        FoodInventory = apartment.FoodInventory,
-                        WaterInventory = apartment.WaterInventory,
-                        BankAccountBalance = (int)apartment.BankAccount.Balance,
-                        Message = $"{this.FirstName} {this.LastName} Consumed {foodConsumed} units of food and {waterConsumed} units of water at {world.currentDateTime}"
-                    });
-                }
-                else
-                {
-                    BegForMoney(home, rnd);
                 }
             }
         }
-
-        private void BegForMoney(Building home, Random rnd)
-        {
-
-            if (rnd.Next(0, 2) == 0) // 50% chance for begging to succeed
-            {
-                Building? homeWithMostFood = world.Houses
-                    .Cast<Building>()
-                    .Concat(world.Apartments)
-                    .Where(h => h != home && (h is House h1 ? h1.FoodInventory >= 10 : (h as Apartment)!.FoodInventory >= 10))
-                    .OrderByDescending(h => h is House h1 ? h1.FoodInventory : (h as Apartment)!.FoodInventory)
-                    .FirstOrDefault();
-
-                Building? homeWithMostWater = world.Houses
-                    .Cast<Building>()
-                    .Concat(world.Apartments)
-                    .Where(h => h != home && (h is House h1 ? h1.WaterInventory >= 10 : (h as Apartment)!.WaterInventory >= 10))
-                    .OrderByDescending(h => h is House h1 ? h1.WaterInventory : (h as Apartment)!.WaterInventory)
-                    .FirstOrDefault();
-
-                if (homeWithMostFood != null && homeWithMostFood is House house)
-                {
-                    house.FoodInventory -= 10;
-
-                    if (home is House currentHouse)
-                    {
-                        currentHouse.FoodInventory += 10;
-                        actions.Add(new HouseOperation
-                        {
-                            Address = currentHouse.Address,
-                            CitizenCapacity = currentHouse.CitizenCapacity,
-                            FoodInventory = currentHouse.FoodInventory,
-                            WaterInventory = currentHouse.WaterInventory,
-                            BankAccountBalance = (int)currentHouse.BankAccount.Balance,
-                            Message = $"{this.FirstName} {this.LastName} Received 10 units of food from {house.Address} at {world.currentDateTime}"
-                        });
-                    }
-                    else if (home is Apartment currentApartment)
-                    {
-                        currentApartment.FoodInventory += 10;
-                        actions.Add(new ApartmentOperation
-                        {
-                            Address = currentApartment.Address,
-                            CitizenCapacity = currentApartment.CitizenCapacity,
-                            Floors = currentApartment.Floors,
-                            Rent = (int)currentApartment.Rent,
-                            FoodInventory = currentApartment.FoodInventory,
-                            WaterInventory = currentApartment.WaterInventory,
-                            BankAccountBalance = (int)currentApartment.BankAccount.Balance,
-                            Message = $"{this.FirstName} {this.LastName} Received 10 units of food from {house.Address} at {world.currentDateTime}"
-                        });
-                    }
-                }
-                else if (homeWithMostFood != null && homeWithMostFood is Apartment apartment)
-                {
-                    apartment.FoodInventory -= 10;
-                    if (home is House currentHouse)
-                    {
-                        currentHouse.FoodInventory += 10;
-                        actions.Add(new HouseOperation
-                        {
-                            Address = currentHouse.Address,
-                            CitizenCapacity = currentHouse.CitizenCapacity,
-                            FoodInventory = currentHouse.FoodInventory,
-                            WaterInventory = currentHouse.WaterInventory,
-                            BankAccountBalance = (int)currentHouse.BankAccount.Balance,
-                            Message = $"{this.FirstName} {this.LastName} Received 10 units of food from {apartment.Address} at {world.currentDateTime}"
-                        });
-                    }
-                    else if (home is Apartment currentApartment)
-                    {
-                        currentApartment.FoodInventory += 10;
-                        actions.Add(new ApartmentOperation
-                        {
-                            Address = currentApartment.Address,
-                            CitizenCapacity = currentApartment.CitizenCapacity,
-                            Floors = currentApartment.Floors,
-                            Rent = (int)currentApartment.Rent,
-                            FoodInventory = currentApartment.FoodInventory,
-                            WaterInventory = currentApartment.WaterInventory,
-                            BankAccountBalance = (int)currentApartment.BankAccount.Balance,
-                            Message = $"{this.FirstName} {this.LastName} Received 10 units of food from {apartment.Address} at {world.currentDateTime}"
-                        });
-                    }
-                }
-
-                if (homeWithMostWater != null && homeWithMostWater is House house2)
-                {
-                    house2.WaterInventory -= 10;
-                    if (home is House currentHouse)
-                    {
-                        currentHouse.WaterInventory += 10;
-                        actions.Add(new HouseOperation
-                        {
-                            Address = currentHouse.Address,
-                            CitizenCapacity = currentHouse.CitizenCapacity,
-                            FoodInventory = currentHouse.FoodInventory,
-                            WaterInventory = currentHouse.WaterInventory,
-                            BankAccountBalance = (int)currentHouse.BankAccount.Balance,
-                            Message = $"{this.FirstName} {this.LastName} Received 10 units of water from {house2.Address} at {world.currentDateTime}"
-                        });
-                    }
-                    else if (home is Apartment currentApartment)
-                    {
-                        currentApartment.WaterInventory += 10;
-                        actions.Add(new ApartmentOperation
-                        {
-                            Address = currentApartment.Address,
-                            CitizenCapacity = currentApartment.CitizenCapacity,
-                            Floors = currentApartment.Floors,
-                            Rent = (int)currentApartment.Rent,
-                            FoodInventory = currentApartment.FoodInventory,
-                            WaterInventory = currentApartment.WaterInventory,
-                            BankAccountBalance = (int)currentApartment.BankAccount.Balance,
-                            Message = $"{this.FirstName} {this.LastName} Received 10 units of water from {house2.Address} at {world.currentDateTime}"
-                        });
-                    }
-                }
-                else if (homeWithMostWater != null && homeWithMostWater is Apartment apartment2)
-                {
-                    apartment2.WaterInventory -= 10;
-                    if (home is House currentHouse)
-                    {
-                        currentHouse.WaterInventory += 10;
-                        actions.Add(new HouseOperation
-                        {
-                            Address = currentHouse.Address,
-                            CitizenCapacity = currentHouse.CitizenCapacity,
-                            FoodInventory = currentHouse.FoodInventory,
-                            WaterInventory = currentHouse.WaterInventory,
-                            BankAccountBalance = (int)currentHouse.BankAccount.Balance,
-                            Message = $"{this.FirstName} {this.LastName} Received 10 units of water from {apartment2.Address} at {world.currentDateTime}"
-                        });
-                    }
-                    else if (home is Apartment currentApartment)
-                    {
-                        currentApartment.WaterInventory += 10;
-                        actions.Add(new ApartmentOperation
-                        {
-                            Address = currentApartment.Address,
-                            CitizenCapacity = currentApartment.CitizenCapacity,
-                            Floors = currentApartment.Floors,
-                            Rent = (int)currentApartment.Rent,
-                            FoodInventory = currentApartment.FoodInventory,
-                            WaterInventory = currentApartment.WaterInventory,
-                            BankAccountBalance = (int)currentApartment.BankAccount.Balance,
-                            Message = $"{this.FirstName + ' ' + this.LastName } Received 10 units of water from {apartment2.Address} at {world.currentDateTime}"
-                        });
-                    }
-                }
-            }
-        }
-
         private void ReduceHomeBalance()
         {
             Building home = FindHome();
