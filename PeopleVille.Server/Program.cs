@@ -13,6 +13,7 @@ namespace PeopleVille.Server
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddSingleton<GameService>();
             builder.Services.AddSingleton<GameEngine>();
+            builder.Services.AddSingleton<SaveService>();
             builder.Services.AddSingleton<IEventPublisher, SignalREventPublisher>();
             builder.Services.AddSingleton<EventPublisher>();
 
