@@ -70,7 +70,11 @@ namespace PeopleVille.Core.Models
 
         private void AddMoney()
         {
-            BankAccount.Balance += Job!.Workplace.Salary;
+            if (Job != null)
+            {
+                BankAccount.Balance += Job.Workplace.Salary;
+            }
+            
             Family.RefreshBalance();
         }
 
