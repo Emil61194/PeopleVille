@@ -141,10 +141,10 @@ namespace PeopleVille.Engine
             if (citizen == null) throw new Exception("Citizen not found.");
             return citizen;
         }
-        public List<IPrivateHome> GetAllHomes()
+        public List<object> GetAllHomes()
         {
             CheckWorld();
-            List<IPrivateHome> homes = new List<IPrivateHome>();
+            List<object> homes = new List<object>();
             homes.AddRange(_world.Houses);
             homes.AddRange(_world.Apartments);
             return homes;
