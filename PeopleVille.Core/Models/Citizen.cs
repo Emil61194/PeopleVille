@@ -1,14 +1,15 @@
-﻿using PeopleVille.Core.Models.Home;
+﻿using PeopleVille.Core.Enum;
+using PeopleVille.Core.Models.Home;
 
 namespace PeopleVille.Core.Models
 {
-    public class Citizen(World world, int id, string firstName, string lastName, DateTime birth, int gender, string homeAddress)
+    public class Citizen(World world, int id, string firstName, string lastName, DateTime birth, Genders gender, string homeAddress)
     {
         public int Id { get; set; } = id;
         public string FirstName { get; } = firstName;
         public string LastName { get; } = lastName;
         public DateTime Birth { get; } = birth;
-        public int Gender { get; } = gender;
+        public Genders Gender { get; } = gender;
         public string HomeAddress { get; set; } = homeAddress;
         public Job? Job { get; set; }
 
