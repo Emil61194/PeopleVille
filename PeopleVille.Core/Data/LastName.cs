@@ -2,10 +2,9 @@
 {
     public class LastName
     {
-        public static string[] LastNames = new string[]
-        {
-                "Andersen", "Jensen", "Nielsen", "Hansen", "Pedersen",
-    "Christensen", "Larsen", "Sørensen", "Rasmussen", "Madsen"
-        };
+        public static IReadOnlyList<string> LastNames { get; } = [
+            "Andersen", "Jensen", "Nielsen", "Hansen", "Pedersen",
+            "Christensen", "Larsen", "Sørensen", "Rasmussen", "Madsen"
+        ];
     }
 }
