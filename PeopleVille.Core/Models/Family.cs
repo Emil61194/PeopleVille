@@ -36,9 +36,9 @@ namespace PeopleVille.Core.Models
             return new Family(id: 0, family: []);
         }
 
-        private void DeleteFamily(Family family)
+        private void DeleteFamily(Citizen citizen)
         {
-            familyMembers.Remove(family);
+            familyMembers.Remove(citizen);
         }
     }
 
