@@ -1,4 +1,4 @@
-using PeopleVille.Core.Models;
+﻿using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
 using PeopleVille.Engine.Builders;
 using System.Collections.Concurrent;
@@ -9,14 +9,14 @@ namespace PeopleVille.Engine
     public class GameEngine(EventPublisher eventPublisher)
     {
         private World? _world;
-        private EventPublisher _eventPublisher =  eventPublisher;
+        private EventPublisher _eventPublisher = eventPublisher;
         public World? CurrentWorld => _world;
         public bool Ready = false;
         public bool _doPause = false;
-        public event Action Tick;
+        public event Action? Tick;
         public required ConcurrentBag<object> ActionsEachTickChanged;
 
-        public ConcurrentBag<object> actionsEachTick = new ConcurrentBag<object>();
+        public ConcurrentBag<object> actionsEachTick = [];
         public bool Initialize(string? filePath = null)
         {
             if (filePath == null)
@@ -99,7 +99,7 @@ namespace PeopleVille.Engine
             apartmentBuilder.BuildApartments(save);
 
             CitizenBuilder citizenBuilder = new CitizenBuilder();
-            citizenBuilder.BuildCitizens(save, Tick, ActionsEachTickChanged);
+            citizenBuilder.BuildCitizens(save, Tick ?? (() => { }), ActionsEachTickChanged);
 
             save.BankAccount = new List<BankAccount>();
 
