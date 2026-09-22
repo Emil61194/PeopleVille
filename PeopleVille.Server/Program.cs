@@ -14,6 +14,7 @@ namespace PeopleVille.Server
             builder.Services.AddSignalR();
             builder.Services.AddSingleton<GameService>();
             builder.Services.AddSingleton<GameEngine>();
+            builder.Services.AddSingleton<SaveService>();
             builder.Services.AddSingleton<IEventPublisher, SignalREventPublisher>();
             builder.Services.AddSingleton<EventPublisher>();
 
