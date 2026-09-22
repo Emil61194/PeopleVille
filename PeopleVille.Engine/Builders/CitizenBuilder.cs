@@ -1,4 +1,4 @@
-﻿using PeopleVille.Core.Data;
+using PeopleVille.Core.Data;
 using PeopleVille.Core.Enum;
 using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
@@ -16,7 +16,7 @@ namespace PeopleVille.Engine.Builders
 
             List<Job> jobs = world.Jobs;
 
-            Array genders = Enum.GetValues(typeof(Genders));
+            Array genders = Enum.GetValues<Genders>();
             int genderCount = genders.Length;
 
             for (int i = 0; i < citizenAmount; i++)
