@@ -1,4 +1,4 @@
-using PeopleVille.Core.Data;
+﻿using PeopleVille.Core.Data;
 using PeopleVille.Core.Enum;
 using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
@@ -27,7 +27,7 @@ namespace PeopleVille.Engine.Builders
                 {
                     firstNames = Core.Data.FirstName.FirstNames.Values.SelectMany(names => names).ToArray();
                 }
-                string firstName = Core.Data.FirstName.FirstNames[gender][rnd.Next(firstNames.Length)];
+                string firstName = firstNames[rnd.Next(firstNames.Length)];
                 string lastName = lastNames[rnd.Next(lastNames.Length)];
 
                 Job chosenJob = jobs[rnd.Next(jobs.Count)];
@@ -38,7 +38,7 @@ namespace PeopleVille.Engine.Builders
                 int yearsOld = DateTime.Now.Year - age.Year;
 
 
-                Citizen citizen = new Citizen(world: world,
+                Citizen citizen = new(world: world,
                     id: i + 1,
                     firstName: firstName,
                     lastName: lastName,
