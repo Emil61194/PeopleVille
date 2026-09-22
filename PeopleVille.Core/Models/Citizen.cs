@@ -1,17 +1,25 @@
-﻿using PeopleVille.Core.Enum;
+using PeopleVille.Core.Enum;
 using PeopleVille.Core.Models.Home;
 using PeopleVille.Core.Operations;
 using System.Collections.Concurrent;
 
 namespace PeopleVille.Core.Models
 {
-    public class Citizen(World world, int id, string firstName, string lastName, DateTime birth, Genders gender, string homeAddress, ConcurrentBag<object> actions)
+    public class Citizen(World world, int id, string firstName, string lastName, DateTime birth, int gender, Family family, FamilyRoles familialStatus, string homeAddress)
     {
+        public Citizen(World world, int id, string firstName, string lastName, DateTime birth, int gender, string homeAddress)
+            : this(world, id, firstName, lastName, birth, gender, new Family(0, []), FamilyRoles.Adult, homeAddress)
+        {
+        }
+
         public int Id { get; set; } = id;
         public string FirstName { get; } = firstName;
         public string LastName { get; } = lastName;
         public DateTime Birth { get; } = birth;
-        public Genders Gender { get; } = gender;
+        public int Gender { get; } = gender;
+        public FamilyRoles FamilyRoles { get; set; } = familialStatus;
+        public Family Family { get; set; } = family;
+        public BankAccount BankAccount { get; set; } = new();
         public string HomeAddress { get; set; } = homeAddress;
         public Job? Job { get; set; }
         public required string CurrentLocation { get; set; }
@@ -87,40 +95,12 @@ namespace PeopleVille.Core.Models
 
         private void AddMoney()
         {
-            Building home = FindHome();
-
-            if (home is House house)
+            if (Job != null)
             {
-                house.BankAccount.Balance += Job!.Workplace.Salary;
-                actions.Add($"{new CitizenOperation
-                {
-                    CitizenId = Id,
-                    FirstName = FirstName,
-                    LastName = LastName,
-                    Gender = Gender == 0 ? "Male" : "Female",
-                    HomeAddress = HomeAddress,
-                    CurrentLocation = CurrentLocation,
-                    IsAdult = (world.currentDateTime.Year - Birth.Year) >= 18,
-                    IsEmployed = Job != null,
-                    Message = $"Received salary of {Job!.Workplace.Salary} at {world.currentDateTime}"
-                }}");
+                BankAccount.Balance += Job.Workplace.Salary;
             }
-            else if (home is Apartment apartment)
-            {
-                apartment.BankAccount.Balance += Job!.Workplace.Salary;
-                actions.Add($"{new CitizenOperation
-                {
-                    CitizenId = Id,
-                    FirstName = FirstName,
-                    LastName = LastName,
-                    Gender = Gender == 0 ? "Male" : "Female",
-                    HomeAddress = HomeAddress,
-                    CurrentLocation = CurrentLocation,
-                    IsAdult = (world.currentDateTime.Year - Birth.Year) >= 18,
-                    IsEmployed = Job != null,
-                    Message = $"Received salary of {Job!.Workplace.Salary} at {world.currentDateTime}"
-                }}");
-            }
+            
+            Family.RefreshBalance();
         }
 
 
