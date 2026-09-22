@@ -50,7 +50,7 @@ namespace PeopleVille.Server
 
             app.MapControllers();
             
-            app.MapHub<GameHub>("/hubs/match/{matchId:int}");
+            app.MapHub<GameHub>("/hubs/game/");
 
             app.MapFallbackToFile("/index.html");
 
