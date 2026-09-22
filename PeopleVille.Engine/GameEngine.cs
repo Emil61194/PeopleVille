@@ -9,6 +9,7 @@ namespace PeopleVille.Engine
 {
     public class GameEngine(EventPublisher eventPublisher)
     {
+        private bool GameRunning = false;
         private World? _world;
         private EventPublisher _eventPublisher = eventPublisher;
         public World? CurrentWorld => _world;
@@ -37,8 +38,14 @@ namespace PeopleVille.Engine
         }
         public async Task Run()
         {
+            if (GameRunning)
+            {
+                return;
+            }
+
+            GameRunning = true;
             Console.WriteLine("Running Game");
-            while (true)
+            while (GameRunning)
             {
                 Tick?.Invoke();
                 await _eventPublisher.PublishEvent("Yo");
