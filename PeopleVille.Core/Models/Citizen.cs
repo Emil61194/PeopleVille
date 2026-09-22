@@ -1,4 +1,4 @@
-using PeopleVille.Core.Models.Home;
+﻿using PeopleVille.Core.Models.Home;
 
 namespace PeopleVille.Core.Models
 {
@@ -113,16 +113,87 @@ namespace PeopleVille.Core.Models
 
                 if (foodConsumed < house.FoodInventory || waterConsumed < house.WaterInventory)
                 {
-                    house.FoodInventory -= foodConsumed;
-                    house.WaterInventory -= waterConsumed;
+                    BegForMoney(home, rnd);
                 }
             }
             else if (home is Apartment apartment)
             {
                 if (foodConsumed < apartment.FoodInventory || waterConsumed < apartment.WaterInventory)
                 {
-                    apartment.FoodInventory -= foodConsumed;
-                    apartment.WaterInventory -= waterConsumed;
+                    BegForMoney(home, rnd);
+                }
+            }
+        }
+
+        private void BegForMoney(Building home, Random rnd)
+        {
+
+            if (rnd.Next(0, 2) == 0) // 50% chance for begging to succeed
+            {
+                Building? homeWithMostFood = world.Houses
+                    .Cast<Building>()
+                    .Concat(world.Apartments)
+                    .Where(h => h != home && (h is House h1 ? h1.FoodInventory >= 10 : (h as Apartment)!.FoodInventory >= 10))
+                    .OrderByDescending(h => h is House h1 ? h1.FoodInventory : (h as Apartment)!.FoodInventory)
+                    .FirstOrDefault();
+
+                Building? homeWithMostWater = world.Houses
+                    .Cast<Building>()
+                    .Concat(world.Apartments)
+                    .Where(h => h != home && (h is House h1 ? h1.WaterInventory >= 10 : (h as Apartment)!.WaterInventory >= 10))
+                    .OrderByDescending(h => h is House h1 ? h1.WaterInventory : (h as Apartment)!.WaterInventory)
+                    .FirstOrDefault();
+
+                if (homeWithMostFood != null && homeWithMostFood is House house)
+                {
+                    house.FoodInventory -= 10;
+
+                    if (home is House currentHouse)
+                    {
+                        currentHouse.FoodInventory += 10;
+                    }
+                    else if (home is Apartment currentApartment)
+                    {
+                        currentApartment.FoodInventory += 10;
+                    }
+
+                }
+                else if (homeWithMostFood != null && homeWithMostFood is Apartment apartment)
+                {
+                    apartment.FoodInventory -= 10;
+                    if (home is House currentHouse)
+                    {
+                        currentHouse.FoodInventory += 10;
+                    }
+                    else if (home is Apartment currentApartment)
+                    {
+                        currentApartment.FoodInventory += 10;
+                    }
+                }
+
+                if (homeWithMostWater != null && homeWithMostWater is House house2)
+                {
+                    house2.WaterInventory -= 10;
+                    if (home is House currentHouse)
+                    {
+                        currentHouse.WaterInventory += 10;
+                    }
+                    else if (home is Apartment currentApartment)
+                    {
+                        currentApartment.WaterInventory += 10;
+                    }
+                }
+                else if (homeWithMostWater != null && homeWithMostWater is Apartment apartment2)
+                {
+                    apartment2.WaterInventory -= 10;
+                    if (home is House currentHouse)
+                    {
+                        currentHouse.WaterInventory += 10;
+                    }
+                    else if (home is Apartment currentApartment)
+                    {
+                        currentApartment.WaterInventory += 10;
+                    }
                 }
             }
         }
