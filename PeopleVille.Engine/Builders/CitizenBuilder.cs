@@ -9,25 +9,24 @@ namespace PeopleVille.Engine.Builders
     {
         public void BuildCitizens(World world, Action? tickAction)
         {
-            Random rnd = new Random();
+            Random rnd = new();
             int citizenAmount = rnd.Next(40, 100);
 
-            string[] lastNames = Core.Data.LastName.LastNames.ToArray();
+            string[] lastNames = [.. LastName.LastNames];
 
             List<Job> jobs = world.Jobs;
 
-            Array genders = Enum.GetValues(typeof(Genders));
+            Array genders = Enum.GetValues<Genders>();
             int genderCount = genders.Length;
 
             for (int i = 0; i < citizenAmount; i++)
             {
                 Genders gender = (Genders)rnd.Next(0, genderCount + 1);
-                string[] firstNames;
-                if (!Core.Data.FirstName.FirstNames.TryGetValue(gender, out firstNames))
+                if (!FirstName.FirstNames.TryGetValue(gender, out string[]? firstNames) || firstNames is null)
                 {
-                    firstNames = Core.Data.FirstName.FirstNames.Values.SelectMany(names => names).ToArray();
+                    firstNames = [.. FirstName.FirstNames.Values.SelectMany(names => names)];
                 }
-                string firstName = Core.Data.FirstName.FirstNames[gender][rnd.Next(firstNames.Length)];
+                string firstName = firstNames[rnd.Next(firstNames.Length)];
                 string lastName = lastNames[rnd.Next(lastNames.Length)];
 
                 Job chosenJob = jobs[rnd.Next(jobs.Count)];
@@ -36,37 +35,42 @@ namespace PeopleVille.Engine.Builders
 
                 DateTime age = DateTime.Now.AddYears(-rnd.Next(0, 70));
                 int yearsOld = DateTime.Now.Year - age.Year;
+                FamilyRoles familialStatus = Enum.GetValues<FamilyRoles>()[rnd.Next(Enum.GetValues<FamilyRoles>().Length)];
+                Family family;
 
-
-                Citizen citizen = new Citizen(world: world,
+                Citizen citizen = new(world: world,
                     id: i + 1,
                     firstName: firstName,
                     lastName: lastName,
                     birth: DateTime.Now.AddYears(-rnd.Next(0, 70)),
-                    gender: gender,
+                    gender: (int)gender,
+                    family: family,
+                    familialStatus: familialStatus,
                     homeAddress: address)
                 {
                     Job = chosenJob,
-                    CurrentLocation = address
+                    CurrentLocation = address,
+                    FamilyRoles = FamilyRoles.Adult
                 };
+
 
                 if (yearsOld < 18)
                 {
+                    citizen.FamilyRoles = FamilyRoles.Child;
                     citizen.School = world.Schools[rnd.Next(world.Schools.Count)];
                 }
 
                 world.Citizens?.Add(citizen);
                 tickAction += citizen.PerformHourlyRoutine;
-
             }
         }
 
-        private (string, World) GetAddress(World world, string lastName, Random rnd)
+        private static (string, World) GetAddress(World world, string lastName, Random rnd)
         {
-            List<House> houses = world.Houses.Select(h => h).ToList();
-            List<Apartment> apartments = world.Apartments.Select(a => a).ToList();
+            List<House> houses = [.. world.Houses.Select(h => h)];
+            List<Apartment> apartments = [.. world.Apartments.Select(a => a)];
 
-            List<Citizen>? relatives = world.Citizens.Where(c => c.LastName == lastName).ToList();
+            List<Citizen>? relatives = [.. world.Citizens.Where(c => c.LastName == lastName)];
 
             if (relatives.Count > 0 && relatives.Count < 5)
             {
@@ -81,7 +85,7 @@ namespace PeopleVille.Engine.Builders
 
                 int currentApartmentsInAddress = world.Apartments.Count(a => a.Address.Contains(apartment.Address));
 
-                int addressFloor = currentApartmentsInAddress % apartment.Floors + 1; // unsure
+                int addressFloor = currentApartmentsInAddress % apartment.Floors; // track apartment occupancy, might otherwise just maintain explicit floor/unit data
 
                 string apartmentAddress = $"{apartment.Address}, {addressFloor}. {currentApartmentsInAddress + 1}";
                 return (apartmentAddress, world);
