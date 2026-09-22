@@ -16,7 +16,7 @@ namespace PeopleVille.Core.Models
         public DateTime Birth { get; } = birth;
         public int Gender { get; } = gender;
         public FamilyRoles FamilyRoles { get; set; } = familialStatus;
-        public Family family { get; set; } = family;
+        public Family Family { get; set; } = family;
         public BankAccount BankAccount { get; set; } = new();
         public string HomeAddress { get; set; } = homeAddress;
         public Job? Job { get; set; }
@@ -71,7 +71,7 @@ namespace PeopleVille.Core.Models
         private void AddMoney()
         {
             BankAccount.Balance += Job!.Workplace.Salary;
-            family.RefreshBalance();
+            Family.RefreshBalance();
         }
 
 

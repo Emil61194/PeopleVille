@@ -34,7 +34,7 @@ namespace PeopleVille.Engine.Builders
                 (string address, world) = GetAddress(world, lastName, rnd);
 
                 Family family = world.Citizens
-                    .FirstOrDefault(citizen => citizen.LastName == lastName)?.family
+                    .FirstOrDefault(citizen => citizen.LastName == lastName)?.Family
                     ?? new Family(i + 1, []);
 
                 DateTime birth = DateTime.Now.AddYears(-rnd.Next(0, 70));
