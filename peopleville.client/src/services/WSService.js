@@ -8,7 +8,7 @@ export async function connectToHub(onLog) {
   const log = (message) => onLog?.(message);
 
   connection = new HubConnectionBuilder()
-    .withUrl(`http://localhost:5045/hubs/game`)
+    .withUrl("/hubs/game")
     .withAutomaticReconnect()
     .build();
 

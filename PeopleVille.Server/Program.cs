@@ -22,7 +22,11 @@ namespace PeopleVille.Server
             {
                 options.AddPolicy("AllowAny", policy =>
                 {
-                    policy.WithOrigins("http://localhost:5173", "https://localhost:50733") // your frontend dev URL(s)
+                    policy.WithOrigins(
+                              "http://localhost:5173",
+                              "https://localhost:50733",
+                              "https://localhost:7039",
+                              "http://localhost:5045")
                           .AllowAnyMethod()
                           .AllowAnyHeader()
                           .AllowCredentials();
@@ -45,10 +49,7 @@ namespace PeopleVille.Server
             }
             app.UseCors("AllowAny");
 
-            app.UseHttpsRedirection();
-
             app.UseAuthorization();
-
 
             app.MapControllers();
             
