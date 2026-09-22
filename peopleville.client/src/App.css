@@ -53,6 +53,23 @@ p {
   gap: 1rem 2rem;
 }
 
+.wsConsole {
+  margin: 2rem auto 0;
+  padding: 1rem;
+  max-width: 40rem;
+  min-height: 5rem;
+  text-align: left;
+  color: white;
+  background: #171717;
+  border: 1px solid #555;
+  font-family: monospace;
+}
+
+.wsConsole strong {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
 .LoadSaveButton {
   aspect-ratio: 4 / 1;
   width: 20%;

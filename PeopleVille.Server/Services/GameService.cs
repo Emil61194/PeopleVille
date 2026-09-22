@@ -24,4 +24,11 @@ public class GameService(GameEngine gameEngine)
         }
         return false;
     }
+    
+    public bool TryInitializeNew()
+    {
+        bool world = gameEngine.Initialize();
+        if (world) return true;
+        return false;
+    }
 }

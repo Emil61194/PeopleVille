@@ -11,6 +11,7 @@ namespace PeopleVille.Server
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddSignalR();
             builder.Services.AddSingleton<GameService>();
             builder.Services.AddSingleton<GameEngine>();
             builder.Services.AddSingleton<IEventPublisher, SignalREventPublisher>();
@@ -21,9 +22,10 @@ namespace PeopleVille.Server
             {
                 options.AddPolicy("AllowAny", policy =>
                 {
-                    policy.AllowAnyOrigin()
+                    policy.WithOrigins("http://localhost:5173", "https://localhost:50733") // your frontend dev URL(s)
                           .AllowAnyMethod()
-                          .AllowAnyHeader();
+                          .AllowAnyHeader()
+                          .AllowCredentials();
                 });
             });
 
@@ -50,7 +52,7 @@ namespace PeopleVille.Server
 
             app.MapControllers();
             
-            app.MapHub<GameHub>("/hubs/match/{matchId:int}");
+            app.MapHub<GameHub>("/hubs/game");
 
             app.MapFallbackToFile("/index.html");
 

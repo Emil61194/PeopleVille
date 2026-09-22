@@ -4,7 +4,6 @@ using PeopleVille.Server.Services;
 
 namespace PeopleVille.Server.Hubs;
 
-[Authorize]
 public class GameHub(GameService gameService) : Hub
 {
     public override async Task OnConnectedAsync()
