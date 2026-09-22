@@ -44,7 +44,7 @@ namespace PeopleVille.Engine.Builders
                     firstName: firstName,
                     lastName: lastName,
                     birth: DateTime.Now.AddYears(-rnd.Next(0, 70)),
-                    gender: rnd.Next(0, genderCount + 1),
+                    gender: gender,
                     homeAddress: address,
                     actions: actionsEachTick)
                 {
