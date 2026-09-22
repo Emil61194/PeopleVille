@@ -1,9 +1,13 @@
-﻿namespace PeopleVille.Core.Data
+﻿using PeopleVille.Core.Enum;
+
+namespace PeopleVille.Core.Data
 {
     public class FirstName
     {
-        public static string[] MaleFirstNames = new string[]
+        public static Dictionary<Genders, string[]> FirstNames = new()
         {
+            [Genders.Male] = new[]
+            {
             "James",
             "John",
             "Robert",
@@ -13,20 +17,22 @@
             "Richard",
             "Joseph",
             "Thomas",
-            "Charles",
-        };
-        public static string[] FemaleFirstNames = new string[]
-        {
-            "Mary",
-            "Patricia",
-            "Jennifer",
-            "Linda",
-            "Elizabeth",
-            "Barbara",
-            "Susan",
-            "Jessica",
-            "Sarah",
-            "Karen"
+            "Charles"
+            },
+
+            [Genders.Female] = new[]
+            {
+                "Mary",
+                "Patricia",
+                "Jennifer",
+                "Linda",
+                "Elizabeth",
+                "Barbara",
+                "Susan",
+                "Jessica",
+                "Sarah",
+                "Karen"
+            }
         };
     }
 }

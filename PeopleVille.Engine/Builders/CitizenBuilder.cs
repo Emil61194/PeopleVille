@@ -1,4 +1,5 @@
-﻿using PeopleVille.Core.Enum;
+﻿using PeopleVille.Core.Data;
+using PeopleVille.Core.Enum;
 using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
 using System.Collections.Concurrent;
@@ -12,7 +13,6 @@ namespace PeopleVille.Engine.Builders
             Random rnd = new Random();
             int citizenAmount = rnd.Next(40, 100);
 
-            string[] firstNames = Core.Data.FirstName.MaleFirstNames.Concat(Core.Data.FirstName.FemaleFirstNames).ToArray();
             string[] lastNames = Core.Data.LastName.LastNames.ToArray();
 
             List<Job> jobs = world.Jobs;
@@ -20,11 +20,15 @@ namespace PeopleVille.Engine.Builders
             Array genders = Enum.GetValues(typeof(Genders));
             int genderCount = genders.Length;
 
-
-
             for (int i = 0; i < citizenAmount; i++)
             {
-                string firstName = firstNames[rnd.Next(firstNames.Length)];
+                Genders gender = (Genders)rnd.Next(0, genderCount + 1);
+                string[] firstNames;
+                if (!Core.Data.FirstName.FirstNames.TryGetValue(gender, out firstNames))
+                {
+                    firstNames = Core.Data.FirstName.FirstNames.Values.SelectMany(names => names).ToArray();
+                }
+                string firstName = Core.Data.FirstName.FirstNames[gender][rnd.Next(firstNames.Length)];
                 string lastName = lastNames[rnd.Next(lastNames.Length)];
 
                 Job chosenJob = jobs[rnd.Next(jobs.Count)];
