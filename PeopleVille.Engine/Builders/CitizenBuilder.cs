@@ -9,10 +9,10 @@ namespace PeopleVille.Engine.Builders
     {
         public void BuildCitizens(World world, Action? tickAction)
         {
-            Random rnd = new Random();
+            Random rnd = new();
             int citizenAmount = rnd.Next(40, 100);
 
-            string[] lastNames = Core.Data.LastName.LastNames.ToArray();
+            string[] lastNames = LastName.LastNames.ToArray();
 
             List<Job> jobs = world.Jobs;
 
@@ -21,11 +21,11 @@ namespace PeopleVille.Engine.Builders
 
             for (int i = 0; i < citizenAmount; i++)
             {
-                Genders gender = (Genders)rnd.Next(0, genderCount + );
+                Genders gender = (Genders)rnd.Next(0, genderCount);
                 string[] firstNames;
-                if (!Core.Data.FirstName.FirstNames.TryGetValue(gender, out firstNames))
+                if (!FirstName.FirstNames.TryGetValue(gender, out firstNames))
                 {
-                    firstNames = Core.Data.FirstName.FirstNames.Values.SelectMany(names => names).ToArray();
+                    firstNames = FirstName.FirstNames.Values.SelectMany(names => names).ToArray();
                 }
                 string firstName = firstNames[rnd.Next(firstNames.Length)];
                 string lastName = lastNames[rnd.Next(lastNames.Length)];
