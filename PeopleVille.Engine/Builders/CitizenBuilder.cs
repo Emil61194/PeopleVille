@@ -37,15 +37,15 @@ namespace PeopleVille.Engine.Builders
                     .FirstOrDefault(citizen => citizen.LastName == lastName)?.family
                     ?? new Family(i + 1, []);
 
-                DateTime age = DateTime.Now.AddYears(-rnd.Next(0, 70));
-                int yearsOld = DateTime.Now.Year - age.Year;
-                FamilyRoles familialStatus = Enum.GetValues<FamilyRoles>()[rnd.Next(Enum.GetValues<FamilyRoles>().Length)];
+                DateTime birth = DateTime.Now.AddYears(-rnd.Next(0, 70));
+                int yearsOld = DateTime.Now.Year - birth.Year;
+                FamilyRoles familialStatus = yearsOld < 18 ? FamilyRoles.Child : FamilyRoles.Adult;
 
                 Citizen citizen = new(world: world,
                     id: i + 1,
                     firstName: firstName,
                     lastName: lastName,
-                    birth: DateTime.Now.AddYears(-rnd.Next(0, 70)),
+                    birth: birth,
                     gender: (int)gender,
                     family: family,
                     familialStatus: familialStatus,
@@ -53,13 +53,11 @@ namespace PeopleVille.Engine.Builders
                 {
                     Job = chosenJob,
                     CurrentLocation = address,
-                    FamilyRoles = FamilyRoles.Adult
                 };
 
 
                 if (yearsOld < 18)
                 {
-                    citizen.FamilyRoles = FamilyRoles.Child;
                     citizen.School = world.Schools[rnd.Next(world.Schools.Count)];
                 }
 
