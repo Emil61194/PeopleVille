@@ -21,7 +21,7 @@ namespace PeopleVille.Engine.Builders
 
             for (int i = 0; i < citizenAmount; i++)
             {
-                Genders gender = (Genders)rnd.Next(0, genderCount + 1);
+                Genders gender = (Genders)rnd.Next(0, genderCount + );
                 string[] firstNames;
                 if (!Core.Data.FirstName.FirstNames.TryGetValue(gender, out firstNames))
                 {
