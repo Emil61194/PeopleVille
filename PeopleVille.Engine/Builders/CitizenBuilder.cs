@@ -61,7 +61,7 @@ namespace PeopleVille.Engine.Builders
             }
         }
 
-        private (string, World) GetAddress(World world, string lastName, Random rnd)
+        private static (string, World) GetAddress(World world, string lastName, Random rnd)
         {
             List<House> houses = world.Houses.Select(h => h).ToList();
             List<Apartment> apartments = world.Apartments.Select(a => a).ToList();
