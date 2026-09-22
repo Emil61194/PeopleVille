@@ -1,4 +1,4 @@
-﻿using PeopleVille.Core.Models;
+using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
 using PeopleVille.Engine.Builders;
 using System.Collections.Concurrent;
@@ -9,7 +9,8 @@ namespace PeopleVille.Engine
     public class GameEngine(EventPublisher eventPublisher)
     {
         private World? _world;
-        private EventPublisher _eventPublisher = eventPublisher;
+        private EventPublisher _eventPublisher =  eventPublisher;
+        public World? CurrentWorld => _world;
         public bool Ready = false;
         public bool _doPause = false;
         public event Action Tick;
