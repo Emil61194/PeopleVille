@@ -33,10 +33,13 @@ namespace PeopleVille.Engine.Builders
 
                 (string address, world) = GetAddress(world, lastName, rnd);
 
+                Family family = world.Citizens
+                    .FirstOrDefault(citizen => citizen.LastName == lastName)?.family
+                    ?? new Family(i + 1, []);
+
                 DateTime age = DateTime.Now.AddYears(-rnd.Next(0, 70));
                 int yearsOld = DateTime.Now.Year - age.Year;
                 FamilyRoles familialStatus = Enum.GetValues<FamilyRoles>()[rnd.Next(Enum.GetValues<FamilyRoles>().Length)];
-                Family family;
 
                 Citizen citizen = new(world: world,
                     id: i + 1,
@@ -60,6 +63,7 @@ namespace PeopleVille.Engine.Builders
                     citizen.School = world.Schools[rnd.Next(world.Schools.Count)];
                 }
 
+                family.AddMember(citizen);
                 world.Citizens?.Add(citizen);
                 tickAction += citizen.PerformHourlyRoutine;
             }

@@ -12,6 +12,7 @@ namespace PeopleVille.Core.Models
         public int Gender { get; } = gender;
         public FamilyRoles FamilyRoles { get; set; } = familialStatus;
         public Family family { get; set; } = family;
+        public BankAccount BankAccount { get; set; } = new();
         public string HomeAddress { get; set; } = homeAddress;
         public Job? Job { get; set; }
 
@@ -64,17 +65,8 @@ namespace PeopleVille.Core.Models
 
         private void AddMoney()
         {
-            Building home = FindHome();
-
-            if (home is House house)
-            {
-                house.BankAccount.Balance += Job!.Workplace.Salary;
-
-            }
-            else if (home is Apartment apartment)
-            {
-                apartment.BankAccount.Balance += Job!.Workplace.Salary;
-            }
+            BankAccount.Balance += Job!.Workplace.Salary;
+            family.RefreshBalance();
         }
 
 
