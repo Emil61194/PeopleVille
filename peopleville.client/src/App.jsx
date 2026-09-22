@@ -3,12 +3,6 @@ import "./App.css";
 import { MainGameButtons } from "./components/MainGameButtons.jsx";
 
 function App() {
-  const [forecasts, setForecasts] = useState();
-
-  useEffect(() => {
-    populateWeatherData();
-  }, []);
-
   function getMapItem(itemName) {
     return (
       <div>
@@ -19,18 +13,7 @@ function App() {
 
   const mapItems = ["hC", "wC", "mC"];
 
-  const contents =
-    forecasts === undefined ? (
-      <p>
-        <em>
-          Loading... Please refresh once the ASP.NET backend has started. See{" "}
-          <a href="https://aka.ms/jspsintegrationreact">
-            https://aka.ms/jspsintegrationreact
-          </a>{" "}
-          for more details.
-        </em>
-      </p>
-    ) : (
+  const contents = (
       <div id="mapContainer">
         {mapItems.map((name) => (
           <div id="menuDiv" name={name} key={name}>
@@ -55,14 +38,6 @@ function App() {
       <MainGameButtons />
     </div>
   );
-
-  async function populateWeatherData() {
-    const response = await fetch("weatherforecast");
-    if (response.ok) {
-      const data = await response.json();
-      setForecasts(data);
-    }
-  }
 }
 
 export default App;

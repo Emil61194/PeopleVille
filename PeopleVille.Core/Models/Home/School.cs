@@ -1,4 +1,4 @@
-namespace PeopleVille.Core.Models.Home
+﻿namespace PeopleVille.Core.Models.Home
 {
     public class School : Building
     {

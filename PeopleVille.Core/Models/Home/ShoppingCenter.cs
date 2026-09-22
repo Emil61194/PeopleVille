@@ -1,4 +1,4 @@
-using PeopleVille.Core.Data;
+﻿using PeopleVille.Core.Data;
 using PeopleVille.Core.Interfaces;
 
 namespace PeopleVille.Core.Models.Home
