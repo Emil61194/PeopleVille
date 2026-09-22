@@ -1,6 +1,7 @@
-﻿using PeopleVille.Core.Models;
+using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
 using PeopleVille.Engine.Builders;
+using System.Collections.Concurrent;
 using System.Text.Json;
 
 namespace PeopleVille.Engine
@@ -9,10 +10,13 @@ namespace PeopleVille.Engine
     {
         private World? _world;
         private EventPublisher _eventPublisher =  eventPublisher;
+        public World? CurrentWorld => _world;
         public bool Ready = false;
         public bool _doPause = false;
-        public event Action? Tick;
+        public event Action Tick;
+        public required ConcurrentBag<object> ActionsEachTickChanged;
 
+        public ConcurrentBag<object> actionsEachTick = new ConcurrentBag<object>();
         public bool Initialize(string? filePath = null)
         {
             if (filePath == null)
@@ -27,7 +31,7 @@ namespace PeopleVille.Engine
                 _world = worldCandidate;
                 Ready = true;
             }
-            
+
             return true;
         }
         public void Run()
@@ -35,8 +39,8 @@ namespace PeopleVille.Engine
             while (true)
             {
                 Tick?.Invoke();
-                
-                
+
+
 
                 // Random stuff happening ( e.g heatstroke, lack of supplies in town = death, virus ) 
 
@@ -52,6 +56,12 @@ namespace PeopleVille.Engine
                 {
                     // Check for user input to resume or exit
                 }
+
+                foreach (var action in actionsEachTick)
+                {
+                    _eventPublisher.PublishEvent(action);
+                }
+                actionsEachTick.Clear();
             }
         }
 
@@ -89,11 +99,32 @@ namespace PeopleVille.Engine
             apartmentBuilder.BuildApartments(save);
 
             CitizenBuilder citizenBuilder = new CitizenBuilder();
-            citizenBuilder.BuildCitizens(save,Tick);
+            citizenBuilder.BuildCitizens(save, Tick, ActionsEachTickChanged);
 
             save.BankAccount = new List<BankAccount>();
-            
+
             return save;
+        }
+        public House GetHouseByAddress(string address)
+        {
+            if (_world == null) throw new Exception("World is not initialized.");
+            House? house = _world.Houses.FirstOrDefault(h => h.Address == address);
+            if (house == null) throw new Exception("House not found.");
+            return house;
+        }
+        public Apartment GetApartmentByAddress(string address)
+        {
+            if (_world == null) throw new Exception("World is not initialized.");
+            Apartment? apartment = _world.Apartments.FirstOrDefault(a => a.Address == address);
+            if (apartment == null) throw new Exception("Apartment not found.");
+            return apartment;
+        }
+        public Citizen GetCitizenById(int id)
+        {
+            if (_world == null) throw new Exception("World is not initialized.");
+            Citizen? citizen = _world.Citizens.FirstOrDefault(c => c.Id == id);
+            if (citizen == null) throw new Exception("Citizen not found.");
+            return citizen;
         }
     }
 }

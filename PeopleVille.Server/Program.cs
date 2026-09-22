@@ -11,8 +11,10 @@ namespace PeopleVille.Server
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddSignalR();
             builder.Services.AddSingleton<GameService>();
             builder.Services.AddSingleton<GameEngine>();
+            builder.Services.AddSingleton<SaveService>();
             builder.Services.AddSingleton<IEventPublisher, SignalREventPublisher>();
             builder.Services.AddSingleton<EventPublisher>();
 
@@ -50,7 +52,7 @@ namespace PeopleVille.Server
 
             app.MapControllers();
             
-            app.MapHub<GameHub>("/hubs/match/{matchId:int}");
+            app.MapHub<GameHub>("/hubs/game");
 
             app.MapFallbackToFile("/index.html");
 
