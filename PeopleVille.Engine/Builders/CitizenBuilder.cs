@@ -10,23 +10,23 @@ namespace PeopleVille.Engine.Builders
     {
         public void BuildCitizens(World world, Action tickAction, ConcurrentBag<object> actionsEachTick)
         {
-            Random rnd = new Random();
+            Random rnd = new();
             int citizenAmount = rnd.Next(40, 100);
 
-            string[] lastNames = Core.Data.LastName.LastNames.ToArray();
+            string[] lastNames = LastName.LastNames.ToArray();
 
             List<Job> jobs = world.Jobs;
 
-            Array genders = Enum.GetValues(typeof(Genders));
+            Array genders = Enum.GetValues<Genders>();
             int genderCount = genders.Length;
 
             for (int i = 0; i < citizenAmount; i++)
             {
-                Genders gender = (Genders)rnd.Next(0, genderCount + 1);
+                Genders gender = (Genders)rnd.Next(0, genderCount);
                 string[] firstNames;
-                if (!Core.Data.FirstName.FirstNames.TryGetValue(gender, out firstNames))
+                if (!FirstName.FirstNames.TryGetValue(gender, out firstNames))
                 {
-                    firstNames = Core.Data.FirstName.FirstNames.Values.SelectMany(names => names).ToArray();
+                    firstNames = FirstName.FirstNames.Values.SelectMany(names => names).ToArray();
                 }
                 string firstName = firstNames[rnd.Next(firstNames.Length)];
                 string lastName = lastNames[rnd.Next(lastNames.Length)];
@@ -39,7 +39,7 @@ namespace PeopleVille.Engine.Builders
                 int yearsOld = DateTime.Now.Year - age.Year;
 
 
-                Citizen citizen = new Citizen(world: world,
+                Citizen citizen = new(world: world,
                     id: i + 1,
                     firstName: firstName,
                     lastName: lastName,
@@ -63,7 +63,7 @@ namespace PeopleVille.Engine.Builders
             }
         }
 
-        private (string, World) GetAddress(World world, string lastName, Random rnd)
+        private static (string, World) GetAddress(World world, string lastName, Random rnd)
         {
             List<House> houses = world.Houses.Select(h => h).ToList();
             List<Apartment> apartments = world.Apartments.Select(a => a).ToList();
