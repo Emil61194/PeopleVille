@@ -30,6 +30,7 @@ namespace PeopleVille.Server
             });
 
             builder.Services.AddControllers();
+            builder.Services.AddSignalR();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
 
