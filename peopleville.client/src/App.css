@@ -16,6 +16,32 @@ p {
   color: rgb(170, 220, 220); /* cyan */
 }
 
+.timeShower {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.65rem;
+  margin: 0.5rem auto 0;
+  padding: 0.65rem 1rem;
+  color: rgb(230, 240, 240);
+  background: rgba(20, 30, 32, 0.8);
+  border: 1px solid rgba(170, 220, 220, 0.35);
+  border-radius: 0.5rem;
+  box-shadow: 0 0.35rem 1rem rgba(0, 0, 0, 0.18);
+}
+
+.timeShowerLabel {
+  color: rgb(170, 220, 220);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.timeShower time {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 #tableDescription {
   color: rgb(220, 110, 110); /* red */
 }

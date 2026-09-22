@@ -15,7 +15,6 @@ namespace PeopleVille.Engine
         public bool Ready = false;
         public bool _doPause = false;
         public event Action Tick;
-        public required ConcurrentBag<object> ActionsEachTickChanged;
 
         public ConcurrentBag<object> actionsEachTick = new ConcurrentBag<object>();
         public bool Initialize(string? filePath = null)
@@ -103,7 +102,7 @@ namespace PeopleVille.Engine
             apartmentBuilder.BuildApartments(save);
 
             CitizenBuilder citizenBuilder = new CitizenBuilder();
-            citizenBuilder.BuildCitizens(save, Tick, ActionsEachTickChanged);
+            citizenBuilder.BuildCitizens(save, Tick, actionsEachTick);
 
             save.BankAccount = new List<BankAccount>();
 

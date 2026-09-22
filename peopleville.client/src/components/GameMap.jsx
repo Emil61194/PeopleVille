@@ -1,19 +1,22 @@
-function getMapItem(itemName) {
+import HomeContainer from "./HomeContainer.jsx";
+
+function getMapItem(itemName, index) {
   return (
-    <div>
+    <div key={`${itemName}-${index}`}>
       <p>{itemName}</p>
     </div>
   );
 }
 
 export function GameMap() {
-  const mapItems = ["hC", "wC", "mC"];
+  const mapItems = ["wC", "mC"];
 
   return (
     <div id="mapContainer">
+      <HomeContainer />
       {mapItems.map((name) => (
         <div id="menuDiv" name={name} key={name}>
-          {Array.from({ length: 8 }, () => getMapItem(name))}
+          {Array.from({ length: 8 }, (_, index) => getMapItem(name, index))}
         </div>
       ))}
     </div>
