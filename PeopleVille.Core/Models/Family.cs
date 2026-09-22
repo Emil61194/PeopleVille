@@ -10,10 +10,35 @@ namespace PeopleVille.Core.Models
         private readonly (int parents, int children) MaxAllowedFamilyMembers = (parents: 2, children: 3);
         private readonly List<Citizen> familyMembers = [];
 
+        public bool HasRequiredParents => FamilyMembers.Count(
+            member => member.FamilyRoles == Enum.FamilyRoles.Adult)
+                == MaxAllowedFamilyMembers.parents;
+
         public void AddMember(Citizen citizen)
         {
             if (!FamilyMembers.Contains(citizen))
             {
+                int parentCount = FamilyMembers.Count(member => member.FamilyRoles == Enum.FamilyRoles.Adult);
+                int childCount = FamilyMembers.Count(member => member.FamilyRoles == Enum.FamilyRoles.Child);
+
+                if (citizen.FamilyRoles == Enum.FamilyRoles.Adult && parentCount >= MaxAllowedFamilyMembers.parents)
+                {
+                    throw new InvalidOperationException("A family cannot have more than two parents.");
+                }
+
+                if (citizen.FamilyRoles == Enum.FamilyRoles.Child)
+                {
+                    if (parentCount < MaxAllowedFamilyMembers.parents)
+                    {
+                        throw new InvalidOperationException("A family must have two parents before adding children.");
+                    }
+
+                    if (childCount >= MaxAllowedFamilyMembers.children)
+                    {
+                        throw new InvalidOperationException("A family cannot have more than three children.");
+                    }
+                }
+
                 FamilyMembers.Add(citizen);
                 FamilyMembersCount = FamilyMembers.Count;
             }
