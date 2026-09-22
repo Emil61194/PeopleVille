@@ -19,6 +19,11 @@ export async function connectToHub(onLog) {
     log(`Reconnecting${error ? `: ${error.message}` : ""}`),
   );
   connection.onreconnected(() => log("Connected"));
+  connection.on("Event", (message) => {
+    const value =
+      typeof message === "string" ? message : JSON.stringify(message);
+    log(`Event: ${value}`);
+  });
 
   try {
     await connection.start();

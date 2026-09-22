@@ -28,7 +28,7 @@ namespace PeopleVille.Engine.Builders
                 {
                     firstNames = Core.Data.FirstName.FirstNames.Values.SelectMany(names => names).ToArray();
                 }
-                string firstName = Core.Data.FirstName.FirstNames[gender][rnd.Next(firstNames.Length)];
+                string firstName = firstNames[rnd.Next(firstNames.Length)];
                 string lastName = lastNames[rnd.Next(lastNames.Length)];
 
                 Job chosenJob = jobs[rnd.Next(jobs.Count)];

@@ -20,7 +20,10 @@ public class GameService(GameEngine gameEngine)
         if (file.Exists)
         {
             bool world = gameEngine.Initialize(fullPath);
-            if (world) return true;
+            if (world) {
+                _ = gameEngine.Run();
+                return true;
+            }
         }
         return false;
     }
@@ -28,7 +31,11 @@ public class GameService(GameEngine gameEngine)
     public bool TryInitializeNew()
     {
         bool world = gameEngine.Initialize();
-        if (world) return true;
+        if (world)
+        {
+            _ = gameEngine.Run();
+            return true;
+        }
         return false;
     }
 }

@@ -57,7 +57,9 @@ p {
   margin: 2rem auto 0;
   padding: 1rem;
   max-width: 40rem;
-  min-height: 5rem;
+  height: 16rem;
+  overflow: auto;
+  box-sizing: border-box;
   text-align: left;
   color: white;
   background: #171717;

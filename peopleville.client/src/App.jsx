@@ -5,19 +5,24 @@ import { WSConsole } from "./components/WSConsole.jsx";
 import { connectToHub } from "./services/WSService.js";
 
 function App() {
+  const [gameStarted, setGameStarted] = useState(false);
   const [logs, setLogs] = useState([]);
 
   useEffect(() => {
+    if (!gameStarted) return;
+
     connectToHub((message) =>
       setLogs((currentLogs) => [...currentLogs, message]),
     );
-  }, []);
+  }, [gameStarted]);
 
   return (
     <div>
       <h1 id="tableLabel">PeopleVille</h1>
-      <MainGameButtons />
-      <WSConsole logs={logs} />
+      {!gameStarted && (
+        <MainGameButtons onGameStarted={() => setGameStarted(true)} />
+      )}
+      {gameStarted && <WSConsole logs={logs} />}
     </div>
   );
 }

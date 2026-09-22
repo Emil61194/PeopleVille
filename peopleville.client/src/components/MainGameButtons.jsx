@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import ChooseSaveFilePrompt from "./ChooseSaveFilePrompt.jsx";
 import { GetNewGame } from "../hooks/GetNewGame.js";
 
-export const MainGameButtons = () => {
+export const MainGameButtons = ({ onGameStarted }) => {
   const [filePrompt, setFilePrompt] = useState(false);
 
   return (
@@ -17,15 +17,24 @@ export const MainGameButtons = () => {
       >
         Load Save
       </button>
-      <button className="LoadSaveButton" onClick={handleNewGameClick}>
+      <button
+        className="LoadSaveButton"
+        onClick={() => handleNewGameClick(onGameStarted)}
+      >
         New Game
       </button>
     </div>
   );
 };
 
-function handleNewGameClick() {
-  let success = GetNewGame();
-  if (success) {
+async function handleNewGameClick(onGameStarted) {
+  try {
+    const success = await GetNewGame();
+    if (success) {
+      onGameStarted();
+      console.log("New game created");
+    }
+  } catch (error) {
+    console.error(error);
   }
 }
