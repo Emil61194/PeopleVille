@@ -108,23 +108,28 @@ namespace PeopleVille.Engine
 
             return save;
         }
-        public House GetHouseByAddress(string address)
+        public void CheckWorld()
         {
             if (_world == null) throw new Exception("World is not initialized.");
+        }
+
+        public House GetHouseByAddress(string address)
+        {
+            CheckWorld();
             House? house = _world.Houses.FirstOrDefault(h => h.Address == address);
             if (house == null) throw new Exception("House not found.");
             return house;
         }
         public Apartment GetApartmentByAddress(string address)
         {
-            if (_world == null) throw new Exception("World is not initialized.");
+            CheckWorld();
             Apartment? apartment = _world.Apartments.FirstOrDefault(a => a.Address == address);
             if (apartment == null) throw new Exception("Apartment not found.");
             return apartment;
         }
         public Citizen GetCitizenById(int id)
         {
-            if (_world == null) throw new Exception("World is not initialized.");
+            CheckWorld();
             Citizen? citizen = _world.Citizens.FirstOrDefault(c => c.Id == id);
             if (citizen == null) throw new Exception("Citizen not found.");
             return citizen;
