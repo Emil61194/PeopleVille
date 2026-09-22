@@ -2,12 +2,13 @@ using PeopleVille.Core.Data;
 using PeopleVille.Core.Enum;
 using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
+using System.Collections.Concurrent;
 
 namespace PeopleVille.Engine.Builders
 {
     public class CitizenBuilder
     {
-        public void BuildCitizens(World world, Action? tickAction)
+        public void BuildCitizens(World world, Action tickAction, ConcurrentBag<object> actionsEachTick)
         {
             Random rnd = new Random();
             int citizenAmount = rnd.Next(40, 100);
@@ -44,7 +45,8 @@ namespace PeopleVille.Engine.Builders
                     lastName: lastName,
                     birth: DateTime.Now.AddYears(-rnd.Next(0, 70)),
                     gender: gender,
-                    homeAddress: address)
+                    homeAddress: address,
+                    actions: actionsEachTick)
                 {
                     Job = chosenJob,
                     CurrentLocation = address

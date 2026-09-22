@@ -2,6 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
 using System;
+using System.Collections.Concurrent;
 
 namespace PeopleVille.Test
 {
@@ -114,7 +115,8 @@ namespace PeopleVille.Test
                 "Citizen",
                 new DateTime(birthYear, 1, 1),
                 0,
-                home.Address)
+                home.Address,
+                new ConcurrentBag<object>())
             {
                 CurrentLocation = "Away"
             };
