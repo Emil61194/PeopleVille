@@ -5,6 +5,11 @@ namespace PeopleVille.Core.Models
 {
     public class Citizen(World world, int id, string firstName, string lastName, DateTime birth, int gender, Family family, FamilyRoles familialStatus, string homeAddress)
     {
+        public Citizen(World world, int id, string firstName, string lastName, DateTime birth, int gender, string homeAddress)
+            : this(world, id, firstName, lastName, birth, gender, new Family(0, []), FamilyRoles.Adult, homeAddress)
+        {
+        }
+
         public int Id { get; set; } = id;
         public string FirstName { get; } = firstName;
         public string LastName { get; } = lastName;
