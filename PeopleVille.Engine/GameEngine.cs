@@ -1,4 +1,4 @@
-﻿using PeopleVille.Core.Models;
+using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
 using PeopleVille.Engine.Builders;
 using System.Collections.Concurrent;
@@ -9,7 +9,8 @@ namespace PeopleVille.Engine
     public class GameEngine(EventPublisher eventPublisher)
     {
         private World? _world;
-        private EventPublisher _eventPublisher = eventPublisher;
+        private EventPublisher _eventPublisher =  eventPublisher;
+        public World? CurrentWorld => _world;
         public bool Ready = false;
         public bool _doPause = false;
         public event Action Tick;
@@ -26,22 +27,24 @@ namespace PeopleVille.Engine
             {
                 World? worldCandidate = CheckSave(filePath);
 
-                if (worldCandidate == null) return false;
                 _world = worldCandidate;
-                Ready = true;
+                if (worldCandidate == null) return false;
             }
 
-            return true;
+            Ready = true;
+            return Ready;
         }
-        public void Run()
+        public async Task Run()
         {
+            Console.WriteLine("Running Game");
             while (true)
             {
                 Tick?.Invoke();
+                await _eventPublisher.PublishEvent("Yo");
 
 
 
-                // Random stuff happening ( e.g heatstroke, lack of supplies in town = death, virus ) 
+                // Random stuff happening ( e.g heatstroke, lack of supplies in town = death, virus )
 
 
                 // Wait 1 second
@@ -50,15 +53,16 @@ namespace PeopleVille.Engine
                     _world.currentDateTime = _world.currentDateTime.AddHours(1);
                 }
 
-                Thread.Sleep(1000);
+                await Task.Delay(1000);
                 while (_doPause)
                 {
+                    await Task.Delay(50);
                     // Check for user input to resume or exit
                 }
 
                 foreach (var action in actionsEachTick)
                 {
-                    _eventPublisher.PublishEvent(action);
+                    await _eventPublisher.PublishEvent(action);
                 }
                 actionsEachTick.Clear();
             }
