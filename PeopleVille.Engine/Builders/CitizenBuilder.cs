@@ -6,6 +6,8 @@ using System.Collections.Concurrent;
 
 namespace PeopleVille.Engine.Builders
 {
+    public delegate void RoutineAction();
+
     public class CitizenBuilder
     {
         public void BuildCitizens(World world, Action tickAction, ConcurrentBag<object> actionsEachTick)

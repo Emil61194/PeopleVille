@@ -1,5 +1,5 @@
 export async function GetSaveFiles() {
-  const response = await fetch("http://localhost:5045/get/savefiles");
+  const response = await fetch("/get/savefiles");
   if (!response.ok) {
     throw new Error("Unable to load save files");
   }
