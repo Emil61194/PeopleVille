@@ -1,3 +1,4 @@
+using PeopleVille.Core.Interfaces;
 using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
 using PeopleVille.Engine.Builders;
@@ -8,8 +9,9 @@ namespace PeopleVille.Engine
 {
     public class GameEngine(EventPublisher eventPublisher)
     {
+        private bool GameRunning = false;
         private World? _world;
-        private EventPublisher _eventPublisher =  eventPublisher;
+        private EventPublisher _eventPublisher = eventPublisher;
         public World? CurrentWorld => _world;
         public bool Ready = false;
         public bool _doPause = false;
@@ -36,8 +38,14 @@ namespace PeopleVille.Engine
         }
         public async Task Run()
         {
+            if (GameRunning)
+            {
+                return;
+            }
+
+            GameRunning = true;
             Console.WriteLine("Running Game");
-            while (true)
+            while (GameRunning)
             {
                 Tick?.Invoke();
                 await _eventPublisher.PublishEvent("Yo");
@@ -133,6 +141,27 @@ namespace PeopleVille.Engine
             Citizen? citizen = _world.Citizens.FirstOrDefault(c => c.Id == id);
             if (citizen == null) throw new Exception("Citizen not found.");
             return citizen;
+        }
+        public List<IPrivateHome> GetAllHomes()
+        {
+            CheckWorld();
+            List<IPrivateHome> homes = new List<IPrivateHome>();
+            homes.AddRange(_world.Houses);
+            homes.AddRange(_world.Apartments);
+            return homes;
+        }
+        public List<Citizen> GetAllCitizens()
+        {
+            CheckWorld();
+            return _world.Citizens;
+        }
+
+        public List<IWorkplace> GetAllWorkplaces()
+        {
+            CheckWorld();
+            List<IWorkplace> workplaces = new List<IWorkplace>();
+            workplaces.AddRange(_world.ShoppingCenters);
+            return workplaces;
         }
     }
 }
