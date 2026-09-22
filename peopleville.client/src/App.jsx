@@ -1,41 +1,28 @@
-import { useEffect, useState } from "react";
 import "./App.css";
+import { useEffect, useState } from "react";
 import { MainGameButtons } from "./components/MainGameButtons.jsx";
+import { WSConsole } from "./components/WSConsole.jsx";
+import { connectToHub } from "./services/WSService.js";
 
 function App() {
-  function getMapItem(itemName) {
-    return (
-      <div>
-        <p>{itemName}</p>
-      </div>
-    );
-  }
+  const [gameStarted, setGameStarted] = useState(false);
+  const [logs, setLogs] = useState([]);
 
-  const mapItems = ["hC", "wC", "mC"];
+  useEffect(() => {
+    if (!gameStarted) return;
 
-  const contents = (
-      <div id="mapContainer">
-        {mapItems.map((name) => (
-          <div id="menuDiv" name={name} key={name}>
-            {getMapItem(name)}
-            {getMapItem(name)}
-            {getMapItem(name)}
-            {getMapItem(name)}
-            {getMapItem(name)}
-            {getMapItem(name)}
-            {getMapItem(name)}
-            {getMapItem(name)}
-          </div>
-        ))}
-      </div>
+    connectToHub((message) =>
+      setLogs((currentLogs) => [...currentLogs, message]),
     );
+  }, [gameStarted]);
 
   return (
     <div>
       <h1 id="tableLabel">PeopleVille</h1>
-      <p id="tableDescription">Map</p>
-      {contents}
-      <MainGameButtons />
+      {!gameStarted && (
+        <MainGameButtons onGameStarted={() => setGameStarted(true)} />
+      )}
+      {gameStarted && <WSConsole logs={logs} />}
     </div>
   );
 }
