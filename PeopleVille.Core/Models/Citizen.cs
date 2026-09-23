@@ -1,4 +1,4 @@
-﻿using PeopleVille.Core.Enum;
+using PeopleVille.Core.Enum;
 using PeopleVille.Core.Models.Home;
 using PeopleVille.Core.Operations;
 using System.Collections.Concurrent;

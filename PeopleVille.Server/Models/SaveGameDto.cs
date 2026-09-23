@@ -1,4 +1,5 @@
 using PeopleVille.Core.Data;
+using PeopleVille.Core.Enum;
 
 namespace PeopleVille.Server.Models;
 
@@ -29,7 +30,7 @@ public sealed class CitizenSaveDto
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public DateTime Birth { get; set; }
-    public int Gender { get; set; }
+    public Genders Gender { get; set; }
     public string HomeAddress { get; set; } = string.Empty;
     public string CurrentLocation { get; set; } = string.Empty;
     public string? JobWorkplaceAddress { get; set; }

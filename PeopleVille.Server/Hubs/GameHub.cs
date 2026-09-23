@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using PeopleVille.Core.Interfaces;
 using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
 using PeopleVille.Server.Services;
@@ -7,6 +8,7 @@ using PeopleVille.Server.Services;
 namespace PeopleVille.Server.Hubs;
 
 [Authorize]
+public class GameHub(GameService gameService, SaveService saveService) : Hub
 public class GameHub(GameService gameService, SaveService saveService) : Hub
 {
     public async Task<string> SaveGame()
@@ -44,5 +46,17 @@ public class GameHub(GameService gameService, SaveService saveService) : Hub
     public async Task<Citizen> GetCitizenData(int id)
     {
         return await Task.FromResult(gameService.GameEngine.GetCitizenById(id));
+    }
+    public async Task<List<IPrivateHome>> GetAllHomes()
+    {
+        return await Task.FromResult(gameService.GameEngine.GetAllHomes());
+    }
+    public async Task<List<Citizen>> GetAllCitizens()
+    {
+        return await Task.FromResult(gameService.GameEngine.GetAllCitizens());
+    }
+    public async Task<List<IWorkplace>> GetAllWorkplaces()
+    {
+        return await Task.FromResult(gameService.GameEngine.GetAllWorkplaces());
     }
 }
