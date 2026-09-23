@@ -181,12 +181,10 @@ namespace PeopleVille.Engine
             return _world.Citizens;
         }
 
-        public List<IWorkplace> GetAllWorkplaces()
+        public List<ShoppingCenter> GetAllWorkplaces()
         {
             CheckWorld();
-            List<IWorkplace> workplaces = new List<IWorkplace>();
-            workplaces.AddRange(_world.ShoppingCenters);
-            return workplaces;
+            return _world.ShoppingCenters;
         }
     }
 }
