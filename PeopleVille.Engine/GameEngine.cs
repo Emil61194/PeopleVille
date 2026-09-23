@@ -1,20 +1,23 @@
-﻿using PeopleVille.Core.Models;
+using PeopleVille.Core.Interfaces;
+using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
 using PeopleVille.Engine.Builders;
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 namespace PeopleVille.Engine
 {
     public class GameEngine(EventPublisher eventPublisher)
     {
+        private bool GameRunning = false;
         private World? _world;
         private EventPublisher _eventPublisher = eventPublisher;
         public World? CurrentWorld => _world;
         public bool Ready = false;
         public bool _doPause = false;
-        public event Action? Tick;
-        public required ConcurrentBag<object> ActionsEachTickChanged;
+        public event Action Tick = delegate { };
+        public ConcurrentBag<object> ActionsEachTickChanged { get; } = new();
 
         public ConcurrentBag<object> actionsEachTick = [];
         public bool Initialize(string? filePath = null)
@@ -27,22 +30,30 @@ namespace PeopleVille.Engine
             {
                 World? worldCandidate = CheckSave(filePath);
 
-                if (worldCandidate == null) return false;
                 _world = worldCandidate;
-                Ready = true;
+                if (worldCandidate == null) return false;
             }
 
-            return true;
+            Ready = true;
+            return Ready;
         }
-        public void Run()
+        public async Task Run()
         {
-            while (true)
+            if (GameRunning)
+            {
+                return;
+            }
+
+            GameRunning = true;
+            Console.WriteLine("Running Game");
+            while (GameRunning)
             {
                 Tick?.Invoke();
+                await _eventPublisher.PublishEvent("Yo");
 
 
 
-                // Random stuff happening ( e.g heatstroke, lack of supplies in town = death, virus ) 
+                // Random stuff happening ( e.g heatstroke, lack of supplies in town = death, virus )
 
 
                 // Wait 1 second
@@ -51,15 +62,16 @@ namespace PeopleVille.Engine
                     _world.currentDateTime = _world.currentDateTime.AddHours(1);
                 }
 
-                Thread.Sleep(1000);
+                await Task.Delay(1000);
                 while (_doPause)
                 {
+                    await Task.Delay(50);
                     // Check for user input to resume or exit
                 }
 
                 foreach (var action in actionsEachTick)
                 {
-                    _eventPublisher.PublishEvent(action);
+                    await _eventPublisher.PublishEvent(action);
                 }
                 actionsEachTick.Clear();
             }
@@ -81,7 +93,7 @@ namespace PeopleVille.Engine
 
         public World InitializeCity()
         {
-            World save = new World();
+            World save = new();
 
             ShoppingCenterBuilder shoppingCenterBuilder = new ShoppingCenterBuilder();
             shoppingCenterBuilder.BuildShoppingCenters(save);
@@ -105,26 +117,53 @@ namespace PeopleVille.Engine
 
             return save;
         }
-        public House GetHouseByAddress(string address)
+        [MemberNotNull(nameof(_world))]
+        public void CheckWorld()
         {
             if (_world == null) throw new Exception("World is not initialized.");
+        }
+
+        public House GetHouseByAddress(string address)
+        {
+            CheckWorld();
             House? house = _world.Houses.FirstOrDefault(h => h.Address == address);
             if (house == null) throw new Exception("House not found.");
             return house;
         }
         public Apartment GetApartmentByAddress(string address)
         {
-            if (_world == null) throw new Exception("World is not initialized.");
+            CheckWorld();
             Apartment? apartment = _world.Apartments.FirstOrDefault(a => a.Address == address);
             if (apartment == null) throw new Exception("Apartment not found.");
             return apartment;
         }
         public Citizen GetCitizenById(int id)
         {
-            if (_world == null) throw new Exception("World is not initialized.");
+            CheckWorld();
             Citizen? citizen = _world.Citizens.FirstOrDefault(c => c.Id == id);
             if (citizen == null) throw new Exception("Citizen not found.");
             return citizen;
+        }
+        public List<IPrivateHome> GetAllHomes()
+        {
+            CheckWorld();
+            List<IPrivateHome> homes = new List<IPrivateHome>();
+            homes.AddRange(_world.Houses);
+            homes.AddRange(_world.Apartments);
+            return homes;
+        }
+        public List<Citizen> GetAllCitizens()
+        {
+            CheckWorld();
+            return _world.Citizens;
+        }
+
+        public List<IWorkplace> GetAllWorkplaces()
+        {
+            CheckWorld();
+            List<IWorkplace> workplaces = new List<IWorkplace>();
+            workplaces.AddRange(_world.ShoppingCenters);
+            return workplaces;
         }
     }
 }

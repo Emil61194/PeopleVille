@@ -6,6 +6,8 @@ using System.Collections.Concurrent;
 
 namespace PeopleVille.Engine.Builders
 {
+    public delegate void RoutineAction();
+
     public class CitizenBuilder
     {
         public void BuildCitizens(World world, Action tickAction, ConcurrentBag<object> actionsEachTick)
@@ -22,11 +24,9 @@ namespace PeopleVille.Engine.Builders
 
             for (int i = 0; i < citizenAmount; i++)
             {
-                Genders gender = (Genders)rnd.Next(0, genderCount + 1);
-                if (!FirstName.FirstNames.TryGetValue(gender, out string[]? firstNames) || firstNames is null)
-                {
-                    firstNames = [.. FirstName.FirstNames.Values.SelectMany(names => names)];
-                }
+                Genders gender = (Genders)rnd.Next(0, genderCount);
+                FirstName.FirstNames.TryGetValue(gender, out string[]? firstNames);
+                firstNames ??= [.. FirstName.FirstNames.Values.SelectMany(names => names)];
                 string firstName = firstNames[rnd.Next(firstNames.Length)];
                 string lastName = lastNames[rnd.Next(lastNames.Length)];
 
