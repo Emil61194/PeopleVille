@@ -3,6 +3,7 @@ using PeopleVille.Engine;
 using PeopleVille.Server.Hubs;
 using PeopleVille.Server.Infrastructure;
 using PeopleVille.Server.Services;
+using System.Text.Json.Serialization;
 
 namespace PeopleVille.Server
 {
@@ -11,7 +12,11 @@ namespace PeopleVille.Server
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            builder.Services.AddSignalR();
+            builder.Services.AddSignalR()
+                .AddJsonProtocol(options =>
+                {
+                    options.PayloadSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                });
             builder.Services.AddSingleton<GameService>();
             builder.Services.AddSingleton<GameEngine>();
             builder.Services.AddSingleton<SaveService>();
@@ -35,7 +40,6 @@ namespace PeopleVille.Server
             });
 
             builder.Services.AddControllers();
-            builder.Services.AddSignalR();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
 

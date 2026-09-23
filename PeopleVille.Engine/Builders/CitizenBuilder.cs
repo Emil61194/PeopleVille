@@ -13,7 +13,7 @@ namespace PeopleVille.Engine.Builders
         public void BuildCitizens(World world,ref Action tickAction, ConcurrentBag<object> actionsEachTick)
         {
             Random rnd = new();
-            int citizenAmount = rnd.Next(40, 100);
+            int citizenAmount = rnd.Next(10, 15);
 
             string[] lastNames = [.. LastName.LastNames];
 
@@ -40,10 +40,6 @@ namespace PeopleVille.Engine.Builders
 
                 (string address, world) = GetAddress(world, lastName, rnd);
 
-                Family family = world.Citizens
-                    .FirstOrDefault(citizen => citizen.LastName == lastName)?.Family
-                    ?? new Family(i + 1, []);
-
                 DateTime birth = DateTime.Now.AddYears(-rnd.Next(0, 70));
                 int yearsOld = DateTime.Now.Year - birth.Year;
                 FamilyRoles familialStatus = yearsOld < 18 ? FamilyRoles.Child : FamilyRoles.Adult;
@@ -53,8 +49,8 @@ namespace PeopleVille.Engine.Builders
                     firstName: firstName,
                     lastName: lastName,
                     birth: birth,
-                    gender: (int)gender,
-                    family: family,
+                    gender: gender,
+                    family: null,
                     familialStatus: familialStatus,
                     homeAddress: address,
                     actionSink: actionsEachTick)
@@ -69,10 +65,52 @@ namespace PeopleVille.Engine.Builders
                     citizen.School = world.Schools[rnd.Next(world.Schools.Count)];
                 }
 
-                family.AddMember(citizen);
+                AssignFamily(citizen, world);
                 world.Citizens?.Add(citizen);
                 tickAction += citizen.PerformHourlyRoutine;
             }
+        }
+
+        private static void AssignFamily(Citizen citizen, World world)
+        {
+            Family? family = world.Citizens
+                .Where(existingCitizen => existingCitizen.LastName == citizen.LastName)
+                .Select(existingCitizen => existingCitizen.Family)
+                .FirstOrDefault(existingFamily => existingFamily is not null);
+
+            if (family is not null)
+            {
+                int childCount = family.FamilyMembers.Count(member => member.FamilyRoles == FamilyRoles.Child);
+
+                if (citizen.FamilyRoles == FamilyRoles.Child && family.HasRequiredParents && childCount < 3)
+                {
+                    family.AddMember(citizen);
+                    citizen.Family = family;
+                }
+
+                return;
+            }
+
+            if (citizen.FamilyRoles != FamilyRoles.Adult)
+            {
+                return;
+            }
+
+            Citizen? partner = world.Citizens.LastOrDefault(existingCitizen =>
+                existingCitizen.LastName == citizen.LastName
+                && existingCitizen.Family is null
+                && existingCitizen.FamilyRoles == FamilyRoles.Adult);
+
+            if (partner is null)
+            {
+                return;
+            }
+
+            family = new Family(citizen.Id, []);
+            family.AddMember(partner);
+            family.AddMember(citizen);
+            partner.Family = family;
+            citizen.Family = family;
         }
 
         private static (string, World) GetAddress(World world, string lastName, Random rnd)

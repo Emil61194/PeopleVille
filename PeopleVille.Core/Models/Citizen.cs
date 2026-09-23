@@ -5,11 +5,11 @@ using PeopleVille.Core.Operations;
 
 namespace PeopleVille.Core.Models
 {
-    public class Citizen(World world, int id, string firstName, string lastName, DateTime birth, int gender, Family family, FamilyRoles familialStatus, string homeAddress, ConcurrentBag<object>? actionSink = null)
+    public class Citizen(World world, int id, string firstName, string lastName, DateTime birth, Genders gender, Family? family, FamilyRoles familialStatus, string homeAddress, ConcurrentBag<object>? actionSink = null)
     {
-        public Citizen(World world, int id, string firstName, string lastName, DateTime birth, int gender, string homeAddress)
-            // Delegate to the primary constructor with a default family and adult family role.
-            : this(world, id, firstName, lastName, birth, gender, new Family(0, []), FamilyRoles.Adult, homeAddress)
+        public Citizen(World world, int id, string firstName, string lastName, DateTime birth, Genders gender, string homeAddress)
+            // Delegate to the primary constructor without creating a default family.
+            : this(world, id, firstName, lastName, birth, gender, null, FamilyRoles.Adult, homeAddress)
         {
         }
 
@@ -19,7 +19,7 @@ namespace PeopleVille.Core.Models
         public DateTime Birth { get; } = birth;
         public Genders Gender { get; } = (Genders)gender;
         public FamilyRoles FamilyRoles { get; set; } = familialStatus;
-        public Family Family { get; set; } = family;
+        public Family? Family { get; set; } = family;
         public BankAccount BankAccount { get; set; } = new();
         public string HomeAddress { get; set; } = homeAddress;
         public Job? Job { get; set; }
@@ -106,7 +106,7 @@ namespace PeopleVille.Core.Models
             }
             
             BankAccount.Balance += Job.Workplace.Salary;
-            Family.RefreshBalance();
+            Family?.RefreshBalance();
             PublishCitizenAction($"Received salary of {Job.Workplace.Salary} at {world.currentDateTime}");
         }
 
