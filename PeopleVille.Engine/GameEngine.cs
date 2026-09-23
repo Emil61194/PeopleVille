@@ -49,8 +49,6 @@ namespace PeopleVille.Engine
             while (GameRunning)
             {
                 Tick?.Invoke();
-                await _eventPublisher.PublishEvent("Yo");
-
 
 
                 // Random stuff happening ( e.g heatstroke, lack of supplies in town = death, virus )
@@ -142,7 +140,7 @@ namespace PeopleVille.Engine
                 ?? throw new Exception("Citizen not found.");
             return citizen;
         }
-        public List<IPrivateHome> GetAllHomes()
+        public List<object> GetAllHomes()
         {
             World world = CheckWorld();
             List<IPrivateHome> homes = [.. world.Houses, .. world.Apartments];

@@ -131,7 +131,7 @@ namespace PeopleVille.Core.Models
             }
             else
             {
-                throw new Exception($"Home not found for citizen with address: {HomeAddress}");
+                return false; // find solution for citizen with no found address
             }
         }
 
