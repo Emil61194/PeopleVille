@@ -1,10 +1,11 @@
-﻿using PeopleVille.Core.Enum;
+﻿using System.Collections.Concurrent;
+using PeopleVille.Core.Enum;
 using PeopleVille.Core.Models.Home;
 using PeopleVille.Core.Operations;
 
 namespace PeopleVille.Core.Models
 {
-    public class Citizen(World world, int id, string firstName, string lastName, DateTime birth, int gender, Family family, FamilyRoles familialStatus, string homeAddress, Action<object>? actionSink = null)
+    public class Citizen(World world, int id, string firstName, string lastName, DateTime birth, int gender, Family family, FamilyRoles familialStatus, string homeAddress, ConcurrentBag<object>? actionSink = null)
     {
         public Citizen(World world, int id, string firstName, string lastName, DateTime birth, int gender, string homeAddress)
             : this(world, id, firstName, lastName, birth, gender, new Family(0, []), FamilyRoles.Adult, homeAddress)
@@ -25,7 +26,7 @@ namespace PeopleVille.Core.Models
         public required string CurrentLocation { get; set; }
         public School? School { get; set; }
 
-        private readonly Action<object>? _actionSink = actionSink;
+        private readonly ConcurrentBag<object>? _actionSink = actionSink;
 
         public void PerformHourlyRoutine()
         {
@@ -82,7 +83,7 @@ namespace PeopleVille.Core.Models
                 yearsOld--;
             }
 
-            _actionSink?.Invoke(new CitizenOperation
+            _actionSink?.Add(new CitizenOperation
             {
                 CitizenId = Id,
                 FirstName = FirstName,

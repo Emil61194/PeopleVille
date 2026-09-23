@@ -17,9 +17,8 @@ namespace PeopleVille.Engine
         public bool Ready = false;
         public bool _doPause = false;
         public event Action Tick = delegate { };
-        public ConcurrentBag<object> ActionsEachTickChanged { get; } = new();
-
         public ConcurrentBag<object> actionsEachTick = [];
+
         public bool Initialize(string? filePath = null)
         {
             if (filePath == null)
@@ -106,7 +105,7 @@ namespace PeopleVille.Engine
             apartmentBuilder.BuildApartments(save);
 
             CitizenBuilder citizenBuilder = new();
-            citizenBuilder.BuildCitizens(save, Tick ?? (() => { }), ActionsEachTickChanged);
+            citizenBuilder.BuildCitizens(save, ref Tick, actionsEachTick);
 
             save.BankAccount = [];
 
@@ -143,7 +142,7 @@ namespace PeopleVille.Engine
         public List<object> GetAllHomes()
         {
             World world = CheckWorld();
-            List<IPrivateHome> homes = [.. world.Houses, .. world.Apartments];
+            List<object> homes = [.. world.Houses.Cast<object>(), .. world.Apartments.Cast<object>()];
             return homes;
         }
         public List<Citizen> GetAllCitizens()
