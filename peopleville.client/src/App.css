@@ -320,6 +320,8 @@
   background: #171717;
   border: 1px solid #555;
   font-family: monospace;
+}
+
 .log-time {
   color: #888;
   flex-shrink: 0;
