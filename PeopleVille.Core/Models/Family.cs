@@ -61,7 +61,12 @@ namespace PeopleVille.Core.Models
             return new Family(id: 0, family: []);
         }
 
-        private void DeleteFamily(Citizen citizen)
+        private void DeleteFamily(int id, List<Family> family)
+        {
+            family.RemoveAll(f => f.Id == id);
+        }
+
+        private void DeleteFamilyMembers(Citizen citizen)
         {
             familyMembers.Remove(citizen);
         }
