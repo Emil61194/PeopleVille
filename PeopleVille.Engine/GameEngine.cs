@@ -110,7 +110,11 @@ namespace PeopleVille.Engine
 
             save.BankAccount = [];
 
-            return save;
+                if (instance is IBuilder builder)
+                {
+                    yield return builder;
+                }
+            }
         }
         [MemberNotNull(nameof(_world))]
         public World CheckWorld()
