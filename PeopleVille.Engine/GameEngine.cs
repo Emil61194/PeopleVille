@@ -101,7 +101,11 @@ namespace PeopleVille.Engine
                 new CitizenBuilder(this)
             };
 
-            builders.AddRange(CheckExternalBuilders("C:\\Users\\thoma\\source\\repos\\PeopleVille\\PeopleVille.Handicaps\\bin\\Debug\\net10.0\\PeopleVille.Handicaps.dll"));
+            string appDir = Path.GetFullPath(
+                Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..",
+                "PeopleVille.Handicaps", "bin", "Debug", "net10.0", "PeopleVille.Handicaps.dll"));
+
+            builders.AddRange(CheckExternalBuilders(appDir));
 
             foreach (var builder in builders)
             {
