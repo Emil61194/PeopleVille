@@ -158,5 +158,13 @@ namespace PeopleVille.Engine
             CheckWorld();
             return _world.Workplaces;
         }
+
+        public IWorkplace GetWorkplaceByAddress(string address)
+        {
+            CheckWorld();
+            IWorkplace? workplace = _world.Workplaces.FirstOrDefault(w => w.Address == address);
+            if (workplace == null) throw new Exception("Workplace not found.");
+            return workplace;
+        }
     }
 }

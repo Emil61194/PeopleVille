@@ -2,6 +2,12 @@ import { HubConnectionBuilder } from "@microsoft/signalr";
 
 export let connection;
 let connectionStartPromise;
+const eventListeners = new Set();
+
+export function subscribeToEvents(listener) {
+  eventListeners.add(listener);
+  return () => eventListeners.delete(listener);
+}
 
 export async function connectToHub(onLog) {
   if (connection?.state === "Connected") return true;
@@ -22,6 +28,7 @@ export async function connectToHub(onLog) {
   );
   connection.onreconnected(() => log("Connected"));
   connection.on("Event", (message) => {
+    eventListeners.forEach((listener) => listener(message));
     const value =
       typeof message === "string" ? message : JSON.stringify(message);
     log(`Event: ${value}`);

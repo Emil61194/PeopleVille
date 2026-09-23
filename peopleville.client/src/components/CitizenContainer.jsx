@@ -1,21 +1,28 @@
 import { useEffect, useState } from "react";
 import { GetCitizens } from "../hooks/GetCitizens";
+import EntityPopup from "./EntityPopup.jsx";
 
-function getCitizenItem(citizen, index) {
+function getCitizenItem(citizen, index, onSelect) {
   const name = [citizen?.firstName, citizen?.lastName]
     .filter(Boolean)
     .join(" ");
 
   return (
-    <div key={citizen?.id ?? index}>
+    <button
+      type="button"
+      className="mapItem"
+      key={citizen?.id ?? index}
+      onClick={() => onSelect(citizen)}
+    >
       <p>{name || citizen?.id || JSON.stringify(citizen)}</p>
       {citizen?.currentLocation && <small>{citizen.currentLocation}</small>}
-    </div>
+    </button>
   );
 }
 
 const CitizenContainer = () => {
   const [citizens, setCitizens] = useState([]);
+  const [selectedCitizen, setSelectedCitizen] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -34,9 +41,20 @@ const CitizenContainer = () => {
   }, []);
 
   return (
-    <div id="menuDiv" name="wC">
-      {citizens.map(getCitizenItem)}
-    </div>
+    <>
+      <div id="menuDiv" name="wC">
+        {citizens.map((citizen, index) =>
+          getCitizenItem(citizen, index, setSelectedCitizen),
+        )}
+      </div>
+      {selectedCitizen && (
+        <EntityPopup
+          type="citizen"
+          item={selectedCitizen}
+          onClose={() => setSelectedCitizen(null)}
+        />
+      )}
+    </>
   );
 };
 
