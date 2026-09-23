@@ -91,30 +91,26 @@ namespace PeopleVille.Engine
             World save = new();
 
             ShoppingCenterBuilder shoppingCenterBuilder = new();
-            shoppingCenterBuilder.BuildShoppingCenters(save);
+            shoppingCenterBuilder.Build(save);
 
             SchoolBuilder schoolBuilder = new();
-            schoolBuilder.BuildSchools(save);
+            schoolBuilder.Build(save);
 
             save.Jobs = [];
-            JobsBuilder.BuildJobs(save);
+            JobsBuilder jobsBuilder = new();
+            jobsBuilder.Build(save);
 
             HouseBuilder houseBuilder = new();
-            houseBuilder.BuildHouses(save);
+            houseBuilder.Build(save);
 
             ApartmentBuilder apartmentBuilder = new();
-            apartmentBuilder.BuildApartments(save);
+            apartmentBuilder.Build(save);
 
-            CitizenBuilder citizenBuilder = new();
-            citizenBuilder.BuildCitizens(save, ref Tick, actionsEachTick);
+            CitizenBuilder.BuildCitizens(save, ref Tick, actionsEachTick);
 
             save.BankAccount = [];
 
-                if (instance is IBuilder builder)
-                {
-                    yield return builder;
-                }
-            }
+            return save;
         }
         [MemberNotNull(nameof(_world))]
         public World CheckWorld()

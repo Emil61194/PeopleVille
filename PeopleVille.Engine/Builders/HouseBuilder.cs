@@ -19,7 +19,7 @@ namespace PeopleVille.Engine.Builders
             {
                 int randomAddressNumber = rnd.Next(addresses.Count);
 
-                House house = new House
+                House house = new()
                 {
                     Address = addresses[randomAddressNumber],
                     FoodInventory = rnd.Next(50, 300),
