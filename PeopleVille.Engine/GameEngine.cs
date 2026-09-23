@@ -47,8 +47,6 @@ namespace PeopleVille.Engine
             while (GameRunning)
             {
                 Tick?.Invoke();
-                await _eventPublisher.PublishEvent("Yo");
-
 
 
                 // Random stuff happening ( e.g heatstroke, lack of supplies in town = death, virus )
@@ -91,7 +89,7 @@ namespace PeopleVille.Engine
 
         public World InitializeCity()
         {
-            World save = new World();
+            World save = new();
 
             ShoppingCenterBuilder shoppingCenterBuilder = new ShoppingCenterBuilder();
             shoppingCenterBuilder.BuildShoppingCenters(save);
@@ -109,7 +107,7 @@ namespace PeopleVille.Engine
             apartmentBuilder.BuildApartments(save);
 
             CitizenBuilder citizenBuilder = new CitizenBuilder();
-            citizenBuilder.BuildCitizens(save, Tick, actionsEachTick);
+            citizenBuilder.BuildCitizens(save, ref Tick, actionsEachTick);
 
             save.BankAccount = new List<BankAccount>();
 

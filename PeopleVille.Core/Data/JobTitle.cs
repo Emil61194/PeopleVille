@@ -1,8 +1,9 @@
-namespace PeopleVille.Core.Data;
-
-public enum JobTitle
+namespace PeopleVille.Core.Data
 {
-    Cashier,
-    SalesRepresentative,
-    MarketingSpecialist,
+    public enum JobTitle
+    {
+        Cashier,
+        SalesRepresentative,
+        MarketingSpecialist,
+    }
 }
