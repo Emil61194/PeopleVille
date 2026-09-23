@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { IconHome, IconUser } from "@tabler/icons-react";
+import { IconHome, IconUser } from "../icons.js";
 import { Modal } from "./Modal.jsx";
 
 function HomeModal({ home, residents, logs, onClose }) {

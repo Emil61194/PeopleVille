@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { IconUser, IconHome, IconBriefcase, IconSchool } from "@tabler/icons-react";
+import { IconUser, IconHome, IconBriefcase } from "../icons.js";
 import { Modal } from "./Modal.jsx";
 
 function age(birth) {
