@@ -3,6 +3,7 @@ using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
 using PeopleVille.Engine.Builders;
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 namespace PeopleVille.Engine
@@ -15,8 +16,8 @@ namespace PeopleVille.Engine
         public World? CurrentWorld => _world;
         public bool Ready = false;
         public bool _doPause = false;
-        public event Action? Tick;
-        public required ConcurrentBag<object> ActionsEachTickChanged;
+        public event Action Tick = delegate { };
+        public ConcurrentBag<object> ActionsEachTickChanged { get; } = new();
 
         public ConcurrentBag<object> actionsEachTick = [];
         public bool Initialize(string? filePath = null)
@@ -116,7 +117,8 @@ namespace PeopleVille.Engine
 
             return save;
         }
-        public World CheckWorld()
+        [MemberNotNull(nameof(_world))]
+        public void CheckWorld()
         {
             if (_world == null) throw new Exception("World is not initialized.");
             return _world;
