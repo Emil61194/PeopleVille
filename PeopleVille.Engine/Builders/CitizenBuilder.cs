@@ -40,7 +40,12 @@ namespace PeopleVille.Engine.Builders
                     lastName = lastNames[rnd.Next(lastNames.Length)];
                 }
 
-                Job chosenJob = jobs[rnd.Next(jobs.Count)];
+                Job chosenJob = null;
+                if (jobs.Count > 0)
+                {
+                    chosenJob = jobs[rnd.Next(jobs.Count)];
+                    jobs.Remove(chosenJob);
+                }
 
                 (string address, world) = GetAddress(world, lastName, rnd);
 
