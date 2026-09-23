@@ -1,11 +1,12 @@
-﻿using PeopleVille.Core.Models;
+using PeopleVille.Core.Interfaces;
+using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
 
 namespace PeopleVille.Engine.Builders
 {
-    public class HouseBuilder
+    public class HouseBuilder : IBuilder
     {
-        public void BuildHouses(World world)
+        public void Build(World world)
         {
             Random rnd = new Random();
             List<string> addresses = Core.Data.Address.AddressList.ToList();
@@ -23,6 +24,7 @@ namespace PeopleVille.Engine.Builders
                     Address = addresses[randomAddressNumber],
                     FoodInventory = rnd.Next(50, 300),
                     WaterInventory = rnd.Next(50, 300),
+                    CitizenCapacity = rnd.Next(1, 5),
                 };
                 addresses.Remove(house.Address);
                 world.Houses.Add(house);
