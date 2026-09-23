@@ -15,7 +15,7 @@ namespace PeopleVille.Engine
         public World? CurrentWorld => _world;
         public bool Ready = false;
         public bool _doPause = false;
-        public event Action Tick;
+        public event Action? Tick;
 
         public ConcurrentBag<object> actionsEachTick = new ConcurrentBag<object>();
         public bool Initialize(string? filePath = null)
@@ -91,28 +91,56 @@ namespace PeopleVille.Engine
         {
             World save = new();
 
-            ShoppingCenterBuilder shoppingCenterBuilder = new ShoppingCenterBuilder();
-            shoppingCenterBuilder.BuildShoppingCenters(save);
+            var builders = new List<IBuilder>
+            {
+                new ShoppingCenterBuilder(),
+                new SchoolBuilder(),
+                new JobsBuilder(),
+                new HouseBuilder(),
+                new ApartmentBuilder(),
+                new CitizenBuilder(this)
+            };
 
-            SchoolBuilder schoolBuilder = new SchoolBuilder();
-            schoolBuilder.BuildSchools(save);
+            builders.AddRange(CheckExternalBuilders("C:\\Users\\thoma\\source\\repos\\PeopleVille\\PeopleVille.Handicaps\\bin\\Debug\\net10.0\\PeopleVille.Handicaps.dll"));
 
-            save.Jobs = new List<Job>();
-            JobsBuilder.BuildJobs(save);
-
-            HouseBuilder houseBuilder = new HouseBuilder();
-            houseBuilder.BuildHouses(save);
-
-            ApartmentBuilder apartmentBuilder = new ApartmentBuilder();
-            apartmentBuilder.BuildApartments(save);
-
-            CitizenBuilder citizenBuilder = new CitizenBuilder();
-            citizenBuilder.BuildCitizens(save, ref Tick, actionsEachTick);
-
-            save.BankAccount = new List<BankAccount>();
-
+            foreach (var builder in builders)
+            {
+                builder.Build(save);
+            }
+            
             return save;
         }
+
+        private IEnumerable<IBuilder> CheckExternalBuilders(string filePath)
+        {
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException($"The file {filePath} does not exist.");
+            }
+
+            var assembly = System.Reflection.Assembly.LoadFrom(filePath);
+            var builderTypes = assembly.GetTypes()
+                .Where(t => typeof(IBuilder).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+
+            foreach (var type in builderTypes)
+            {
+                object? instance = null;
+                try
+                {
+                    instance = Activator.CreateInstance(type, this);
+                }
+                catch (MissingMethodException)
+                {
+                    instance = Activator.CreateInstance(type);
+                }
+
+                if (instance is IBuilder builder)
+                {
+                    yield return builder;
+                }
+            }
+        }
+
         public void CheckWorld()
         {
             if (_world == null) throw new Exception("World is not initialized.");
