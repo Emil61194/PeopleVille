@@ -135,10 +135,10 @@ namespace PeopleVille.Engine
             if (citizen == null) throw new Exception("Citizen not found.");
             return citizen;
         }
-        public List<IPrivateHome> GetAllHomes()
+        public List<object> GetAllHomes()
         {
             CheckWorld();
-            List<IPrivateHome> homes = new List<IPrivateHome>();
+            List<object> homes = new List<object>();
             homes.AddRange(_world.Houses);
             homes.AddRange(_world.Apartments);
             return homes;
@@ -149,12 +149,10 @@ namespace PeopleVille.Engine
             return _world.Citizens;
         }
 
-        public List<IWorkplace> GetAllWorkplaces()
+        public List<ShoppingCenter> GetAllWorkplaces()
         {
             CheckWorld();
-            List<IWorkplace> workplaces = new List<IWorkplace>();
-            workplaces.AddRange(_world.ShoppingCenters);
-            return workplaces;
+            return _world.ShoppingCenters;
         }
     }
 }

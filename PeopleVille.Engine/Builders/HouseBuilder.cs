@@ -1,4 +1,4 @@
-﻿using PeopleVille.Core.Models;
+using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
 
 namespace PeopleVille.Engine.Builders
@@ -23,6 +23,7 @@ namespace PeopleVille.Engine.Builders
                     Address = addresses[randomAddressNumber],
                     FoodInventory = rnd.Next(50, 300),
                     WaterInventory = rnd.Next(50, 300),
+                    CitizenCapacity = rnd.Next(1, 5),
                 };
                 addresses.Remove(house.Address);
                 world.Houses.Add(house);
