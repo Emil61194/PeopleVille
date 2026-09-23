@@ -90,28 +90,61 @@ namespace PeopleVille.Engine
         {
             World save = new();
 
-            ShoppingCenterBuilder shoppingCenterBuilder = new();
-            shoppingCenterBuilder.Build(save);
+            var builders = new List<IBuilder>
+            {
+                new ShoppingCenterBuilder(),
+                new SchoolBuilder(),
+                new JobsBuilder(),
+                new HouseBuilder(),
+                new ApartmentBuilder()
+            };
 
-            SchoolBuilder schoolBuilder = new();
-            schoolBuilder.Build(save);
+            string appDir = Path.GetFullPath(
+                Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..",
+                "PeopleVille.Handicaps", "bin", "Debug", "net10.0", "PeopleVille.Handicaps.dll"));
 
-            save.Jobs = [];
-            JobsBuilder jobsBuilder = new();
-            jobsBuilder.Build(save);
+            builders.AddRange(CheckExternalBuilders(appDir));
 
-            HouseBuilder houseBuilder = new();
-            houseBuilder.Build(save);
-
-            ApartmentBuilder apartmentBuilder = new();
-            apartmentBuilder.Build(save);
+            foreach (var builder in builders)
+            {
+                builder.Build(save);
+            }
 
             CitizenBuilder.BuildCitizens(save, ref Tick, actionsEachTick);
 
-            save.BankAccount = [];
-
             return save;
         }
+
+        private IEnumerable<IBuilder> CheckExternalBuilders(string filePath)
+        {
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException($"The file {filePath} does not exist.");
+            }
+
+            var assembly = System.Reflection.Assembly.LoadFrom(filePath);
+            var builderTypes = assembly.GetTypes()
+                .Where(t => typeof(IBuilder).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+
+            foreach (var type in builderTypes)
+            {
+                object? instance = null;
+                try
+                {
+                    instance = Activator.CreateInstance(type, this);
+                }
+                catch (MissingMethodException)
+                {
+                    instance = Activator.CreateInstance(type);
+                }
+
+                if (instance is IBuilder builder)
+                {
+                    yield return builder;
+                }
+            }
+        }
+
         [MemberNotNull(nameof(_world))]
         public World CheckWorld()
         {
@@ -152,11 +185,18 @@ namespace PeopleVille.Engine
             return world.Citizens;
         }
 
-        public List<IWorkplace> GetAllWorkplaces()
+        public List<ShoppingCenter> GetAllWorkplaces()
         {
             World world = CheckWorld();
-            List<IWorkplace> workplaces = [.. world.ShoppingCenters];
-            return workplaces;
+            return world.ShoppingCenters;
+        }
+
+        public IWorkplace GetWorkplaceByAddress(string address)
+        {
+            World world = CheckWorld();
+            IWorkplace? workplace = world.Workplaces.FirstOrDefault(w => w.Address == address);
+            if (workplace == null) throw new Exception("Workplace not found.");
+            return workplace;
         }
     }
 }

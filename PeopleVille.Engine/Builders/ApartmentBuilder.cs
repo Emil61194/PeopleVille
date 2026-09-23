@@ -1,4 +1,4 @@
-﻿using PeopleVille.Core.Interfaces;
+using PeopleVille.Core.Interfaces;
 using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
 
@@ -27,7 +27,8 @@ namespace PeopleVille.Engine.Builders
                     Floors = floors,
                     Rent = rnd.Next(500, 2000),
                     FoodInventory = rnd.Next(50, 300),
-                    WaterInventory = rnd.Next(50, 300)
+                    WaterInventory = rnd.Next(50, 300),
+                    CitizenCapacity = floors * rnd.Next(2, 5),
                 };
                 addresses.Remove(address);
                 world.Apartments.Add(apartment);

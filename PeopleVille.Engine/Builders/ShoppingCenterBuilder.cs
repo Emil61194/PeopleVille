@@ -12,7 +12,7 @@ namespace PeopleVille.Engine.Builders
             List<string> addresses = Core.Data.Address.AddressList.ToList();
 
             Random rnd = new Random();
-            int shoppingCenterCount = rnd.Next(1, 10);
+            int shoppingCenterCount = rnd.Next(5, 10);
             for (int i = 0; i < shoppingCenterCount; i++)
             {
                 ShoppingCenter shoppingCenter = new ShoppingCenter

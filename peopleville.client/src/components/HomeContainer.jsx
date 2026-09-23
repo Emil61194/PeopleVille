@@ -1,16 +1,23 @@
 import { useEffect, useState } from "react";
 import { GetHomes } from "../hooks/GetHomes";
+import EntityPopup from "./EntityPopup.jsx";
 
-function getHomeItem(home, index) {
+function getHomeItem(home, index, onSelect) {
   return (
-    <div key={home?.id ?? index}>
-      <p>{home?.name ?? home?.address ?? JSON.stringify(home)}</p>
-    </div>
+    <button
+      type="button"
+      className="mapItem"
+      key={home?.id ?? home?.address ?? index}
+      onClick={() => onSelect(home)}
+    >
+      <p>{home?.name ?? home?.address ?? "Home"}</p>
+    </button>
   );
 }
 
 const HomeContainer = () => {
   const [homes, setHomes] = useState([]);
+  const [selectedHome, setSelectedHome] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -29,9 +36,18 @@ const HomeContainer = () => {
   }, []);
 
   return (
-    <div id="menuDiv" name="hC">
-      {homes.map(getHomeItem)}
-    </div>
+    <>
+      <div id="menuDiv" name="hC">
+        {homes.map((home, index) => getHomeItem(home, index, setSelectedHome))}
+      </div>
+      {selectedHome && (
+        <EntityPopup
+          type="home"
+          item={selectedHome}
+          onClose={() => setSelectedHome(null)}
+        />
+      )}
+    </>
   );
 };
 
