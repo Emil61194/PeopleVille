@@ -25,7 +25,6 @@ namespace PeopleVille.Handicaps
                 if (!FirstName.FirstNames.TryGetValue(gender, out firstNames))
                 {
                     firstNames = FirstName.FirstNames.Values.SelectMany(names => names).ToArray();
-                    //firstNames = ["Benjamin"];
                 }
                 string firstName = firstNames[rnd.Next(firstNames.Length)];
                 if (i > lastFamilyHandicapLoop || i % 5 == 0)
