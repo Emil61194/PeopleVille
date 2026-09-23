@@ -10,10 +10,10 @@ namespace PeopleVille.Engine.Builders
 
     public class CitizenBuilder
     {
-        public void BuildCitizens(World world, Action tickAction, ConcurrentBag<object> actionsEachTick)
+        public void BuildCitizens(World world,ref Action tickAction, ConcurrentBag<object> actionsEachTick)
         {
             Random rnd = new();
-            int citizenAmount = rnd.Next(40, 100);
+            int citizenAmount = 40;
 
             string[] lastNames = LastName.LastNames.ToArray();
 
@@ -60,8 +60,9 @@ namespace PeopleVille.Engine.Builders
                 }
 
                 world.Citizens?.Add(citizen);
-                RoutineAction routineAction = citizen.PerformHourlyRoutine;
-                tickAction += routineAction.Invoke;
+                //RoutineAction routineAction = citizen.PerformHourlyRoutine;
+                //tickAction += routineAction.Invoke;
+                tickAction += citizen.PerformHourlyRoutine;
             }
         }
 
