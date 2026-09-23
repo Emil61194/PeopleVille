@@ -1,55 +1,42 @@
-using PeopleVille.Core.Data;
+﻿using PeopleVille.Core.Data;
 using PeopleVille.Core.Enum;
+using PeopleVille.Core.Interfaces;
 using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
-using System.Collections.Concurrent;
-using PeopleVille.Core.Data;
-using PeopleVille.Core.Interfaces;
+using PeopleVille.Engine;
 
-namespace PeopleVille.Engine.Builders
+namespace PeopleVille.Handicaps
 {
-    public delegate void RoutineAction();
-
-    public class CitizenBuilder(GameEngine engine) : IBuilder
+    public class HandicapBuilder(GameEngine engine) : IBuilder
     {
-        public void Build(World world) 
+        public void Build(World world)
         {
             Random rnd = new();
-            int citizenAmount = rnd.Next(40, 100);
-
+            int handicapAmount = rnd.Next(10, 30);
             string[] lastNames = LastName.LastNames.ToArray();
-
-            List<Job> jobs = world.Jobs;
-
             Array genders = Enum.GetValues<Genders>();
             int genderCount = genders.Length;
-
-            int lastFamilyCitizenLoop = (citizenAmount * 75) / 100;
+            int lastFamilyHandicapLoop = (handicapAmount * 75) / 100;
             string lastName = lastNames[rnd.Next(lastNames.Length)];
-
-            for (int i = 0; i < citizenAmount; i++)
+            for (int i = 0; i < handicapAmount; i++)
             {
                 Genders gender = (Genders)rnd.Next(0, genderCount);
                 string[] firstNames;
                 if (!FirstName.FirstNames.TryGetValue(gender, out firstNames))
                 {
                     firstNames = FirstName.FirstNames.Values.SelectMany(names => names).ToArray();
+                    //firstNames = ["Benjamin"];
                 }
                 string firstName = firstNames[rnd.Next(firstNames.Length)];
-                if (i > lastFamilyCitizenLoop || i % 5 == 0)
+                if (i > lastFamilyHandicapLoop || i % 5 == 0)
                 {
                     lastName = lastNames[rnd.Next(lastNames.Length)];
                 }
-
-                Job chosenJob = jobs[rnd.Next(jobs.Count)];
-
                 (string address, world) = GetAddress(world, lastName, rnd);
-
                 DateTime age = DateTime.Now.AddYears(-rnd.Next(0, 70));
                 int yearsOld = DateTime.Now.Year - age.Year;
 
-
-                Citizen citizen = new(world: world,
+                Handicap handicap = new(world: world,
                     id: i + 1,
                     firstName: firstName,
                     lastName: lastName,
@@ -58,21 +45,12 @@ namespace PeopleVille.Engine.Builders
                     homeAddress: address,
                     actions: engine.actionsEachTick)
                 {
-                    Job = chosenJob,
                     CurrentLocation = address
                 };
+                world.Citizens?.Add(handicap);
 
-                if (yearsOld < 18)
-                {
-                    citizen.School = world.Schools[rnd.Next(world.Schools.Count)];
-                }
-
-                world.Citizens?.Add(citizen);
-                RoutineAction routineAction = citizen.PerformHourlyRoutine;
-                engine.Tick += routineAction.Invoke;
             }
         }
-
         private (string, World) GetAddress(World world, string lastName, Random rnd)
         {
             List<House> houses = world.Houses.Select(h => h).ToList();

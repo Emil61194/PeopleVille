@@ -1,11 +1,12 @@
-﻿using PeopleVille.Core.Models;
+﻿using PeopleVille.Core.Interfaces;
+using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
 
 namespace PeopleVille.Engine.Builders
 {
-    public class SchoolBuilder
+    public class SchoolBuilder : IBuilder
     {
-        public void BuildSchools(World world)
+        public void Build(World world)
         {
             List<string> addresses = Core.Data.Address.AddressList.ToList();
 

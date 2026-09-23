@@ -1,11 +1,12 @@
-﻿using PeopleVille.Core.Models;
+﻿using PeopleVille.Core.Interfaces;
+using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
 
 namespace PeopleVille.Engine.Builders
 {
-    public class ApartmentBuilder
+    public class ApartmentBuilder : IBuilder
     {
-        public void BuildApartments(World world)
+        public void Build(World world)
         {
             Random rnd = new Random();
             List<string> addresses = Core.Data.Address.AddressList.ToList();
