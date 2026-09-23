@@ -14,7 +14,7 @@ function getCitizenItem(citizen, index, onSelect) {
       key={citizen?.id ?? index}
       onClick={() => onSelect(citizen)}
     >
-      <p>{name || citizen?.id || JSON.stringify(citizen)}</p>
+      <p>{name || citizen?.id || "Citizen"}</p>
       {citizen?.currentLocation && <small>{citizen.currentLocation}</small>}
     </button>
   );

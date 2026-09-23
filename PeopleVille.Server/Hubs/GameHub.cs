@@ -61,7 +61,7 @@ public class GameHub(GameService gameService, SaveService saveService) : Hub
     {
         return await Task.FromResult(gameService.GameEngine.GetAllWorkplaces());
     }
-    
+
     public async Task<DateTime> GetTime()
     {
         return await Task.FromResult(gameService.GameEngine.CurrentWorld.currentDateTime);

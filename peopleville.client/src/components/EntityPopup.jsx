@@ -7,6 +7,12 @@ import {
   GetWorkplaceData,
 } from "../hooks/GetEntityData.js";
 import { subscribeToEvents } from "../services/WSService.js";
+import {
+  getEntityFields,
+  getEnumLabel,
+  getFieldLabel,
+  getGenderLabel,
+} from "./EntityFields.jsx";
 
 const detailLoaders = {
   home: (item) =>
@@ -17,22 +23,47 @@ const detailLoaders = {
   workplace: (item) => GetWorkplaceData(item.address),
 };
 
+function normalizeEvent(event) {
+  if (typeof event !== "string") return event;
+
+  const payload = event.startsWith("Event:")
+    ? event.slice("Event:".length).trim()
+    : event;
+
+  try {
+    return JSON.parse(payload);
+  } catch {
+    return { message: event };
+  }
+}
+
 function getEventValue(event, key) {
   return event?.[key] ?? event?.[key[0].toUpperCase() + key.slice(1)];
 }
 
 function eventMatchesItem(event, type, item) {
+  event = normalizeEvent(event);
   const message = getEventValue(event, "message");
   const text = typeof message === "string" ? message.toLowerCase() : "";
   const address = getEventValue(item, "address");
 
   if (type === "citizen") {
-    return (
-      getEventValue(event, "citizenId") === getEventValue(item, "id") ||
-      text.includes(
-        `${getEventValue(item, "firstName")} ${getEventValue(item, "lastName")}`.toLowerCase(),
-      )
-    );
+    const eventCitizenId = getEventValue(event, "citizenId");
+    const citizenId = getEventValue(item, "id");
+
+    if (eventCitizenId !== undefined && eventCitizenId !== null) {
+      return String(eventCitizenId) === String(citizenId);
+    }
+
+    const citizenName = [
+      getEventValue(item, "firstName"),
+      getEventValue(item, "lastName"),
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+    return citizenName.length > 0 && text.includes(citizenName);
   }
 
   return (
@@ -43,18 +74,36 @@ function eventMatchesItem(event, type, item) {
   );
 }
 
-function getDetailValue(value) {
+function getDetailValue(value, depth = 0) {
   if (value === null || value === undefined) return "-";
-  if (typeof value === "object") return JSON.stringify(value);
+  if (typeof value === "boolean") return value ? "Yes" : "No";
+  if (value instanceof Date) return value.toLocaleString();
+  if (typeof value === "object") {
+    if (depth > 1) return "Available";
+
+    return Object.entries(value)
+      .filter(([key]) => key !== "owner")
+      .map(
+        ([key, nestedValue]) =>
+          `${getFieldLabel(key)}: ${
+            key === "jobTitle"
+              ? getEnumLabel(nestedValue)
+              : key === "gender"
+                ? getGenderLabel(nestedValue)
+                : getDetailValue(nestedValue, depth + 1)
+          }`,
+      )
+      .join(", ");
+  }
   return String(value);
 }
 
-function EntityDetails({ item }) {
+function EntityDetails({ type, item }) {
   return (
     <dl className="entityDetails">
-      {Object.entries(item ?? {}).map(([key, value]) => (
+      {getEntityFields(type, item).map(([key, value]) => (
         <div key={key}>
-          <dt>{key}</dt>
+          <dt>{getFieldLabel(key)}</dt>
           <dd>{getDetailValue(value)}</dd>
         </div>
       ))}
@@ -69,7 +118,7 @@ export default function EntityPopup({ type, item, onClose }) {
   const title =
     type === "citizen"
       ? `${item.firstName ?? "Citizen"} ${item.lastName ?? ""}`.trim()
-      : item.address ?? type;
+      : (item.address ?? type);
 
   useEffect(() => {
     let cancelled = false;
@@ -111,7 +160,7 @@ export default function EntityPopup({ type, item, onClose }) {
             Close
           </button>
         </div>
-        <EntityDetails item={details} />
+        <EntityDetails type={type} item={details} />
         <WSConsole logs={logs} />
       </section>
     </div>

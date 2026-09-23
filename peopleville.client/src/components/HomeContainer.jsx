@@ -10,7 +10,7 @@ function getHomeItem(home, index, onSelect) {
       key={home?.id ?? home?.address ?? index}
       onClick={() => onSelect(home)}
     >
-      <p>{home?.name ?? home?.address ?? JSON.stringify(home)}</p>
+      <p>{home?.name ?? home?.address ?? "Home"}</p>
     </button>
   );
 }
@@ -38,9 +38,7 @@ const HomeContainer = () => {
   return (
     <>
       <div id="menuDiv" name="hC">
-        {homes.map((home, index) =>
-          getHomeItem(home, index, setSelectedHome),
-        )}
+        {homes.map((home, index) => getHomeItem(home, index, setSelectedHome))}
       </div>
       {selectedHome && (
         <EntityPopup
