@@ -45,6 +45,10 @@ public class GameHub(GameService gameService, SaveService saveService) : Hub
     {
         return await Task.FromResult(gameService.GameEngine.GetCitizenById(id));
     }
+    public async Task<IWorkplace> GetWorkplaceData(string address)
+    {
+        return await Task.FromResult(gameService.GameEngine.GetWorkplaceByAddress(address));
+    }
     public async Task<List<object>> GetAllHomes()
     {
         return await Task.FromResult(gameService.GameEngine.GetAllHomes());
@@ -57,7 +61,7 @@ public class GameHub(GameService gameService, SaveService saveService) : Hub
     {
         return await Task.FromResult(gameService.GameEngine.GetAllWorkplaces());
     }
-    
+
     public async Task<DateTime> GetTime()
     {
         return await Task.FromResult(gameService.GameEngine.CurrentWorld.currentDateTime);
