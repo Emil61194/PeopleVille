@@ -14,7 +14,7 @@ namespace PeopleVille.Engine.Builders
         public void BuildCitizens(World world,ref Action tickAction, ConcurrentBag<object> actionsEachTick)
         {
             Random rnd = new();
-            int citizenAmount = 40;
+            int citizenAmount = rnd.Next(40, 100);
 
             string[] lastNames = LastName.LastNames.ToArray();
 
