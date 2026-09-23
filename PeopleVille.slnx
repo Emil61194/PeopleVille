@@ -1,7 +1,4 @@
 <Solution>
-  <Folder Name="/Documentation/">
-    <File Path="../../../Downloads/PeopleVilleNew.png" />
-  </Folder>
   <Project Path="peopleville.client/peopleville.client.esproj">
     <Build />
     <Deploy />
