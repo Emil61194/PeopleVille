@@ -1,4 +1,4 @@
-﻿using PeopleVille.Core.Interfaces;
+using PeopleVille.Core.Interfaces;
 using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
 

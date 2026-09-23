@@ -3,9 +3,8 @@ import { HubConnectionBuilder } from "@microsoft/signalr";
 export let connection;
 let connectionStartPromise;
 
-export async function connectToHub(onLog) {
-  if (connection?.state === "Connected") return true;
-  if (connectionStartPromise) return connectionStartPromise;
+export async function connectToHub(onLog, onWorldUpdate) {
+  if (connection) return;
 
   const log = (message) => onLog?.(message);
 
@@ -31,22 +30,13 @@ export async function connectToHub(onLog) {
     fetchWorldData(onWorldUpdate);
   });
 
-  connectionStartPromise = connection
-    .start()
-    .then(() => {
-      log("Connected");
-      return true;
-    })
-    .catch((error) => {
-      log(`Connection failed: ${error.message}`);
-      connection = undefined;
-      return false;
-    })
-    .finally(() => {
-      connectionStartPromise = undefined;
-    });
-
-  return connectionStartPromise;
+  try {
+    await connection.start();
+    log("Connected");
+    await fetchWorldData(onWorldUpdate);
+  } catch (error) {
+    log(`Connection failed: ${error.message}`);
+  }
 }
 
 async function fetchWorldData(onWorldUpdate) {

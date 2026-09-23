@@ -1,10 +1,12 @@
 import "./App.css";
 import { useEffect, useState } from "react";
 import { MainGameButtons } from "./components/MainGameButtons.jsx";
-import { GameMap } from "./components/GameMap.jsx";
-import { WSConsole } from "./components/WSConsole.jsx";
+import { HomesCard } from "./components/HomesCard.jsx";
+import { CitizensCard } from "./components/CitizensCard.jsx";
+import { WorkplacesCard } from "./components/WorkplacesCard.jsx";
+import { LogCard } from "./components/LogCard.jsx";
+import { KontrolpanelCard } from "./components/KontrolpanelCard.jsx";
 import { connectToHub } from "./services/WSService.js";
-import TimeShower from "./components/TimeShower.jsx";
 
 function formatTime(date) {
   return date.toLocaleTimeString("da-DK", {
@@ -26,15 +28,18 @@ function App() {
 
     let cancelled = false;
 
-    connectToHub((message) =>
-      setLogs((currentLogs) => [...currentLogs, message]),
-    ).then((connected) => {
-      if (!cancelled) setConnectionReady(connected);
-    });
-
-    return () => {
-      cancelled = true;
-    };
+    connectToHub(
+      (message) =>
+        setLogs((prev) => [
+          { time: formatTime(new Date()), message },
+          ...prev,
+        ]),
+      ({ homes: h, citizens: c, workplaces: w }) => {
+        setHomes(h ?? []);
+        setCitizens(c ?? []);
+        setWorkplaces(w ?? []);
+      },
+    );
   }, [gameStarted]);
 
   return (
@@ -44,12 +49,19 @@ function App() {
       {!gameStarted && (
         <MainGameButtons onGameStarted={() => setGameStarted(true)} />
       )}
-      {gameStarted && connectionReady && (
-        <>
-          <TimeShower />
-          <GameMap />
-          <WSConsole logs={logs} />
-        </>
+
+      {gameStarted && (
+        <div className="dashboard">
+          <div className="dashboard-top">
+            <HomesCard homes={homes} citizens={citizens} logs={logs} />
+            <CitizensCard citizens={citizens} logs={logs} />
+            <WorkplacesCard workplaces={workplaces} logs={logs} />
+          </div>
+          <div className="dashboard-bottom">
+            <KontrolpanelCard />
+            <LogCard logs={logs} />
+          </div>
+        </div>
       )}
     </div>
   );
