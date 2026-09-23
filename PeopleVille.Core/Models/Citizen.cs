@@ -248,7 +248,7 @@ namespace PeopleVille.Core.Models
         private void ReduceHomeBalance()
         {
             Building home = FindHome();
-            Random rnd = new Random();
+            Random rnd = new();
             ShoppingCenter? shoppingCenter = world.ShoppingCenters[rnd.Next(world.ShoppingCenters.Count)];
 
             if (home is House house)
