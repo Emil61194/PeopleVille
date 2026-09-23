@@ -1,9 +1,11 @@
 import { HubConnectionBuilder } from "@microsoft/signalr";
 
-let connection;
+export let connection;
+let connectionStartPromise;
 
 export async function connectToHub(onLog) {
-  if (connection) return;
+  if (connection?.state === "Connected") return true;
+  if (connectionStartPromise) return connectionStartPromise;
 
   const log = (message) => onLog?.(message);
 
@@ -25,10 +27,20 @@ export async function connectToHub(onLog) {
     log(`Event: ${value}`);
   });
 
-  try {
-    await connection.start();
-    log("Connected");
-  } catch (error) {
-    log(`Connection failed: ${error.message}`);
-  }
+  connectionStartPromise = connection
+    .start()
+    .then(() => {
+      log("Connected");
+      return true;
+    })
+    .catch((error) => {
+      log(`Connection failed: ${error.message}`);
+      connection = undefined;
+      return false;
+    })
+    .finally(() => {
+      connectionStartPromise = undefined;
+    });
+
+  return connectionStartPromise;
 }

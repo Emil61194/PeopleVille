@@ -53,7 +53,7 @@ namespace PeopleVille.Server
             app.UseAuthorization();
 
             app.MapControllers();
-            
+
             app.MapHub<GameHub>("/hubs/game");
 
             app.MapFallbackToFile("/index.html");

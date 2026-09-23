@@ -42,6 +42,18 @@ namespace PeopleVille.Core.Models
 
             if (currentHour < 7 || currentHour > 22) // sleeping time
             {
+                actions.Add($"{new CitizenOperation
+                {
+                    CitizenId = Id,
+                    FirstName = FirstName,
+                    LastName = LastName,
+                    Gender = Gender == 0 ? "Male" : "Female",
+                    HomeAddress = HomeAddress,
+                    CurrentLocation = CurrentLocation,
+                    IsAdult = (world.currentDateTime.Year - Birth.Year) >= 18,
+                    IsEmployed = Job != null,
+                    Message = $"{FirstName} {LastName} is sleeping."
+                }}"); 
                 return;
             }
 
@@ -146,7 +158,7 @@ namespace PeopleVille.Core.Models
             }
             else
             {
-                throw new Exception($"Home not found for citizen with address: {HomeAddress}");
+                return false; // find solution for citizen with no found address
             }
         }
 
