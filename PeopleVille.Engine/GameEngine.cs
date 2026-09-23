@@ -77,16 +77,13 @@ namespace PeopleVille.Engine
             }
         }
 
-        public World? CheckSave(string filePath)
+        public static World CheckSave(string filePath)
         {
             if (File.Exists(filePath))
             {
-                World? save = JsonSerializer.Deserialize<World>(File.ReadAllText(filePath));
-                if (save != null)
-                {
-                    return save;
-                }
-                throw new Exception("Save file is empty or corrupted.");
+                World save = JsonSerializer.Deserialize<World>(File.ReadAllText(filePath))
+                    ?? throw new Exception("Save file is empty or corrupted.");
+                return save;
             }
             throw new Exception("Required file not found" + filePath);
         }
@@ -95,25 +92,25 @@ namespace PeopleVille.Engine
         {
             World save = new();
 
-            ShoppingCenterBuilder shoppingCenterBuilder = new ShoppingCenterBuilder();
+            ShoppingCenterBuilder shoppingCenterBuilder = new();
             shoppingCenterBuilder.BuildShoppingCenters(save);
 
-            SchoolBuilder schoolBuilder = new SchoolBuilder();
+            SchoolBuilder schoolBuilder = new();
             schoolBuilder.BuildSchools(save);
 
-            save.Jobs = new List<Job>();
+            save.Jobs = [];
             JobsBuilder.BuildJobs(save);
 
-            HouseBuilder houseBuilder = new HouseBuilder();
+            HouseBuilder houseBuilder = new();
             houseBuilder.BuildHouses(save);
 
-            ApartmentBuilder apartmentBuilder = new ApartmentBuilder();
+            ApartmentBuilder apartmentBuilder = new();
             apartmentBuilder.BuildApartments(save);
 
-            CitizenBuilder citizenBuilder = new CitizenBuilder();
+            CitizenBuilder citizenBuilder = new();
             citizenBuilder.BuildCitizens(save, Tick ?? (() => { }), ActionsEachTickChanged);
 
-            save.BankAccount = new List<BankAccount>();
+            save.BankAccount = [];
 
             return save;
         }
@@ -127,30 +124,28 @@ namespace PeopleVille.Engine
         public House GetHouseByAddress(string address)
         {
             World world = CheckWorld();
-            House? house = world.Houses.FirstOrDefault(h => h.Address == address);
-            if (house == null) throw new Exception("House not found.");
+            House house = world.Houses.FirstOrDefault(h => h.Address == address)
+                ?? throw new Exception("House not found.");
             return house;
         }
         public Apartment GetApartmentByAddress(string address)
         {
             World world = CheckWorld();
-            Apartment? apartment = world.Apartments.FirstOrDefault(a => a.Address == address);
-            if (apartment == null) throw new Exception("Apartment not found.");
+            Apartment apartment = world.Apartments.FirstOrDefault(a => a.Address == address)
+                ?? throw new Exception("Apartment not found.");
             return apartment;
         }
         public Citizen GetCitizenById(int id)
         {
             World world = CheckWorld();
-            Citizen? citizen = world.Citizens.FirstOrDefault(c => c.Id == id);
-            if (citizen == null) throw new Exception("Citizen not found.");
+            Citizen citizen = world.Citizens.FirstOrDefault(c => c.Id == id)
+                ?? throw new Exception("Citizen not found.");
             return citizen;
         }
         public List<IPrivateHome> GetAllHomes()
         {
             World world = CheckWorld();
-            List<IPrivateHome> homes = new List<IPrivateHome>();
-            homes.AddRange(world.Houses);
-            homes.AddRange(world.Apartments);
+            List<IPrivateHome> homes = [.. world.Houses, .. world.Apartments];
             return homes;
         }
         public List<Citizen> GetAllCitizens()
@@ -162,8 +157,7 @@ namespace PeopleVille.Engine
         public List<IWorkplace> GetAllWorkplaces()
         {
             World world = CheckWorld();
-            List<IWorkplace> workplaces = new List<IWorkplace>();
-            workplaces.AddRange(world.ShoppingCenters);
+            List<IWorkplace> workplaces = [.. world.ShoppingCenters];
             return workplaces;
         }
     }
