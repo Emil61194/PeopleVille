@@ -3,9 +3,9 @@ using PeopleVille.Core.Models;
 
 namespace PeopleVille.Engine.Builders;
 
-public static class JobsBuilder
+public class JobsBuilder : IBuilder
 {
-    static internal void BuildJobs(World world)
+    public void Build(World world)
     {
 
         foreach (IWorkplace workplace in world.Workplaces)

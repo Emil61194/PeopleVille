@@ -8,9 +8,9 @@ namespace PeopleVille.Engine.Builders
 {
     public delegate void RoutineAction();
 
-    public class CitizenBuilder
+    public class CitizenBuilder(GameEngine engine) : IBuilder
     {
-        public void BuildCitizens(World world,ref Action tickAction, ConcurrentBag<object> actionsEachTick)
+        public void Build(World world) 
         {
             Random rnd = new();
             int citizenAmount = rnd.Next(10, 15);
@@ -36,7 +36,12 @@ namespace PeopleVille.Engine.Builders
                     lastName = lastNames[rnd.Next(lastNames.Length)];
                 }
 
-                Job chosenJob = jobs[rnd.Next(jobs.Count)];
+                Job chosenJob = null;
+                if (jobs.Count > 0)
+                {
+                    chosenJob = jobs[rnd.Next(jobs.Count)];
+                    jobs.Remove(chosenJob);
+                }
 
                 (string address, world) = GetAddress(world, lastName, rnd);
 
