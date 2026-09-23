@@ -56,7 +56,8 @@ namespace PeopleVille.Engine.Builders
                     gender: (int)gender,
                     family: family,
                     familialStatus: familialStatus,
-                    homeAddress: address)
+                    homeAddress: address,
+                    actionSink: actionsEachTick.Add)
                 {
                     Job = chosenJob,
                     CurrentLocation = address,

@@ -1,9 +1,10 @@
 ﻿using PeopleVille.Core.Enum;
 using PeopleVille.Core.Models.Home;
+using PeopleVille.Core.Operations;
 
 namespace PeopleVille.Core.Models
 {
-    public class Citizen(World world, int id, string firstName, string lastName, DateTime birth, int gender, Family family, FamilyRoles familialStatus, string homeAddress)
+    public class Citizen(World world, int id, string firstName, string lastName, DateTime birth, int gender, Family family, FamilyRoles familialStatus, string homeAddress, Action<object>? actionSink = null)
     {
         public Citizen(World world, int id, string firstName, string lastName, DateTime birth, int gender, string homeAddress)
             : this(world, id, firstName, lastName, birth, gender, new Family(0, []), FamilyRoles.Adult, homeAddress)
@@ -23,6 +24,8 @@ namespace PeopleVille.Core.Models
 
         public required string CurrentLocation { get; set; }
         public School? School { get; set; }
+
+        private readonly Action<object>? _actionSink = actionSink;
 
         public void PerformHourlyRoutine()
         {
@@ -49,6 +52,7 @@ namespace PeopleVille.Core.Models
 
             if (currentHour < 7 || currentHour > 22) // sleeping time
             {
+                PublishCitizenAction($"{FirstName} {LastName} is sleeping.");
                 return;
             }
 
@@ -61,21 +65,47 @@ namespace PeopleVille.Core.Models
             if (yearsOld < 18 && School != null && currentHour >= School.StartTime.Hour && currentHour < School.EndTime.Hour) // school time
             {
                 CurrentLocation = School.Address;
+                PublishCitizenAction($"Attending school at {world.currentDateTime}");
             }
             else if (yearsOld >= 18 && Job != null && currentHour >= Job.Workplace.WorkStartTime && currentHour < Job.Workplace.WorkEndTime) // work time
             {
                 CurrentLocation = Job.Workplace.Address;
+                PublishCitizenAction($"Working at {Job.Workplace.Address} at {world.currentDateTime}");
             }
+        }
+
+        private void PublishCitizenAction(string message)
+        {
+            int yearsOld = world.currentDateTime.Year - Birth.Year;
+            if (world.currentDateTime.Date < Birth.Date.AddYears(yearsOld))
+            {
+                yearsOld--;
+            }
+
+            _actionSink?.Invoke(new CitizenOperation
+            {
+                CitizenId = Id,
+                FirstName = FirstName,
+                LastName = LastName,
+                Gender = Gender.ToString(),
+                HomeAddress = HomeAddress,
+                CurrentLocation = CurrentLocation,
+                IsAdult = yearsOld >= 18,
+                IsEmployed = Job is not null,
+                Message = message
+            });
         }
 
         private void AddMoney()
         {
-            if (Job != null)
+            if (Job is null)
             {
-                BankAccount.Balance += Job.Workplace.Salary;
+                return;
             }
             
+            BankAccount.Balance += Job.Workplace.Salary;
             Family.RefreshBalance();
+            PublishCitizenAction($"Received salary of {Job.Workplace.Salary} at {world.currentDateTime}");
         }
 
 
