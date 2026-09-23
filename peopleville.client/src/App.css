@@ -170,6 +170,27 @@ p {
   overflow-wrap: anywhere;
 }
 
+.entityLink {
+  padding: 0;
+  color: rgb(150, 220, 255);
+  font: inherit;
+  text-decoration: underline;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.entityLink:hover,
+.entityLink:focus-visible {
+  color: white;
+}
+
+.entityNestedValue {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+}
+
 .entityPopup .wsConsole {
   margin: 1rem 0 0;
   max-width: none;

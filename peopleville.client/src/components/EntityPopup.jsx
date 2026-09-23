@@ -18,7 +18,7 @@ const detailLoaders = {
   home: (item) =>
     item?.rent !== undefined
       ? GetApartmentData(item.address)
-      : GetHouseData(item.address),
+      : GetApartmentData(item.address).catch(() => GetHouseData(item.address)),
   citizen: (item) => GetCitizenData(item.id),
   workplace: (item) => GetWorkplaceData(item.address),
 };
@@ -74,37 +74,81 @@ function eventMatchesItem(event, type, item) {
   );
 }
 
-function getDetailValue(value, depth = 0) {
+function getLinkTarget(key, value, type, item) {
+  if (key === "job" && value && typeof value === "object") {
+    return { type: "workplace", item: value };
+  }
+
+  if (typeof value !== "string") return null;
+  if (key === "homeAddress") return { type: "home", item: { address: value } };
+  if (key === "currentLocation") {
+    const workplaceAddress = item?.job?.workplace?.address;
+    return {
+      type: workplaceAddress === value ? "workplace" : "home",
+      item: { address: value },
+    };
+  }
+  if (key === "address" && (type === "home" || type === "workplace")) {
+    return { type, item: { address: value } };
+  }
+
+  return null;
+}
+
+function getDetailValue(value, key, type, item, onNavigate, depth = 0) {
   if (value === null || value === undefined) return "-";
   if (typeof value === "boolean") return value ? "Yes" : "No";
   if (value instanceof Date) return value.toLocaleString();
   if (typeof value === "object") {
     if (depth > 1) return "Available";
 
-    return Object.entries(value)
+    const nestedType = key === "job" ? "workplace" : type;
+    return (
+      <span className="entityNestedValue">
+        {Object.entries(value)
       .filter(([key]) => key !== "owner")
-      .map(
-        ([key, nestedValue]) =>
-          `${getFieldLabel(key)}: ${
-            key === "jobTitle"
-              ? getEnumLabel(nestedValue)
-              : key === "gender"
-                ? getGenderLabel(nestedValue)
-                : getDetailValue(nestedValue, depth + 1)
-          }`,
-      )
-      .join(", ");
+          .map(([nestedKey, nestedValue]) => (
+            <span key={nestedKey}>
+              {getFieldLabel(nestedKey)}: {getDetailValue(
+                nestedValue,
+                nestedKey,
+                nestedType,
+                item,
+                onNavigate,
+                depth + 1,
+              )}
+            </span>
+          ))}
+      </span>
+    );
   }
+
+  if (key === "jobTitle") return getEnumLabel(value);
+  if (key === "gender") return getGenderLabel(value);
+
+  const linkTarget = getLinkTarget(key, value, type, item);
+  if (linkTarget) {
+    return (
+      <button
+        type="button"
+        className="entityLink"
+        onClick={() => onNavigate(linkTarget.type, linkTarget.item)}
+      >
+        {value}
+      </button>
+    );
+  }
+
   return String(value);
 }
 
-function EntityDetails({ type, item }) {
+function EntityDetails({ type, item, onNavigate }) {
   return (
     <dl className="entityDetails">
       {getEntityFields(type, item).map(([key, value]) => (
         <div key={key}>
           <dt>{getFieldLabel(key)}</dt>
-          <dd>{getDetailValue(value)}</dd>
+          <dd>{getDetailValue(value, key, type, item, onNavigate)}</dd>
         </div>
       ))}
     </dl>
@@ -112,29 +156,38 @@ function EntityDetails({ type, item }) {
 }
 
 export default function EntityPopup({ type, item, onClose }) {
+  const [activeEntity, setActiveEntity] = useState({ type, item });
   const [details, setDetails] = useState(item);
   const [logs, setLogs] = useState([]);
-  const loader = detailLoaders[type];
+  const activeType = activeEntity.type;
+  const activeItem = activeEntity.item;
+  const loader = detailLoaders[activeType];
   const title =
-    type === "citizen"
-      ? `${item.firstName ?? "Citizen"} ${item.lastName ?? ""}`.trim()
-      : (item.address ?? type);
+    activeType === "citizen"
+      ? `${activeItem.firstName ?? "Citizen"} ${activeItem.lastName ?? ""}`.trim()
+      : (activeItem.address ?? activeType);
+
+  const navigateToEntity = (nextType, nextItem) => {
+    setActiveEntity({ type: nextType, item: nextItem });
+    setDetails(nextItem);
+    setLogs([]);
+  };
 
   useEffect(() => {
     let cancelled = false;
 
     const refresh = () =>
-      loader(item)
+      loader(activeItem)
         .then((updatedItem) => {
           if (!cancelled) setDetails(updatedItem);
         })
         .catch((error) => {
-          if (!cancelled) console.error(`Failed to load ${type}`, error);
+          if (!cancelled) console.error(`Failed to load ${activeType}`, error);
         });
 
     refresh();
     const unsubscribe = subscribeToEvents((event) => {
-      if (!eventMatchesItem(event, type, item)) return;
+      if (!eventMatchesItem(event, activeType, activeItem)) return;
       setLogs((currentLogs) => [...currentLogs, event]);
       refresh();
     });
@@ -143,7 +196,7 @@ export default function EntityPopup({ type, item, onClose }) {
       cancelled = true;
       unsubscribe();
     };
-  }, [item, loader, type]);
+  }, [activeItem, activeType, loader]);
 
   return (
     <div className="entityPopupOverlay" onClick={onClose}>
@@ -160,7 +213,11 @@ export default function EntityPopup({ type, item, onClose }) {
             Close
           </button>
         </div>
-        <EntityDetails type={type} item={details} />
+        <EntityDetails
+          type={activeType}
+          item={details}
+          onNavigate={navigateToEntity}
+        />
         <WSConsole logs={logs} />
       </section>
     </div>
