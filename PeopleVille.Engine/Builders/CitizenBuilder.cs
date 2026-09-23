@@ -3,6 +3,7 @@ using PeopleVille.Core.Enum;
 using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
 using System.Collections.Concurrent;
+using PeopleVille.Core.Data;
 
 namespace PeopleVille.Engine.Builders
 {
@@ -22,6 +23,9 @@ namespace PeopleVille.Engine.Builders
             Array genders = Enum.GetValues<Genders>();
             int genderCount = genders.Length;
 
+            int lastFamilyCitizenLoop = (citizenAmount * 75) / 100;
+            string lastName = lastNames[rnd.Next(lastNames.Length)];
+
             for (int i = 0; i < citizenAmount; i++)
             {
                 Genders gender = (Genders)rnd.Next(0, genderCount + 1);
@@ -30,7 +34,10 @@ namespace PeopleVille.Engine.Builders
                     firstNames = [.. FirstName.FirstNames.Values.SelectMany(names => names)];
                 }
                 string firstName = firstNames[rnd.Next(firstNames.Length)];
-                string lastName = lastNames[rnd.Next(lastNames.Length)];
+                if (i > lastFamilyCitizenLoop || i % 5 == 0)
+                {
+                    lastName = lastNames[rnd.Next(lastNames.Length)];
+                }
 
                 Job chosenJob = jobs[rnd.Next(jobs.Count)];
 
