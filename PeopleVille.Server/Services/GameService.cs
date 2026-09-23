@@ -16,10 +16,10 @@ public class GameService(GameEngine gameEngine)
         ));
             
         string fullPath = saveFilesDirectory +  filename;
-        FileInfo file =  new FileInfo(fullPath);
+        FileInfo file =  new(fullPath);
         if (file.Exists)
         {
-            bool world = gameEngine.Initialize(fullPath);
+            bool world = GameEngine.Initialize(fullPath);
             if (world) return true;
         }
         return false;
