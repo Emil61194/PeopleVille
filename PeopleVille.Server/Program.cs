@@ -58,6 +58,8 @@ namespace PeopleVille.Server
             app.UseAuthorization();
 
             app.MapControllers();
+            
+            app.MapHub<GameHub>("/hubs/match/{matchId:int}");
 
             app.MapHub<GameHub>("/hubs/game");
 

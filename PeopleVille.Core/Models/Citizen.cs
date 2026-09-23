@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using PeopleVille.Core.Enum;
 using PeopleVille.Core.Models.Home;
 using PeopleVille.Core.Operations;
@@ -110,7 +110,6 @@ namespace PeopleVille.Core.Models
             PublishCitizenAction($"Received salary of {Job.Workplace.Salary} at {world.currentDateTime}");
         }
 
-
         private Building FindHome()
         {
             return world.Houses
@@ -153,10 +152,6 @@ namespace PeopleVille.Core.Models
                     house.FoodInventory -= foodConsumed;
                     house.WaterInventory -= waterConsumed;
                 }
-                else
-                {
-                    BegForMoney(home, rnd);
-                }
             }
             else if (home is Apartment apartment)
             {
@@ -164,10 +159,6 @@ namespace PeopleVille.Core.Models
                 {
                     apartment.FoodInventory -= foodConsumed;
                     apartment.WaterInventory -= waterConsumed;
-                }
-                else
-                {
-                    BegForMoney(home, rnd);
                 }
             }
         }
