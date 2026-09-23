@@ -15,8 +15,7 @@ namespace PeopleVille.Engine
         public World? CurrentWorld => _world;
         public bool Ready = false;
         public bool _doPause = false;
-        public event Action? Tick;
-        public required ConcurrentBag<object> ActionsEachTickChanged;
+        public event Action Tick;
 
         public ConcurrentBag<object> actionsEachTick = new ConcurrentBag<object>();
         public bool Initialize(string? filePath = null)
@@ -48,8 +47,6 @@ namespace PeopleVille.Engine
             while (GameRunning)
             {
                 Tick?.Invoke();
-                await _eventPublisher.PublishEvent("Yo");
-
 
 
                 // Random stuff happening ( e.g heatstroke, lack of supplies in town = death, virus )
@@ -110,7 +107,7 @@ namespace PeopleVille.Engine
             apartmentBuilder.BuildApartments(save);
 
             CitizenBuilder citizenBuilder = new CitizenBuilder();
-            citizenBuilder.BuildCitizens(save, Tick, ActionsEachTickChanged);
+            citizenBuilder.BuildCitizens(save, ref Tick, actionsEachTick);
 
             save.BankAccount = new List<BankAccount>();
 
