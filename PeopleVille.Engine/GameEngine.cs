@@ -16,6 +16,7 @@ namespace PeopleVille.Engine
         public bool Ready = false;
         public bool _doPause = false;
         public event Action Tick;
+
         public ConcurrentBag<object> actionsEachTick = new ConcurrentBag<object>();
         public bool Initialize(string? filePath = null)
         {
@@ -88,7 +89,7 @@ namespace PeopleVille.Engine
 
         public World InitializeCity()
         {
-            World save = new World();
+            World save = new();
 
             ShoppingCenterBuilder shoppingCenterBuilder = new ShoppingCenterBuilder();
             shoppingCenterBuilder.BuildShoppingCenters(save);
