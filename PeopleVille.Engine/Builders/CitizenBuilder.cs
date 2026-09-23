@@ -10,7 +10,7 @@ namespace PeopleVille.Engine.Builders
 
     public class CitizenBuilder
     {
-        public void BuildCitizens(World world,ref Action tickAction, ConcurrentBag<object> actionsEachTick)
+        public static void BuildCitizens(World world,ref Action tickAction, ConcurrentBag<object> actionsEachTick)
         {
             Random rnd = new();
             int citizenAmount = rnd.Next(10, 15);
