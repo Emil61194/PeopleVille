@@ -1,109 +1,10 @@
-.app {
-  padding: 20px 24px;
-  min-height: 100svh;
-  box-sizing: border-box;
-  background: #f0f0f0;
-}
-
-.app-title {
-  font-size: 22px;
-  font-weight: 500;
-  color: #1a1a1a;
-  margin: 0 0 16px;
-  letter-spacing: -0.3px;
-}
-
-.dashboard {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.dashboard-top {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 12px;
-}
-
-.dashboard-bottom {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.card {
-  background: #fff;
-  border-radius: 14px;
-  padding: 16px;
-  height: 640px;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-}
-
-.dashboard-bottom .card {
-  height: 200px;
-}
-
-.card-title {
-  font-size: 22px;
-  font-weight: 500;
-  color: #1a1a1a;
-  margin: 0 0 12px;
-  letter-spacing: -0.3px;
-}
-
-.card-empty {
-  font-size: 13px;
-  color: #aaa;
-  padding: 4px 0;
-}
-
-.card-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  overflow-y: auto;
-  flex: 1;
-  min-height: 0;
-}
-
-.card-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
-  border: 1px solid #ececec;
-  border-radius: 8px;
-  background: #fafafa;
-}
-
-.row-icon {
-  color: #444;
-  flex-shrink: 0;
-}
-
-.row-name {
-  flex: 1;
-  font-size: 14px;
-  font-weight: 500;
-  color: #1a1a1a;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.row-badges {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-}
-
-.badge {
-  font-size: 13px;
-  font-weight: 600;
-  min-width: 14px;
+﻿/* global styling */
+#root {
+  font-size: 16px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
   text-align: center;
 }
 
@@ -119,76 +20,88 @@
   color: #22c55e;
 }
 
-.badge-dark {
-  color: #1a1a1a;
+.timeShower {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.65rem;
+  margin: 0.5rem auto 0;
+  padding: 0.65rem 1rem;
+  color: rgb(230, 240, 240);
+  background: rgba(20, 30, 32, 0.8);
+  border: 1px solid rgba(170, 220, 220, 0.35);
+  border-radius: 0.5rem;
+  box-shadow: 0 0.35rem 1rem rgba(0, 0, 0, 0.18);
 }
 
-.price-chip {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  line-height: 1.2;
-}
-
-.price-chip__label {
-  font-size: 10px;
-  color: #aaa;
+.timeShowerLabel {
+  color: rgb(170, 220, 220);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  letter-spacing: 0.4px;
 }
 
-.price-chip__value {
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.price-chip--food .price-chip__value {
-  color: #f59e0b;
-}
-
-.price-chip--water .price-chip__value {
-  color: #3b82f6;
-}
-
-.row-location {
-  font-size: 12px;
-  color: #888;
-  flex-shrink: 0;
+.timeShower time {
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 120px;
 }
 
-.card-row--store {
-  align-items: center;
+#tableDescription {
+  color: rgb(220, 110, 110); /* red */
 }
 
-.row-icon--store {
-  color: #333;
-  flex-shrink: 0;
+/* map container styling */
+#mapContainer {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(18rem, 22rem));
+  justify-content: center;
+  align-items: start;
+  padding: 1rem;
+  gap: 1rem 2rem;
+  box-sizing: border-box;
 }
 
-.row-store-info {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-width: 0;
-}
-
-.row-address {
-  font-size: 11px;
-  color: #888;
-  margin-top: 1px;
-}
-
-.log-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+#mapContainer > #menuDiv {
+  border: 0.15rem ridge orange;
+  border-radius: 0.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+  grid-auto-rows: max-content;
+  padding: 0.5rem;
+  align-items: stretch;
+  align-content: start;
+  min-width: 2rem;
+  min-height: 2rem;
+  height: 24rem;
+  max-height: calc(100svh - 14rem);
   overflow-y: auto;
-  flex: 1;
-  min-height: 0;
+  gap: 1rem 0.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#mapContainer > #menuDiv > div {
+  border: 0.11rem groove orange;
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  min-width: 0;
+  min-height: 1rem;
+  overflow-wrap: anywhere;
+  gap: 1rem 2rem;
+}
+
+.wsConsole {
+  margin: 2rem auto 0;
+  padding: 1rem;
+  max-width: 60rem;
+  height: 16rem;
+  overflow: auto;
+  box-sizing: border-box;
+  text-align: left;
+  color: white;
+  background: #171717;
+  border: 1px solid #555;
+  font-family: monospace;
 }
 
 .log-row {
@@ -259,165 +172,8 @@
   justify-self: end;
 }
 
-.card-row--clickable {
-  cursor: pointer;
-  transition: background 0.12s;
-}
-
-.card-row--clickable:hover {
-  background: #f0f0f0;
-}
-
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.25);
-  backdrop-filter: blur(2px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-}
-
-.modal-card {
-  background: #fff;
-  border-radius: 14px;
-  width: min(520px, 90vw);
-  max-height: 80vh;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.14);
-  overflow: hidden;
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px 12px;
-  border-bottom: 1px solid #ececec;
-  flex-shrink: 0;
-}
-
-.modal-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1a1a1a;
-}
-
-.modal-close {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px;
-  color: #888;
-  display: flex;
-  align-items: center;
-  border-radius: 6px;
-  transition: background 0.12s, color 0.12s;
-}
-
-.modal-close:hover {
-  background: #f0f0f0;
-  color: #1a1a1a;
-}
-
-.modal-body {
-  padding: 16px 20px;
-  overflow-y: auto;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.modal-section-label {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-  color: #aaa;
-  margin: 10px 0 6px;
-}
-
-.modal-section-label:first-child {
-  margin-top: 0;
-}
-
-.modal-stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-
-.modal-stat {
-  background: #fafafa;
-  border: 1px solid #ececec;
-  border-radius: 8px;
-  padding: 8px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.modal-stat__label {
-  font-size: 11px;
-  color: #aaa;
-}
-
-.modal-stat__value {
-  font-size: 15px;
-  font-weight: 600;
-  color: #1a1a1a;
-}
-
-.modal-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.modal-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 8px;
-  background: #fafafa;
-  border: 1px solid #ececec;
-  border-radius: 8px;
-  font-size: 13px;
-}
-
-.modal-row__name {
-  flex: 1;
-  font-weight: 500;
-  color: #1a1a1a;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.modal-row__sub {
-  font-size: 11px;
-  color: #aaa;
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-
-.modal-log {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  max-height: 180px;
-  overflow-y: auto;
-  background: #fafafa;
-  border: 1px solid #ececec;
-  border-radius: 8px;
-  padding: 8px 10px;
-}
-
-.modal-empty {
-  font-size: 12px;
-  color: #bbb;
-  margin: 0;
+@media (max-width: 960px) {
+  #mapContainer {
+    grid-template-columns: minmax(18rem, 22rem);
+  }
 }
