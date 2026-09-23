@@ -7,8 +7,6 @@ using PeopleVille.Server.Services;
 
 namespace PeopleVille.Server.Hubs;
 
-[Authorize]
-public class GameHub(GameService gameService, SaveService saveService) : Hub
 public class GameHub(GameService gameService, SaveService saveService) : Hub
 {
     public async Task<string> SaveGame()
