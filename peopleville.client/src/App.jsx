@@ -6,10 +6,20 @@ import { WSConsole } from "./components/WSConsole.jsx";
 import { connectToHub } from "./services/WSService.js";
 import TimeShower from "./components/TimeShower.jsx";
 
+function formatTime(date) {
+  return date.toLocaleTimeString("da-DK", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 function App() {
   const [gameStarted, setGameStarted] = useState(false);
   const [connectionReady, setConnectionReady] = useState(false);
   const [logs, setLogs] = useState([]);
+  const [homes, setHomes] = useState([]);
+  const [citizens, setCitizens] = useState([]);
+  const [workplaces, setWorkplaces] = useState([]);
 
   useEffect(() => {
     if (!gameStarted) return;
@@ -28,8 +38,9 @@ function App() {
   }, [gameStarted]);
 
   return (
-    <div>
-      <h1 id="tableLabel">PeopleVille</h1>
+    <div className="app">
+      <h1 className="app-title">Peopleville</h1>
+
       {!gameStarted && (
         <MainGameButtons onGameStarted={() => setGameStarted(true)} />
       )}

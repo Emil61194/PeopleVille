@@ -20,11 +20,15 @@ export async function connectToHub(onLog) {
   connection.onreconnecting((error) =>
     log(`Reconnecting${error ? `: ${error.message}` : ""}`),
   );
-  connection.onreconnected(() => log("Connected"));
+  connection.onreconnected(() => {
+    log("Connected");
+    fetchWorldData(onWorldUpdate);
+  });
   connection.on("Event", (message) => {
     const value =
       typeof message === "string" ? message : JSON.stringify(message);
     log(`Event: ${value}`);
+    fetchWorldData(onWorldUpdate);
   });
 
   connectionStartPromise = connection
@@ -43,4 +47,18 @@ export async function connectToHub(onLog) {
     });
 
   return connectionStartPromise;
+}
+
+async function fetchWorldData(onWorldUpdate) {
+  if (!connection || !onWorldUpdate) return;
+  try {
+    const [homes, citizens, workplaces] = await Promise.all([
+      connection.invoke("GetAllHomes"),
+      connection.invoke("GetAllCitizens"),
+      connection.invoke("GetAllWorkplaces"),
+    ]);
+    onWorldUpdate({ homes, citizens, workplaces });
+  } catch (error) {
+    console.error("Failed to fetch world data:", error);
+  }
 }

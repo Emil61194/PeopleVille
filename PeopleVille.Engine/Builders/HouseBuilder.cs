@@ -24,6 +24,7 @@ namespace PeopleVille.Engine.Builders
                     Address = addresses[randomAddressNumber],
                     FoodInventory = rnd.Next(50, 300),
                     WaterInventory = rnd.Next(50, 300),
+                    CitizenCapacity = rnd.Next(1, 5),
                 };
                 addresses.Remove(house.Address);
                 world.Houses.Add(house);
