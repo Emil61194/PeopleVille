@@ -14,7 +14,7 @@ namespace PeopleVille.Core.Models
         public string FirstName { get; } = firstName;
         public string LastName { get; } = lastName;
         public DateTime Birth { get; } = birth;
-        public int Gender { get; } = gender;
+        public Genders Gender { get; } = (Genders)gender;
         public FamilyRoles FamilyRoles { get; set; } = familialStatus;
         public Family Family { get; set; } = family;
         public BankAccount BankAccount { get; set; } = new();
@@ -116,7 +116,7 @@ namespace PeopleVille.Core.Models
             if (home is House house)
             {
 
-                if (foodConsumed < house.FoodInventory || waterConsumed < house.WaterInventory)
+                if (foodConsumed <= house.FoodInventory && waterConsumed <= house.WaterInventory)
                 {
                     house.FoodInventory -= foodConsumed;
                     house.WaterInventory -= waterConsumed;
@@ -128,7 +128,7 @@ namespace PeopleVille.Core.Models
             }
             else if (home is Apartment apartment)
             {
-                if (foodConsumed < apartment.FoodInventory || waterConsumed < apartment.WaterInventory)
+                if (foodConsumed <= apartment.FoodInventory && waterConsumed <= apartment.WaterInventory)
                 {
                     apartment.FoodInventory -= foodConsumed;
                     apartment.WaterInventory -= waterConsumed;
