@@ -1,11 +1,12 @@
-﻿using PeopleVille.Core.Models;
+﻿using PeopleVille.Core.Interfaces;
+using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
 
 namespace PeopleVille.Engine.Builders
 {
-    public class ShoppingCenterBuilder
+    public class ShoppingCenterBuilder : IBuilder
     {
-        public void BuildShoppingCenters(World world)
+        public void Build(World world)
         {
             List<ShoppingCenter> shoppingCenters = new List<ShoppingCenter>();
             List<string> addresses = Core.Data.Address.AddressList.ToList();
