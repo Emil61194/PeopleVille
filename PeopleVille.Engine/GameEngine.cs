@@ -92,7 +92,7 @@ namespace PeopleVille.Engine
 
         public World InitializeCity()
         {
-            World save = new World();
+            World save = new();
 
             ShoppingCenterBuilder shoppingCenterBuilder = new ShoppingCenterBuilder();
             shoppingCenterBuilder.BuildShoppingCenters(save);

@@ -4,24 +4,21 @@ namespace PeopleVille.Core.Data
 {
     public class FirstName
     {
-        public static Dictionary<Genders, string[]> FirstNames = new()
+        public static IReadOnlyDictionary<Genders, string[]> FirstNames { get; } = new Dictionary<Genders, string[]>
         {
-            [Genders.Male] = new[]
-            {
-            "James",
-            "John",
-            "Robert",
-            "Michael",
-            "William",
-            "David",
-            "Richard",
-            "Joseph",
-            "Thomas",
-            "Charles"
-            },
-
-            [Genders.Female] = new[]
-            {
+            [Genders.Male] = [
+                "James",
+                "John",
+                "Robert",
+                "Michael",
+                "William",
+                "David",
+                "Richard",
+                "Joseph",
+                "Thomas",
+                "Charles"
+            ],
+            [Genders.Female] = [
                 "Mary",
                 "Patricia",
                 "Jennifer",
@@ -32,7 +29,7 @@ namespace PeopleVille.Core.Data
                 "Jessica",
                 "Sarah",
                 "Karen"
-            }
+            ]
         };
     }
 }
