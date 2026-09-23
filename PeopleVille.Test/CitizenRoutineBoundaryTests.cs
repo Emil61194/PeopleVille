@@ -2,7 +2,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
 using System;
-using System.Collections.Concurrent;
 
 namespace PeopleVille.Test
 {
@@ -72,16 +71,13 @@ namespace PeopleVille.Test
         }
 
         [DataTestMethod]
-        [DataRow(false, 0, 225)]
-        [DataRow(true, 0, 225)]
-        [DataRow(false, 1, 25)]
-        [DataRow(true, 1, 25)]
-        [DataRow(false, 23, 25)]
-        [DataRow(true, 23, 25)]
-        public void Salary_IsDepositedIntoMatchingHomeOnlyAtMidnight(bool apartment, int hour, int expectedBalance)
+        [DataRow(0, 200)]
+        [DataRow(1, 0)]
+        [DataRow(23, 0)]
+        public void Salary_IsDepositedIntoCitizenAccountOnlyAtMidnight(int hour, int expectedBalance)
         {
             var (world, citizen, home) = CreateCitizen(hour);
-            BankAccount account = UseHome(world, home, apartment);
+            BankAccount account = UseHome(world, home, true);
             account.Balance = 25;
             var otherHome = new House { Address = "Other home" };
             otherHome.BankAccount.Balance = 75;
@@ -90,7 +86,8 @@ namespace PeopleVille.Test
 
             citizen.PerformHourlyRoutine();
 
-            Assert.AreEqual((decimal)expectedBalance, account.Balance);
+            Assert.AreEqual((decimal)expectedBalance, citizen.BankAccount.Balance);
+            Assert.AreEqual(25m, account.Balance);
             Assert.AreEqual(75m, otherHome.BankAccount.Balance);
             Assert.AreEqual(home.Address, citizen.CurrentLocation);
         }
@@ -164,7 +161,7 @@ namespace PeopleVille.Test
             home.FoodInventory = 0;
             BankAccount account = UseHome(world, home, apartment);
             var neighbor = new Citizen(world, 2, "Other", "Citizen", new DateTime(1990, 1, 1),
-                0, "Other home", new ConcurrentBag<object>()) { CurrentLocation = "Other home" };
+                0, "Other home") { CurrentLocation = "Other home" };
             world.Citizens.Add(neighbor);
             world.ShoppingCenters.Add(new ShoppingCenter
             {
@@ -200,7 +197,7 @@ namespace PeopleVille.Test
             var home = new House { Address = "Home", FoodInventory = 10, WaterInventory = 10 };
             world.Houses.Add(home);
             var citizen = new Citizen(world, 1, "Test", "Citizen", birth ?? new DateTime(1990, 1, 1),
-                0, home.Address, new ConcurrentBag<object>()) { CurrentLocation = "Away" };
+                0, home.Address) { CurrentLocation = "Away" };
             world.Citizens.Add(citizen);
             return (world, citizen, home);
         }

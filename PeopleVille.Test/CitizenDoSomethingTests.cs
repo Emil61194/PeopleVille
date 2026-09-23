@@ -2,7 +2,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
 using System;
-using System.Collections.Concurrent;
 
 namespace PeopleVille.Test
 {
@@ -95,12 +94,12 @@ namespace PeopleVille.Test
 
         private static (World World, Citizen Citizen, House Home) CreateCitizen(int hour, int birthYear)
         {
-            World world = new World
+            World world = new()
             {
                 currentDateTime = new DateTime(2025, 6, 15, hour, 0, 0)
             };
 
-            House home = new House
+            House home = new()
             {
                 Address = "Home",
                 FoodInventory = 10,
@@ -108,15 +107,16 @@ namespace PeopleVille.Test
             };
             world.Houses.Add(home);
 
-            Citizen citizen = new Citizen(
+            Citizen citizen = new(
                 world,
                 1,
                 "Test",
                 "Citizen",
                 new DateTime(birthYear, 1, 1),
                 0,
-                home.Address,
-                new ConcurrentBag<object>())
+                null,
+                default, 
+                home.Address)
             {
                 CurrentLocation = "Away"
             };

@@ -3,9 +3,15 @@ using Microsoft.AspNetCore.Hosting;
 
 namespace PeopleVille.Server.Services;
 
-public class GameService(GameEngine gameEngine)
+public class GameService
 {
-    public readonly GameEngine GameEngine = gameEngine;
+    public readonly GameEngine GameEngine;
+
+    public GameService(GameEngine gameEngine)
+    {
+        GameEngine = gameEngine;
+    }
+
     public bool TryInitialize(string filename)
     {
         string saveFilesDirectory = Path.GetFullPath(Path.Combine(
@@ -16,12 +22,12 @@ public class GameService(GameEngine gameEngine)
         ));
             
         string fullPath = saveFilesDirectory +  filename;
-        FileInfo file =  new FileInfo(fullPath);
+        FileInfo file =  new(fullPath);
         if (file.Exists)
         {
-            bool world = gameEngine.Initialize(fullPath);
+            bool world = GameEngine.Initialize(fullPath);
             if (world) {
-                _ = gameEngine.Run();
+                _ = GameEngine.Run();
                 return true;
             }
         }
@@ -30,10 +36,10 @@ public class GameService(GameEngine gameEngine)
     
     public bool TryInitializeNew()
     {
-        bool world = gameEngine.Initialize();
+        bool world = GameEngine.Initialize();
         if (world)
         {
-            _ = gameEngine.Run();
+            _ = GameEngine.Run();
             return true;
         }
         return false;

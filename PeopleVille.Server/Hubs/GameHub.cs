@@ -64,6 +64,8 @@ public class GameHub(GameService gameService, SaveService saveService) : Hub
 
     public async Task<DateTime> GetTime()
     {
-        return await Task.FromResult(gameService.GameEngine.CurrentWorld.currentDateTime);
+        var currentDateTime = gameService.GameEngine.CurrentWorld?.currentDateTime
+            ?? throw new HubException("The game world or current time is not initialized.");
+        return await Task.FromResult(currentDateTime);
     }
 }

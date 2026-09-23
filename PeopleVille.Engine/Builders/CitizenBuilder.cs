@@ -3,21 +3,19 @@ using PeopleVille.Core.Enum;
 using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
 using System.Collections.Concurrent;
-using PeopleVille.Core.Data;
-using PeopleVille.Core.Interfaces;
 
 namespace PeopleVille.Engine.Builders
 {
     public delegate void RoutineAction();
 
-    public class CitizenBuilder(GameEngine engine) : IBuilder
+    public class CitizenBuilder
     {
-        public void Build(World world) 
+        public static void BuildCitizens(World world,ref Action tickAction, ConcurrentBag<object> actionsEachTick)
         {
             Random rnd = new();
-            int citizenAmount = rnd.Next(40, 100);
+            int citizenAmount = rnd.Next(10, 15);
 
-            string[] lastNames = LastName.LastNames.ToArray();
+            string[] lastNames = [.. LastName.LastNames];
 
             List<Job> jobs = world.Jobs;
 
@@ -30,60 +28,97 @@ namespace PeopleVille.Engine.Builders
             for (int i = 0; i < citizenAmount; i++)
             {
                 Genders gender = (Genders)rnd.Next(0, genderCount);
-                string[] firstNames;
-                if (!FirstName.FirstNames.TryGetValue(gender, out firstNames))
-                {
-                    firstNames = FirstName.FirstNames.Values.SelectMany(names => names).ToArray();
-                }
+                FirstName.FirstNames.TryGetValue(gender, out string[]? firstNames);
+                firstNames ??= [.. FirstName.FirstNames.Values.SelectMany(names => names)];
                 string firstName = firstNames[rnd.Next(firstNames.Length)];
                 if (i > lastFamilyCitizenLoop || i % 5 == 0)
                 {
                     lastName = lastNames[rnd.Next(lastNames.Length)];
                 }
 
-                Job chosenJob = null;
-                if (jobs.Count > 0)
-                {
-                    chosenJob = jobs[rnd.Next(jobs.Count)];
-                    jobs.Remove(chosenJob);
-                }
+                Job chosenJob = jobs[rnd.Next(jobs.Count)];
 
                 (string address, world) = GetAddress(world, lastName, rnd);
 
-                DateTime age = DateTime.Now.AddYears(-rnd.Next(0, 70));
-                int yearsOld = DateTime.Now.Year - age.Year;
-
+                DateTime birth = DateTime.Now.AddYears(-rnd.Next(0, 70));
+                int yearsOld = DateTime.Now.Year - birth.Year;
+                FamilyRoles familialStatus = yearsOld < 18 ? FamilyRoles.Child : FamilyRoles.Adult;
 
                 Citizen citizen = new(world: world,
                     id: i + 1,
                     firstName: firstName,
                     lastName: lastName,
-                    birth: DateTime.Now.AddYears(-rnd.Next(0, 70)),
+                    birth: birth,
                     gender: gender,
+                    family: null,
+                    familialStatus: familialStatus,
                     homeAddress: address,
-                    actions: engine.actionsEachTick)
+                    actionSink: actionsEachTick)
                 {
                     Job = chosenJob,
-                    CurrentLocation = address
+                    CurrentLocation = address,
                 };
+
 
                 if (yearsOld < 18)
                 {
                     citizen.School = world.Schools[rnd.Next(world.Schools.Count)];
                 }
 
+                AssignFamily(citizen, world);
                 world.Citizens?.Add(citizen);
-                RoutineAction routineAction = citizen.PerformHourlyRoutine;
-                engine.Tick += routineAction.Invoke;
+                tickAction += citizen.PerformHourlyRoutine;
             }
         }
 
-        private (string, World) GetAddress(World world, string lastName, Random rnd)
+        private static void AssignFamily(Citizen citizen, World world)
         {
-            List<House> houses = world.Houses.Select(h => h).ToList();
-            List<Apartment> apartments = world.Apartments.Select(a => a).ToList();
+            Family? family = world.Citizens
+                .Where(existingCitizen => existingCitizen.LastName == citizen.LastName)
+                .Select(existingCitizen => existingCitizen.Family)
+                .FirstOrDefault(existingFamily => existingFamily is not null);
 
-            List<Citizen>? relatives = world.Citizens.Where(c => c.LastName == lastName).ToList();
+            if (family is not null)
+            {
+                int childCount = family.FamilyMembers.Count(member => member.FamilyRoles == FamilyRoles.Child);
+
+                if (citizen.FamilyRoles == FamilyRoles.Child && family.HasRequiredParents && childCount < 3)
+                {
+                    family.AddMember(citizen);
+                    citizen.Family = family;
+                }
+
+                return;
+            }
+
+            if (citizen.FamilyRoles != FamilyRoles.Adult)
+            {
+                return;
+            }
+
+            Citizen? partner = world.Citizens.LastOrDefault(existingCitizen =>
+                existingCitizen.LastName == citizen.LastName
+                && existingCitizen.Family is null
+                && existingCitizen.FamilyRoles == FamilyRoles.Adult);
+
+            if (partner is null)
+            {
+                return;
+            }
+
+            family = new Family(citizen.Id, []);
+            family.AddMember(partner);
+            family.AddMember(citizen);
+            partner.Family = family;
+            citizen.Family = family;
+        }
+
+        private static (string, World) GetAddress(World world, string lastName, Random rnd)
+        {
+            List<House> houses = [.. world.Houses.Select(h => h)];
+            List<Apartment> apartments = [.. world.Apartments.Select(a => a)];
+
+            List<Citizen>? relatives = [.. world.Citizens.Where(c => c.LastName == lastName)];
 
             if (relatives.Count > 0 && relatives.Count < 5)
             {
@@ -98,7 +133,7 @@ namespace PeopleVille.Engine.Builders
 
                 int currentApartmentsInAddress = world.Apartments.Count(a => a.Address.Contains(apartment.Address));
 
-                int addressFloor = currentApartmentsInAddress % apartment.Floors + 1; // unsure
+                int addressFloor = currentApartmentsInAddress % apartment.Floors; // track apartment occupancy, might otherwise just maintain explicit floor/unit data
 
                 string apartmentAddress = $"{apartment.Address}, {addressFloor}. {currentApartmentsInAddress + 1}";
                 return (apartmentAddress, world);
