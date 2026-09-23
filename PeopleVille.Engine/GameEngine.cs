@@ -115,7 +115,7 @@ namespace PeopleVille.Engine
             return save;
         }
         [MemberNotNull(nameof(_world))]
-        public void CheckWorld()
+        public World CheckWorld()
         {
             if (_world == null) throw new Exception("World is not initialized.");
             return _world;
