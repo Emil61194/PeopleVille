@@ -19,8 +19,22 @@ public class GameService(GameEngine gameEngine)
         FileInfo file =  new(fullPath);
         if (file.Exists)
         {
-            bool world = GameEngine.Initialize(fullPath);
-            if (world) return true;
+            bool world = gameEngine.Initialize(fullPath);
+            if (world) {
+                _ = gameEngine.Run();
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public bool TryInitializeNew()
+    {
+        bool world = gameEngine.Initialize();
+        if (world)
+        {
+            _ = gameEngine.Run();
+            return true;
         }
         return false;
     }

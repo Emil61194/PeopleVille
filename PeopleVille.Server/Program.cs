@@ -23,9 +23,14 @@ namespace PeopleVille.Server
             {
                 options.AddPolicy("AllowAny", policy =>
                 {
-                    policy.AllowAnyOrigin()
+                    policy.WithOrigins(
+                              "http://localhost:5173",
+                              "https://localhost:50733",
+                              "https://localhost:7039",
+                              "http://localhost:5045")
                           .AllowAnyMethod()
-                          .AllowAnyHeader();
+                          .AllowAnyHeader()
+                          .AllowCredentials();
                 });
             });
 
@@ -46,10 +51,7 @@ namespace PeopleVille.Server
             }
             app.UseCors("AllowAny");
 
-            app.UseHttpsRedirection();
-
             app.UseAuthorization();
-
 
             app.MapControllers();
             

@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using PeopleVille.Server.Services;
 
@@ -54,6 +55,14 @@ namespace PeopleVille.Server.Controllers
             bool valid = _gameService.TryInitialize(filename);
             if (valid) return Ok();
             return NotFound("File not Found or corrupted");
+        }
+
+        [HttpGet("/get/savefiles/create")]
+        public async Task<IActionResult> CreateSaveFile()
+        {
+            bool success = _gameService.TryInitializeNew();
+            if (success) return Ok();
+            return StatusCode(StatusCodes.Status500InternalServerError, "Failed to initialize save file.");
         }
     }
 }
