@@ -156,9 +156,7 @@ namespace PeopleVille.Engine
         public List<IWorkplace> GetAllWorkplaces()
         {
             CheckWorld();
-            List<IWorkplace> workplaces = new List<IWorkplace>();
-            workplaces.AddRange(_world.ShoppingCenters);
-            return workplaces;
+            return _world.Workplaces;
         }
     }
 }

@@ -1,13 +1,7 @@
+import { Fragment } from "react";
 import HomeContainer from "./HomeContainer.jsx";
 import CitizenContainer from "./CitizenContainer.jsx";
-
-function getMapItem(itemName, index) {
-  return (
-    <div key={`${itemName}-${index}`}>
-      <p>{itemName}</p>
-    </div>
-  );
-}
+import WorkplaceContainer from "./WorkplaceContainer.jsx";
 
 export function GameMap() {
   const mapItems = ["wC", "mC"];
@@ -15,15 +9,12 @@ export function GameMap() {
   return (
     <div id="mapContainer">
       <HomeContainer />
-      {mapItems.map((name) =>
-        name === "wC" ? (
-          <CitizenContainer key={name} />
-        ) : (
-          <div id="menuDiv" name={name} key={name}>
-            {Array.from({ length: 8 }, (_, index) => getMapItem(name, index))}
-          </div>
-        ),
-      )}
+      {mapItems.map((name) => (
+        <Fragment key={name}>
+          {name === "wC" && <CitizenContainer />}
+          {name === "mC" && <WorkplaceContainer />}
+        </Fragment>
+      ))}
     </div>
   );
 }
