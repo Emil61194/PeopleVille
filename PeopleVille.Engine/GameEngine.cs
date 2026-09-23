@@ -15,7 +15,7 @@ namespace PeopleVille.Engine
         public World? CurrentWorld => _world;
         public bool Ready = false;
         public bool _doPause = false;
-        public event Action Tick;
+        public event Action? Tick;
         public required ConcurrentBag<object> ActionsEachTickChanged;
 
         public ConcurrentBag<object> actionsEachTick = new ConcurrentBag<object>();
@@ -92,7 +92,7 @@ namespace PeopleVille.Engine
 
         public World InitializeCity()
         {
-            World save = new World();
+            World save = new();
 
             ShoppingCenterBuilder shoppingCenterBuilder = new ShoppingCenterBuilder();
             shoppingCenterBuilder.BuildShoppingCenters(save);
