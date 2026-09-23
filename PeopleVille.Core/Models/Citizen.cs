@@ -8,6 +8,7 @@ namespace PeopleVille.Core.Models
     public class Citizen(World world, int id, string firstName, string lastName, DateTime birth, int gender, Family family, FamilyRoles familialStatus, string homeAddress, ConcurrentBag<object>? actionSink = null)
     {
         public Citizen(World world, int id, string firstName, string lastName, DateTime birth, int gender, string homeAddress)
+            // Delegate to the primary constructor with a default family and adult family role.
             : this(world, id, firstName, lastName, birth, gender, new Family(0, []), FamilyRoles.Adult, homeAddress)
         {
         }
