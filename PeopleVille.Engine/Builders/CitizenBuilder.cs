@@ -3,7 +3,6 @@ using PeopleVille.Core.Enum;
 using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
 using System.Collections.Concurrent;
-using PeopleVille.Core.Data;
 
 namespace PeopleVille.Engine.Builders
 {

@@ -116,51 +116,52 @@ namespace PeopleVille.Engine
 
             return save;
         }
-        public void CheckWorld()
+        public World CheckWorld()
         {
             if (_world == null) throw new Exception("World is not initialized.");
+            return _world;
         }
 
         public House GetHouseByAddress(string address)
         {
-            CheckWorld();
-            House? house = _world.Houses.FirstOrDefault(h => h.Address == address);
+            World world = CheckWorld();
+            House? house = world.Houses.FirstOrDefault(h => h.Address == address);
             if (house == null) throw new Exception("House not found.");
             return house;
         }
         public Apartment GetApartmentByAddress(string address)
         {
-            CheckWorld();
-            Apartment? apartment = _world.Apartments.FirstOrDefault(a => a.Address == address);
+            World world = CheckWorld();
+            Apartment? apartment = world.Apartments.FirstOrDefault(a => a.Address == address);
             if (apartment == null) throw new Exception("Apartment not found.");
             return apartment;
         }
         public Citizen GetCitizenById(int id)
         {
-            CheckWorld();
-            Citizen? citizen = _world.Citizens.FirstOrDefault(c => c.Id == id);
+            World world = CheckWorld();
+            Citizen? citizen = world.Citizens.FirstOrDefault(c => c.Id == id);
             if (citizen == null) throw new Exception("Citizen not found.");
             return citizen;
         }
         public List<IPrivateHome> GetAllHomes()
         {
-            CheckWorld();
+            World world = CheckWorld();
             List<IPrivateHome> homes = new List<IPrivateHome>();
-            homes.AddRange(_world.Houses);
-            homes.AddRange(_world.Apartments);
+            homes.AddRange(world.Houses);
+            homes.AddRange(world.Apartments);
             return homes;
         }
         public List<Citizen> GetAllCitizens()
         {
-            CheckWorld();
-            return _world.Citizens;
+            World world = CheckWorld();
+            return world.Citizens;
         }
 
         public List<IWorkplace> GetAllWorkplaces()
         {
-            CheckWorld();
+            World world = CheckWorld();
             List<IWorkplace> workplaces = new List<IWorkplace>();
-            workplaces.AddRange(_world.ShoppingCenters);
+            workplaces.AddRange(world.ShoppingCenters);
             return workplaces;
         }
     }
