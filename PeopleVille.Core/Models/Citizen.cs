@@ -17,7 +17,7 @@ namespace PeopleVille.Core.Models
         public string FirstName { get; } = firstName;
         public string LastName { get; } = lastName;
         public DateTime Birth { get; } = birth;
-        public Genders Gender { get; } = (Genders)gender;
+        public Genders Gender { get; } = gender;
         public FamilyRoles FamilyRoles { get; set; } = familialStatus;
         public Family? Family { get; set; } = family;
         public BankAccount BankAccount { get; set; } = new();
