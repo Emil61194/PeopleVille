@@ -152,6 +152,13 @@ namespace PeopleVille.Core.Models
                     PublishCitizenAction($"{FirstName} {LastName} ate {foodConsumed} food and drank {waterConsumed} water.");
                     house.FoodInventory -= foodConsumed;
                     house.WaterInventory -= waterConsumed;
+                    _actionSink?.Add(new HouseOperation
+                    {
+                        Address = house.Address,
+                        FoodInventory = house.FoodInventory,
+                        WaterInventory = house.WaterInventory,
+                        Message = "Food and water consumed by citizen."
+                    });
                 }
                 else
                 {
@@ -165,6 +172,13 @@ namespace PeopleVille.Core.Models
                     PublishCitizenAction($"{FirstName} {LastName} ate {foodConsumed} food and drank {waterConsumed} water.");
                     apartment.FoodInventory -= foodConsumed;
                     apartment.WaterInventory -= waterConsumed;
+                    _actionSink?.Add(new ApartmentOperation
+                    {
+                        Address = apartment.Address,
+                        FoodInventory = apartment.FoodInventory,
+                        WaterInventory = apartment.WaterInventory,
+                        Message = "Food and water consumed by citizen."
+                    });
                 }
                 else
                 {
