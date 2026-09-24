@@ -157,6 +157,7 @@ namespace PeopleVille.Core.Models
                         Address = house.Address,
                         FoodInventory = house.FoodInventory,
                         WaterInventory = house.WaterInventory,
+                        BankAccountBalance = (int)house.BankAccount.Balance,
                         Message = "Food and water consumed by citizen."
                     });
                 }
@@ -177,6 +178,7 @@ namespace PeopleVille.Core.Models
                         Address = apartment.Address,
                         FoodInventory = apartment.FoodInventory,
                         WaterInventory = apartment.WaterInventory,
+                        BankAccountBalance = (int)apartment.BankAccount.Balance,
                         Message = "Food and water consumed by citizen."
                     });
                 }
