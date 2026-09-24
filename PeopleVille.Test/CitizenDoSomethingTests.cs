@@ -1,7 +1,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
+using PeopleVille.Core.Operations;
+using System.Collections.Concurrent;
 using System;
+using System.Linq;
 
 namespace PeopleVille.Test
 {
@@ -30,6 +33,34 @@ namespace PeopleVille.Test
             citizen.PerformHourlyRoutine();
 
             Assert.AreEqual(home.Address, citizen.CurrentLocation);
+        }
+
+        [TestMethod]
+        public void DoSomething_PrefixesMessagesWithCitizenName()
+        {
+            World world = new() { currentDateTime = new DateTime(2025, 6, 15, 6, 0, 0) };
+            House home = new() { Address = "Home", FoodInventory = 10, WaterInventory = 10 };
+            world.Houses.Add(home);
+            ConcurrentBag<object> actions = [];
+            Citizen citizen = new(
+                world,
+                1,
+                "Test",
+                "Citizen",
+                new DateTime(1990, 1, 1),
+                0,
+                null,
+                default,
+                home.Address,
+                actions)
+            {
+                CurrentLocation = home.Address
+            };
+
+            citizen.PerformHourlyRoutine();
+
+            CitizenOperation action = actions.OfType<CitizenOperation>().Single();
+            Assert.AreEqual("Test Citizen: is sleeping.", action.Message);
         }
 
         [TestMethod]
@@ -115,7 +146,7 @@ namespace PeopleVille.Test
                 new DateTime(birthYear, 1, 1),
                 0,
                 null,
-                default, 
+                default,
                 home.Address)
             {
                 CurrentLocation = "Away"
