@@ -3,7 +3,9 @@ using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
 using PeopleVille.Engine.Builders;
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace PeopleVille.Engine
 {
@@ -15,9 +17,9 @@ namespace PeopleVille.Engine
         public World? CurrentWorld => _world;
         public bool Ready = false;
         public bool _doPause = false;
-        public event Action? Tick;
+        public event Action Tick = delegate { };
+        public ConcurrentBag<object> actionsEachTick = [];
 
-        public ConcurrentBag<object> actionsEachTick = new ConcurrentBag<object>();
         public bool Initialize(string? filePath = null)
         {
             if (filePath == null)
@@ -58,7 +60,7 @@ namespace PeopleVille.Engine
                     _world.currentDateTime = _world.currentDateTime.AddHours(1);
                 }
 
-                await Task.Delay(1000);
+                Thread.Sleep(1000);
                 while (_doPause)
                 {
                     await Task.Delay(50);
@@ -73,16 +75,13 @@ namespace PeopleVille.Engine
             }
         }
 
-        public World? CheckSave(string filePath)
+        public static World CheckSave(string filePath)
         {
             if (File.Exists(filePath))
             {
-                World? save = JsonSerializer.Deserialize<World>(File.ReadAllText(filePath));
-                if (save != null)
-                {
-                    return save;
-                }
-                throw new Exception("Save file is empty or corrupted.");
+                World save = JsonSerializer.Deserialize<World>(File.ReadAllText(filePath))
+                    ?? throw new Exception("Save file is empty or corrupted.");
+                return save;
             }
             throw new Exception("Required file not found" + filePath);
         }
@@ -97,8 +96,7 @@ namespace PeopleVille.Engine
                 new SchoolBuilder(),
                 new JobsBuilder(),
                 new HouseBuilder(),
-                new ApartmentBuilder(),
-                new CitizenBuilder(this)
+                new ApartmentBuilder()
             };
 
             string appDir = Path.GetFullPath(
@@ -111,7 +109,9 @@ namespace PeopleVille.Engine
             {
                 builder.Build(save);
             }
-            
+
+            CitizenBuilder.BuildCitizens(save, ref Tick, actionsEachTick);
+
             return save;
         }
 
@@ -145,56 +145,56 @@ namespace PeopleVille.Engine
             }
         }
 
-        public void CheckWorld()
+        [MemberNotNull(nameof(_world))]
+        public World CheckWorld()
         {
             if (_world == null) throw new Exception("World is not initialized.");
+            return _world;
         }
 
         public House GetHouseByAddress(string address)
         {
-            CheckWorld();
-            House? house = _world.Houses.FirstOrDefault(h => h.Address == address);
-            if (house == null) throw new Exception("House not found.");
+            World world = CheckWorld();
+            House house = world.Houses.FirstOrDefault(h => h.Address == address)
+                ?? throw new Exception("House not found.");
             return house;
         }
         public Apartment GetApartmentByAddress(string address)
         {
-            CheckWorld();
-            Apartment? apartment = _world.Apartments.FirstOrDefault(a => a.Address == address);
-            if (apartment == null) throw new Exception("Apartment not found.");
+            World world = CheckWorld();
+            Apartment apartment = world.Apartments.FirstOrDefault(a => a.Address == address)
+                ?? throw new Exception("Apartment not found.");
             return apartment;
         }
         public Citizen GetCitizenById(int id)
         {
-            CheckWorld();
-            Citizen? citizen = _world.Citizens.FirstOrDefault(c => c.Id == id);
-            if (citizen == null) throw new Exception("Citizen not found.");
+            World world = CheckWorld();
+            Citizen citizen = world.Citizens.FirstOrDefault(c => c.Id == id)
+                ?? throw new Exception("Citizen not found.");
             return citizen;
         }
         public List<object> GetAllHomes()
         {
-            CheckWorld();
-            List<object> homes = new List<object>();
-            homes.AddRange(_world.Houses);
-            homes.AddRange(_world.Apartments);
+            World world = CheckWorld();
+            List<object> homes = [.. world.Houses.Cast<object>(), .. world.Apartments.Cast<object>()];
             return homes;
         }
         public List<Citizen> GetAllCitizens()
         {
-            CheckWorld();
-            return _world.Citizens;
+            World world = CheckWorld();
+            return world.Citizens;
         }
 
         public List<ShoppingCenter> GetAllWorkplaces()
         {
-            CheckWorld();
-            return _world.ShoppingCenters;
+            World world = CheckWorld();
+            return world.ShoppingCenters;
         }
 
         public IWorkplace GetWorkplaceByAddress(string address)
         {
-            CheckWorld();
-            IWorkplace? workplace = _world.Workplaces.FirstOrDefault(w => w.Address == address);
+            World world = CheckWorld();
+            IWorkplace? workplace = world.Workplaces.FirstOrDefault(w => w.Address == address);
             if (workplace == null) throw new Exception("Workplace not found.");
             return workplace;
         }

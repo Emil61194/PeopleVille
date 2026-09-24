@@ -1,21 +1,33 @@
+using System.Collections.Concurrent;
 using PeopleVille.Core.Enum;
 using PeopleVille.Core.Models.Home;
 using PeopleVille.Core.Operations;
-using System.Collections.Concurrent;
 
 namespace PeopleVille.Core.Models
 {
-    public class Citizen(World world, int id, string firstName, string lastName, DateTime birth, Genders gender, string homeAddress, ConcurrentBag<object> actions)
+    public class Citizen(World world, int id, string firstName, string lastName, DateTime birth, Genders gender, Family? family, FamilyRoles familialStatus, string homeAddress, ConcurrentBag<object>? actionSink = null)
     {
+        public Citizen(World world, int id, string firstName, string lastName, DateTime birth, Genders gender, string homeAddress)
+            // Delegate to the primary constructor without creating a default family.
+            : this(world, id, firstName, lastName, birth, gender, null, FamilyRoles.Adult, homeAddress)
+        {
+        }
+
         public int Id { get; set; } = id;
         public string FirstName { get; } = firstName;
         public string LastName { get; } = lastName;
         public DateTime Birth { get; } = birth;
         public Genders Gender { get; } = gender;
+        public FamilyRoles FamilyRoles { get; set; } = familialStatus;
+        public Family? Family { get; set; } = family;
+        public BankAccount BankAccount { get; set; } = new();
         public string HomeAddress { get; set; } = homeAddress;
         public Job? Job { get; set; }
+
         public required string CurrentLocation { get; set; }
         public School? School { get; set; }
+
+        private readonly ConcurrentBag<object>? _actionSink = actionSink;
 
         public void PerformHourlyRoutine()
         {
@@ -42,18 +54,7 @@ namespace PeopleVille.Core.Models
 
             if (currentHour < 7 || currentHour > 22) // sleeping time
             {
-                actions.Add(new CitizenOperation
-                {
-                    CitizenId = Id,
-                    FirstName = FirstName,
-                    LastName = LastName,
-                    Gender = Gender == 0 ? "Male" : "Female",
-                    HomeAddress = HomeAddress,
-                    CurrentLocation = CurrentLocation,
-                    IsAdult = (world.currentDateTime.Year - Birth.Year) >= 18,
-                    IsEmployed = Job != null,
-                    Message = $"{FirstName} {LastName} is sleeping."
-                }); 
+                PublishCitizenAction($"{FirstName} {LastName} is sleeping.");
                 return;
             }
 
@@ -66,75 +67,48 @@ namespace PeopleVille.Core.Models
             if (yearsOld < 18 && School != null && currentHour >= School.StartTime.Hour && currentHour < School.EndTime.Hour) // school time
             {
                 CurrentLocation = School.Address;
-                actions.Add(new CitizenOperation
-                {
-                    CitizenId = Id,
-                    FirstName = FirstName,
-                    LastName = LastName,
-                    Gender = Gender == 0 ? "Male" : "Female",
-                    HomeAddress = HomeAddress,
-                    CurrentLocation = CurrentLocation,
-                    IsAdult = (world.currentDateTime.Year - Birth.Year) >= 18,
-                    IsEmployed = Job != null,
-                    Message = $"{this.FirstName} {this.LastName} Attending school at {world.currentDateTime}"
-                });
+                PublishCitizenAction($"Attending school at {world.currentDateTime}");
             }
             else if (yearsOld >= 18 && Job != null && currentHour >= Job.Workplace.WorkStartTime && currentHour < Job.Workplace.WorkEndTime) // work time
             {
                 CurrentLocation = Job.Workplace.Address;
-                actions.Add(new CitizenOperation
-                {
-                    CitizenId = Id,
-                    FirstName = FirstName,
-                    LastName = LastName,
-                    Gender = Gender == 0 ? "Male" : "Female",
-                    HomeAddress = HomeAddress,
-                    CurrentLocation = CurrentLocation,
-                    IsAdult = (world.currentDateTime.Year - Birth.Year) >= 18,
-                    IsEmployed = Job != null,
-                    Message = $"{this.FirstName} {this.LastName} Working at {Job!.Workplace.Address} at {world.currentDateTime}"
-                });
+                PublishCitizenAction($"Working at {Job.Workplace.Address} at {world.currentDateTime}");
             }
+        }
+
+        private void PublishCitizenAction(string message)
+        {
+            int yearsOld = world.currentDateTime.Year - Birth.Year;
+            if (world.currentDateTime.Date < Birth.Date.AddYears(yearsOld))
+            {
+                yearsOld--;
+            }
+
+            _actionSink?.Add(new CitizenOperation
+            {
+                CitizenId = Id,
+                FirstName = FirstName,
+                LastName = LastName,
+                Gender = Gender.ToString(),
+                HomeAddress = HomeAddress,
+                CurrentLocation = CurrentLocation,
+                IsAdult = yearsOld >= 18,
+                IsEmployed = Job is not null,
+                Message = message
+            });
         }
 
         private void AddMoney()
         {
-            Building home = FindHome();
-
-            if (home is House house)
+            if (Job is null)
             {
-                house.BankAccount.Balance += Job!.Workplace.Salary;
-                actions.Add(new CitizenOperation
-                {
-                    CitizenId = Id,
-                    FirstName = FirstName,
-                    LastName = LastName,
-                    Gender = Gender == 0 ? "Male" : "Female",
-                    HomeAddress = HomeAddress,
-                    CurrentLocation = CurrentLocation,
-                    IsAdult = (world.currentDateTime.Year - Birth.Year) >= 18,
-                    IsEmployed = Job != null,
-                    Message = $"{this.FirstName} {this.LastName} Received salary of {Job!.Workplace.Salary} at {world.currentDateTime}"
-                });
+                return;
             }
-            else if (home is Apartment apartment)
-            {
-                apartment.BankAccount.Balance += Job!.Workplace.Salary;
-                actions.Add(new CitizenOperation
-                {
-                    CitizenId = Id,
-                    FirstName = FirstName,
-                    LastName = LastName,
-                    Gender = Gender == 0 ? "Male" : "Female",
-                    HomeAddress = HomeAddress,
-                    CurrentLocation = CurrentLocation,
-                    IsAdult = (world.currentDateTime.Year - Birth.Year) >= 18,
-                    IsEmployed = Job != null,
-                    Message = $"{this.FirstName} {this.LastName} Received salary of {Job!.Workplace.Salary} at {world.currentDateTime}"
-                });
-            }
+            
+            BankAccount.Balance += Job.Workplace.Salary;
+            Family?.RefreshBalance();
+            PublishCitizenAction($"Received salary of {Job.Workplace.Salary} at {world.currentDateTime}");
         }
-
 
         private Building FindHome()
         {
@@ -165,7 +139,7 @@ namespace PeopleVille.Core.Models
         private void Eat()
         {
             Building home = FindHome();
-            Random rnd = new Random();
+            Random rnd = new();
 
             int foodConsumed = rnd.Next(2, 5);
             int waterConsumed = rnd.Next(2, 5);
@@ -173,45 +147,18 @@ namespace PeopleVille.Core.Models
             if (home is House house)
             {
 
-                if (foodConsumed < house.FoodInventory || waterConsumed < house.WaterInventory)
+                if (foodConsumed <= house.FoodInventory && waterConsumed <= house.WaterInventory)
                 {
                     house.FoodInventory -= foodConsumed;
                     house.WaterInventory -= waterConsumed;
-                    actions.Add(new HouseOperation {
-                        Address = house.Address,
-                        CitizenCapacity = house.CitizenCapacity,
-                        FoodInventory = house.FoodInventory,
-                        WaterInventory = house.WaterInventory,
-                        BankAccountBalance = (int)house.BankAccount.Balance,
-                        Message = $"{this.FirstName} {this.LastName} Consumed {foodConsumed} units of food and {waterConsumed} units of water at {world.currentDateTime}"
-                    });
-                }
-                else
-                {
-                    BegForMoney(home, rnd);
                 }
             }
             else if (home is Apartment apartment)
             {
-                if (foodConsumed < apartment.FoodInventory || waterConsumed < apartment.WaterInventory)
+                if (foodConsumed <= apartment.FoodInventory && waterConsumed <= apartment.WaterInventory)
                 {
                     apartment.FoodInventory -= foodConsumed;
                     apartment.WaterInventory -= waterConsumed;
-                    actions.Add(new ApartmentOperation
-                    {
-                        Address = apartment.Address,
-                        CitizenCapacity = apartment.CitizenCapacity,
-                        Floors = apartment.Floors,
-                        Rent = (int)apartment.Rent,
-                        FoodInventory = apartment.FoodInventory,
-                        WaterInventory = apartment.WaterInventory,
-                        BankAccountBalance = (int)apartment.BankAccount.Balance,
-                        Message = $"{this.FirstName} {this.LastName} Consumed {foodConsumed} units of food and {waterConsumed} units of water at {world.currentDateTime}"
-                    });
-                }
-                else
-                {
-                    BegForMoney(home, rnd);
                 }
             }
         }
@@ -242,31 +189,12 @@ namespace PeopleVille.Core.Models
                     if (home is House currentHouse)
                     {
                         currentHouse.FoodInventory += 10;
-                        actions.Add(new HouseOperation
-                        {
-                            Address = currentHouse.Address,
-                            CitizenCapacity = currentHouse.CitizenCapacity,
-                            FoodInventory = currentHouse.FoodInventory,
-                            WaterInventory = currentHouse.WaterInventory,
-                            BankAccountBalance = (int)currentHouse.BankAccount.Balance,
-                            Message = $"{this.FirstName} {this.LastName} Received 10 units of food from {house.Address} at {world.currentDateTime}"
-                        });
                     }
                     else if (home is Apartment currentApartment)
                     {
                         currentApartment.FoodInventory += 10;
-                        actions.Add(new ApartmentOperation
-                        {
-                            Address = currentApartment.Address,
-                            CitizenCapacity = currentApartment.CitizenCapacity,
-                            Floors = currentApartment.Floors,
-                            Rent = (int)currentApartment.Rent,
-                            FoodInventory = currentApartment.FoodInventory,
-                            WaterInventory = currentApartment.WaterInventory,
-                            BankAccountBalance = (int)currentApartment.BankAccount.Balance,
-                            Message = $"{this.FirstName} {this.LastName} Received 10 units of food from {house.Address} at {world.currentDateTime}"
-                        });
                     }
+
                 }
                 else if (homeWithMostFood != null && homeWithMostFood is Apartment apartment)
                 {
@@ -274,30 +202,10 @@ namespace PeopleVille.Core.Models
                     if (home is House currentHouse)
                     {
                         currentHouse.FoodInventory += 10;
-                        actions.Add(new HouseOperation
-                        {
-                            Address = currentHouse.Address,
-                            CitizenCapacity = currentHouse.CitizenCapacity,
-                            FoodInventory = currentHouse.FoodInventory,
-                            WaterInventory = currentHouse.WaterInventory,
-                            BankAccountBalance = (int)currentHouse.BankAccount.Balance,
-                            Message = $"{this.FirstName} {this.LastName} Received 10 units of food from {apartment.Address} at {world.currentDateTime}"
-                        });
                     }
                     else if (home is Apartment currentApartment)
                     {
                         currentApartment.FoodInventory += 10;
-                        actions.Add(new ApartmentOperation
-                        {
-                            Address = currentApartment.Address,
-                            CitizenCapacity = currentApartment.CitizenCapacity,
-                            Floors = currentApartment.Floors,
-                            Rent = (int)currentApartment.Rent,
-                            FoodInventory = currentApartment.FoodInventory,
-                            WaterInventory = currentApartment.WaterInventory,
-                            BankAccountBalance = (int)currentApartment.BankAccount.Balance,
-                            Message = $"{this.FirstName} {this.LastName} Received 10 units of food from {apartment.Address} at {world.currentDateTime}"
-                        });
                     }
                 }
 
@@ -307,30 +215,10 @@ namespace PeopleVille.Core.Models
                     if (home is House currentHouse)
                     {
                         currentHouse.WaterInventory += 10;
-                        actions.Add(new HouseOperation
-                        {
-                            Address = currentHouse.Address,
-                            CitizenCapacity = currentHouse.CitizenCapacity,
-                            FoodInventory = currentHouse.FoodInventory,
-                            WaterInventory = currentHouse.WaterInventory,
-                            BankAccountBalance = (int)currentHouse.BankAccount.Balance,
-                            Message = $"{this.FirstName} {this.LastName} Received 10 units of water from {house2.Address} at {world.currentDateTime}"
-                        });
                     }
                     else if (home is Apartment currentApartment)
                     {
                         currentApartment.WaterInventory += 10;
-                        actions.Add(new ApartmentOperation
-                        {
-                            Address = currentApartment.Address,
-                            CitizenCapacity = currentApartment.CitizenCapacity,
-                            Floors = currentApartment.Floors,
-                            Rent = (int)currentApartment.Rent,
-                            FoodInventory = currentApartment.FoodInventory,
-                            WaterInventory = currentApartment.WaterInventory,
-                            BankAccountBalance = (int)currentApartment.BankAccount.Balance,
-                            Message = $"{this.FirstName} {this.LastName} Received 10 units of water from {house2.Address} at {world.currentDateTime}"
-                        });
                     }
                 }
                 else if (homeWithMostWater != null && homeWithMostWater is Apartment apartment2)
@@ -339,30 +227,10 @@ namespace PeopleVille.Core.Models
                     if (home is House currentHouse)
                     {
                         currentHouse.WaterInventory += 10;
-                        actions.Add(new HouseOperation
-                        {
-                            Address = currentHouse.Address,
-                            CitizenCapacity = currentHouse.CitizenCapacity,
-                            FoodInventory = currentHouse.FoodInventory,
-                            WaterInventory = currentHouse.WaterInventory,
-                            BankAccountBalance = (int)currentHouse.BankAccount.Balance,
-                            Message = $"{this.FirstName} {this.LastName} Received 10 units of water from {apartment2.Address} at {world.currentDateTime}"
-                        });
                     }
                     else if (home is Apartment currentApartment)
                     {
                         currentApartment.WaterInventory += 10;
-                        actions.Add(new ApartmentOperation
-                        {
-                            Address = currentApartment.Address,
-                            CitizenCapacity = currentApartment.CitizenCapacity,
-                            Floors = currentApartment.Floors,
-                            Rent = (int)currentApartment.Rent,
-                            FoodInventory = currentApartment.FoodInventory,
-                            WaterInventory = currentApartment.WaterInventory,
-                            BankAccountBalance = (int)currentApartment.BankAccount.Balance,
-                            Message = $"{this.FirstName + ' ' + this.LastName } Received 10 units of water from {apartment2.Address} at {world.currentDateTime}"
-                        });
                     }
                 }
             }
@@ -371,25 +239,13 @@ namespace PeopleVille.Core.Models
         private void ReduceHomeBalance()
         {
             Building home = FindHome();
-            Random rnd = new Random();
+            Random rnd = new();
             ShoppingCenter? shoppingCenter = world.ShoppingCenters[rnd.Next(world.ShoppingCenters.Count)];
 
             if (home is House house)
             {
                 if (house.BankAccount.Balance < shoppingCenter.FoodPrice * 5 || house.BankAccount.Balance < shoppingCenter.WaterPrice * 5)
                 {
-                    actions.Add($"{new CitizenOperation
-                    {
-                        CitizenId = Id,
-                        FirstName = FirstName,
-                        LastName = LastName,
-                        Gender = Gender == 0 ? "Male" : "Female",
-                        HomeAddress = HomeAddress,
-                        CurrentLocation = CurrentLocation,
-                        IsAdult = (world.currentDateTime.Year - Birth.Year) >= 18,
-                        IsEmployed = Job != null,
-                        Message = $"{this.FirstName + ' ' + this.LastName } Citizen has died due to insufficient funds at {world.currentDateTime}"
-                    }}");
                     world.Citizens.Remove(this); // citizen dies
                 }
                 else
@@ -397,36 +253,12 @@ namespace PeopleVille.Core.Models
                     house.BankAccount.Balance -= shoppingCenter.FoodPrice * 5;
                     house.BankAccount.Balance -= shoppingCenter.WaterPrice * 5;
                     CurrentLocation = shoppingCenter.Address;
-                    actions.Add($"{new CitizenOperation
-                    {
-                        CitizenId = Id,
-                        FirstName = FirstName,
-                        LastName = LastName,
-                        Gender = Gender == 0 ? "Male" : "Female",
-                        HomeAddress = HomeAddress,
-                        CurrentLocation = CurrentLocation,
-                        IsAdult = (world.currentDateTime.Year - Birth.Year) >= 18,
-                        IsEmployed = Job != null,
-                        Message = $"{this.FirstName + ' ' + this.LastName } Citizen has shopped for food and water at {shoppingCenter.Address} at {world.currentDateTime}"
-                    }}");
                 }
             }
             else if (home is Apartment apartment)
             {
                 if (apartment.BankAccount.Balance < shoppingCenter.FoodPrice * 5 || apartment.BankAccount.Balance < shoppingCenter.WaterPrice * 5)
                 {
-                    actions.Add($"{new CitizenOperation
-                    {
-                        CitizenId = Id,
-                        FirstName = FirstName,
-                        LastName = LastName,
-                        Gender = Gender == 0 ? "Male" : "Female",
-                        HomeAddress = HomeAddress,
-                        CurrentLocation = CurrentLocation,
-                        IsAdult = (world.currentDateTime.Year - Birth.Year) >= 18,
-                        IsEmployed = Job != null,
-                        Message = $"{this.FirstName + ' ' + this.LastName } Citizen has died due to insufficient funds at {world.currentDateTime}"
-                    }}");
                     world.Citizens.Remove(this); // citizen dies
                 }
                 else
@@ -434,18 +266,6 @@ namespace PeopleVille.Core.Models
                     apartment.BankAccount.Balance -= shoppingCenter.FoodPrice * 5;
                     apartment.BankAccount.Balance -= shoppingCenter.WaterPrice * 5;
                     CurrentLocation = shoppingCenter.Address;
-                    actions.Add($"{new CitizenOperation
-                    {
-                        CitizenId = Id,
-                        FirstName = FirstName,
-                        LastName = LastName,
-                        Gender = Gender == 0 ? "Male" : "Female",
-                        HomeAddress = HomeAddress,
-                        CurrentLocation = CurrentLocation,
-                        IsAdult = (world.currentDateTime.Year - Birth.Year) >= 18,
-                        IsEmployed = Job != null,
-                        Message = $"{this.FirstName + ' ' + this.LastName } Citizen has shopped for food and water at {shoppingCenter.Address} at {world.currentDateTime}"
-                    }}");
                 }
             }
         }

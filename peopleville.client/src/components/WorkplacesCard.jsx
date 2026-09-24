@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { IconBuildingStore } from "@tabler/icons-react";
+import { IconBuildingStore } from "../icons.js";
 import { Modal } from "./Modal.jsx";
 
 function padTime(h) {
