@@ -5,7 +5,7 @@ namespace PeopleVille.Core.Models
 {
     public class World
     {
-        public DateTime currentDateTime = DateTime.UtcNow;
+        public DateTime currentDateTime = DateTime.Now;
         public List<Citizen> Citizens { get; set; } = [];
         public List<BankAccount> BankAccount { get; set; } = [];
         public List<Job> Jobs { get; set; } = [];

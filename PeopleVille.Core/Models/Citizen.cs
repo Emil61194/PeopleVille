@@ -67,12 +67,12 @@ namespace PeopleVille.Core.Models
             if (yearsOld < 18 && School != null && currentHour >= School.StartTime.Hour && currentHour < School.EndTime.Hour) // school time
             {
                 CurrentLocation = School.Address;
-                PublishCitizenAction($"Attending school at {world.currentDateTime}");
+                PublishCitizenAction($"Attending school");
             }
             else if (yearsOld >= 18 && Job != null && currentHour >= Job.Workplace.WorkStartTime && currentHour < Job.Workplace.WorkEndTime) // work time
             {
                 CurrentLocation = Job.Workplace.Address;
-                PublishCitizenAction($"Working at {Job.Workplace.Address} at {world.currentDateTime}");
+                PublishCitizenAction($"Working at {Job.Workplace.Address}");
             }
         }
 
@@ -94,7 +94,8 @@ namespace PeopleVille.Core.Models
                 CurrentLocation = CurrentLocation,
                 IsAdult = yearsOld >= 18,
                 IsEmployed = Job is not null,
-                Message = $"{FirstName} {LastName}: {message}"
+                Message = $"{FirstName} {LastName}: {message}",
+                WorldTime = world.currentDateTime
             });
         }
 
@@ -107,7 +108,7 @@ namespace PeopleVille.Core.Models
 
             BankAccount.Balance += Job.Workplace.Salary;
             Family?.RefreshBalance();
-            PublishCitizenAction($"Received salary of {Job.Workplace.Salary} at {world.currentDateTime}");
+            PublishCitizenAction($"Received salary of {Job.Workplace.Salary}");
         }
 
         private Building FindHome()
@@ -158,7 +159,8 @@ namespace PeopleVille.Core.Models
                         FoodInventory = house.FoodInventory,
                         WaterInventory = house.WaterInventory,
                         BankAccountBalance = (int)house.BankAccount.Balance,
-                        Message = "Food and water consumed by citizen."
+                        Message = "Food and water consumed by citizen.",
+                        WorldTime = world.currentDateTime
                     });
                 }
                 else
@@ -179,7 +181,8 @@ namespace PeopleVille.Core.Models
                         FoodInventory = apartment.FoodInventory,
                         WaterInventory = apartment.WaterInventory,
                         BankAccountBalance = (int)apartment.BankAccount.Balance,
-                        Message = "Food and water consumed by citizen."
+                        Message = "Food and water consumed by citizen.",
+                        WorldTime = world.currentDateTime
                     });
                 }
                 else

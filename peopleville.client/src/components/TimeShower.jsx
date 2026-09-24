@@ -29,15 +29,13 @@ const TimeShower = () => {
     const date = time ? new Date(time) : null;
     const formattedTime =
         date && !Number.isNaN(date.valueOf())
-            ? new Intl.DateTimeFormat(undefined, {
-                weekday: "short",
-                month: "short",
-                day: "numeric",
+            ? date.toLocaleString("da-DK", {
                 year: "numeric",
-                hour: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
                 minute: "2-digit",
-                second: "2-digit",
-            }).format(date)
+            })
             : "Loading...";
 
     return (

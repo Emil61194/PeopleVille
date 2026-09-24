@@ -26,62 +26,8 @@ function notifyWorldUpdate() {
 
 const log = (message) => onLog?.(message);
 
-export function waitForConnection(timeoutMs = 10000) {
-  return new Promise((resolve, reject) => {
-    const startedAt = Date.now();
-    const check = () => {
-      if (connection?.state === "Connected") {
-        resolve(connection);
-        return;
-      }
-      if (Date.now() - startedAt > timeoutMs) {
-        reject(new Error("The game connection is not ready."));
-        return;
-      }
-      setTimeout(check, 250);
-    };
-    check();
-  });
-}
-
-function scheduleRetry() {
-  clearTimeout(retryTimer);
-  retryTimer = setTimeout(() => {
-    if (sessionActive) connect();
-  }, retryDelay);
-  retryDelay = Math.min(retryDelay * 2, MAX_RETRY_DELAY);
-}
-
-async function loadInitialWorld() {
-  if (!connection || connection.state !== "Connected") return;
-  try {
-    await fetchWorldData();
-  } catch {
-    // The world may not be ready on the server yet; try again shortly.
-    clearTimeout(retryTimer);
-    retryTimer = setTimeout(loadInitialWorld, 2000);
-  }
-}
-
-async function fetchWorldData() {
-  if (!connection || connection.state !== "Connected") return;
-  const [homes, citizens, workplaces] = await Promise.all([
-    connection.invoke("GetAllHomes"),
-    connection.invoke("GetAllCitizens"),
-    connection.invoke("GetAllWorkplaces"),
-  ]);
-  world.homes = homes ?? [];
-  world.citizens = citizens ?? [];
-  world.workplaces = workplaces ?? [];
-  notifyWorldUpdate();
-}
-
-function buildConnection() {
-  if (connection) {
-    connection.off("Event");
-    connection.stop().catch(() => {});
-    connection = undefined;
-  }
+  const log = (message, worldTime) => onLog?.(message, worldTime);
+  onWorldUpdate = worldUpdateHandler;
 
   const conn = new HubConnectionBuilder()
     .withUrl("/hubs/game")
@@ -105,7 +51,7 @@ function buildConnection() {
       typeof message === "string"
         ? message
         : (message?.message ?? JSON.stringify(message));
-    log(value);
+    log(value, message?.worldTime);
     applyEvent(message);
   });
 

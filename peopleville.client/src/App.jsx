@@ -45,14 +45,9 @@ function App() {
     resetConnection();
 
     connectToHub(
-      (message, timestamp) =>
+      (message, worldTime) =>
         setLogs((prev) => [
-          {
-            time: new Date(
-              timestamp ?? currentGameTime.current ?? Date.now(),
-            ),
-            message,
-          },
+            { time: worldTime ? worldTime : new Date(), message },
           ...prev,
         ]),
       ({ homes: h, citizens: c, workplaces: w }) => {
