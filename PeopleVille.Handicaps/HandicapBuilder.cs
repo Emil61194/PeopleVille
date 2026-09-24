@@ -46,16 +46,61 @@ namespace PeopleVille.Handicaps
                 {
                     CurrentLocation = address
                 };
+                AssignFamily(handicap, world);
                 world.Citizens?.Add(handicap);
+                engine.Tick += handicap.PerformHourlyRoutine;
 
             }
         }
-        private (string, World) GetAddress(World world, string lastName, Random rnd)
-        {
-            List<House> houses = world.Houses.Select(h => h).ToList();
-            List<Apartment> apartments = world.Apartments.Select(a => a).ToList();
 
-            List<Citizen>? relatives = world.Citizens.Where(c => c.LastName == lastName).ToList();
+        private void AssignFamily(Citizen citizen, World world)
+        {
+            Family? family = world.Citizens
+                .Where(existingCitizen => existingCitizen.LastName == citizen.LastName)
+                .Select(existingCitizen => existingCitizen.Family)
+                .FirstOrDefault(existingFamily => existingFamily is not null);
+
+            if (family is not null)
+            {
+                int childCount = family.FamilyMembers.Count(member => member.FamilyRoles == FamilyRoles.Child);
+
+                if (citizen.FamilyRoles == FamilyRoles.Child && family.HasRequiredParents && childCount < 3)
+                {
+                    family.AddMember(citizen);
+                    citizen.Family = family;
+                }
+
+                return;
+            }
+
+            if (citizen.FamilyRoles != FamilyRoles.Adult)
+            {
+                return;
+            }
+
+            Citizen? partner = world.Citizens.LastOrDefault(existingCitizen =>
+                existingCitizen.LastName == citizen.LastName
+                && existingCitizen.Family is null
+                && existingCitizen.FamilyRoles == FamilyRoles.Adult);
+
+            if (partner is null)
+            {
+                return;
+            }
+
+            family = new Family(citizen.Id, []);
+            family.AddMember(partner);
+            family.AddMember(citizen);
+            partner.Family = family;
+            citizen.Family = family;
+        }
+
+        private static (string, World) GetAddress(World world, string lastName, Random rnd)
+        {
+            List<House> houses = [.. world.Houses.Select(h => h)];
+            List<Apartment> apartments = [.. world.Apartments.Select(a => a)];
+
+            List<Citizen>? relatives = [.. world.Citizens.Where(c => c.LastName == lastName)];
 
             if (relatives.Count > 0 && relatives.Count < 5)
             {
@@ -70,7 +115,7 @@ namespace PeopleVille.Handicaps
 
                 int currentApartmentsInAddress = world.Apartments.Count(a => a.Address.Contains(apartment.Address));
 
-                int addressFloor = currentApartmentsInAddress % apartment.Floors + 1; // unsure
+                int addressFloor = currentApartmentsInAddress % apartment.Floors; // track apartment occupancy, might otherwise just maintain explicit floor/unit data
 
                 string apartmentAddress = $"{apartment.Address}, {addressFloor}. {currentApartmentsInAddress + 1}";
                 return (apartmentAddress, world);
