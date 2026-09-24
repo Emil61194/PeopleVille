@@ -126,7 +126,7 @@ namespace PeopleVille.Core.Models
 
             lock (personalFunds)
             {
-                personalFunds.Balance += salary;
+                personalFunds.Balance += salary - householdContribution;
                 if (home is IPrivateHome privateHome)
                 {
                     privateHome.HouseholdFunds.Balance += householdContribution;
