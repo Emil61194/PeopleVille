@@ -1,11 +1,7 @@
-import { connection } from "../services/WSService.js";
+import { waitForConnection } from "../services/WSService.js";
 
 function invoke(method, ...args) {
-  if (connection?.state !== "Connected") {
-    return Promise.reject(new Error("The game connection is not ready."));
-  }
-
-  return connection.invoke(method, ...args);
+  return waitForConnection().then((connection) => connection.invoke(method, ...args));
 }
 
 export function GetHouseData(address) {

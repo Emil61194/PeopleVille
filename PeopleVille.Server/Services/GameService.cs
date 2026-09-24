@@ -27,7 +27,7 @@ public class GameService
         {
             bool world = GameEngine.Initialize(fullPath);
             if (world) {
-                _ = GameEngine.Run();
+                _ = Task.Run(GameEngine.Run);
                 return true;
             }
         }
@@ -39,7 +39,7 @@ public class GameService
         bool world = GameEngine.Initialize();
         if (world)
         {
-            _ = GameEngine.Run();
+            _ = Task.Run(GameEngine.Run);
             return true;
         }
         return false;

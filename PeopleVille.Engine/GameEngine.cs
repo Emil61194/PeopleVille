@@ -51,30 +51,37 @@ namespace PeopleVille.Engine
             Console.WriteLine("Running Game");
             while (GameRunning)
             {
-                Tick?.Invoke();
-
-
-                // Random stuff happening ( e.g heatstroke, lack of supplies in town = death, virus )
-
-
-                // Wait 1 second
-                if (_world != null)
+                try
                 {
-                    _world.currentDateTime = _world.currentDateTime.AddHours(1);
-                }
+                    Tick?.Invoke();
 
-                Thread.Sleep(1000);
-                while (_doPause)
-                {
-                    await Task.Delay(50);
-                    // Check for user input to resume or exit
-                }
+                    // Random stuff happening ( e.g heatstroke, lack of supplies in town = death, virus )
 
-                foreach (var action in actionsEachTick)
-                {
-                    await _eventPublisher.PublishEvent(action);
+                    // Advance 1 hour
+                    if (_world != null)
+                    {
+                        _world.currentDateTime = _world.currentDateTime.AddHours(1);
+                    }
+
+                    // Wait 1 second
+                    Thread.Sleep(1000);
+                    while (_doPause)
+                    {
+                        await Task.Delay(50);
+                        // Check for user input to resume or exit
+                    }
+
+                    foreach (var action in actionsEachTick)
+                    {
+                        await _eventPublisher.PublishEvent(action);
+                    }
+                    actionsEachTick.Clear();
                 }
-                actionsEachTick.Clear();
+                catch (Exception exception)
+                {
+                    Console.WriteLine($"Tick failed: {exception}");
+                    Thread.Sleep(1000);
+                }
             }
         }
 

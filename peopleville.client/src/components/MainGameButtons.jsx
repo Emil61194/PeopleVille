@@ -4,6 +4,7 @@ import { GetNewGame } from "../hooks/GetNewGame.js";
 
 export const MainGameButtons = ({ onGameStarted }) => {
   const [filePrompt, setFilePrompt] = useState(false);
+  const [creating, setCreating] = useState(false);
 
   return (
     <div style={{ marginTop: "100px" }}>
@@ -13,21 +14,24 @@ export const MainGameButtons = ({ onGameStarted }) => {
       <button
         text="Load Save"
         className="LoadSaveButton"
+        disabled={creating}
         onClick={() => setFilePrompt(true)}
       >
         Load Save
       </button>
       <button
         className="LoadSaveButton"
-        onClick={() => handleNewGameClick(onGameStarted)}
+        disabled={creating}
+        onClick={() => handleNewGameClick(onGameStarted, setCreating)}
       >
-        New Game
+        {creating ? "Creating..." : "New Game"}
       </button>
     </div>
   );
 };
 
-async function handleNewGameClick(onGameStarted) {
+async function handleNewGameClick(onGameStarted, setCreating) {
+  setCreating(true);
   try {
     const success = await GetNewGame();
     if (success) {
@@ -36,5 +40,7 @@ async function handleNewGameClick(onGameStarted) {
     }
   } catch (error) {
     console.error(error);
+  } finally {
+    setCreating(false);
   }
 }

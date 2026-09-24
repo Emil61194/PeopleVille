@@ -4,6 +4,12 @@ export let connection;
 const eventListeners = new Set();
 const world = { homes: [], citizens: [], workplaces: [] };
 let onWorldUpdate;
+let onLog;
+let sessionActive = false;
+let retryDelay = 1000;
+let retryTimer;
+
+const MAX_RETRY_DELAY = 15000;
 
 export function subscribeToEvents(listener) {
   eventListeners.add(listener);
@@ -18,28 +24,82 @@ function notifyWorldUpdate() {
   });
 }
 
-export async function connectToHub(onLog, worldUpdateHandler) {
-  if (connection) return;
+const log = (message) => onLog?.(message);
 
-  const log = (message) => onLog?.(message);
-  onWorldUpdate = worldUpdateHandler;
+export function waitForConnection(timeoutMs = 10000) {
+  return new Promise((resolve, reject) => {
+    const startedAt = Date.now();
+    const check = () => {
+      if (connection?.state === "Connected") {
+        resolve(connection);
+        return;
+      }
+      if (Date.now() - startedAt > timeoutMs) {
+        reject(new Error("The game connection is not ready."));
+        return;
+      }
+      setTimeout(check, 250);
+    };
+    check();
+  });
+}
 
-  connection = new HubConnectionBuilder()
+function scheduleRetry() {
+  clearTimeout(retryTimer);
+  retryTimer = setTimeout(() => {
+    if (sessionActive) connect();
+  }, retryDelay);
+  retryDelay = Math.min(retryDelay * 2, MAX_RETRY_DELAY);
+}
+
+async function loadInitialWorld() {
+  if (!connection || connection.state !== "Connected") return;
+  try {
+    await fetchWorldData();
+  } catch {
+    // The world may not be ready on the server yet; try again shortly.
+    clearTimeout(retryTimer);
+    retryTimer = setTimeout(loadInitialWorld, 2000);
+  }
+}
+
+async function fetchWorldData() {
+  if (!connection || connection.state !== "Connected") return;
+  const [homes, citizens, workplaces] = await Promise.all([
+    connection.invoke("GetAllHomes"),
+    connection.invoke("GetAllCitizens"),
+    connection.invoke("GetAllWorkplaces"),
+  ]);
+  world.homes = homes ?? [];
+  world.citizens = citizens ?? [];
+  world.workplaces = workplaces ?? [];
+  notifyWorldUpdate();
+}
+
+function buildConnection() {
+  if (connection) {
+    connection.off("Event");
+    connection.stop().catch(() => {});
+    connection = undefined;
+  }
+
+  const conn = new HubConnectionBuilder()
     .withUrl("/hubs/game")
     .withAutomaticReconnect()
     .build();
 
-  connection.onclose((error) =>
-    log(`Connection closed${error ? `: ${error.message}` : ""}`),
-  );
-  connection.onreconnecting((error) =>
-    log(`Reconnecting${error ? `: ${error.message}` : ""}`),
-  );
-  connection.onreconnected(() => {
-    log("Connected");
-    fetchWorldData();
+  conn.onclose((error) => {
+    log(`Connection lost${error ? `: ${error.message}` : ""}. Retrying...`);
+    if (sessionActive) scheduleRetry();
   });
-  connection.on("Event", (message) => {
+  conn.onreconnecting((error) => {
+    log(`Reconnecting${error ? `: ${error.message}` : ""}`);
+  });
+  conn.onreconnected(() => {
+    log("Reconnected");
+    loadInitialWorld();
+  });
+  conn.on("Event", (message) => {
     eventListeners.forEach((listener) => listener(message));
     const value =
       typeof message === "string"
@@ -49,30 +109,55 @@ export async function connectToHub(onLog, worldUpdateHandler) {
     applyEvent(message);
   });
 
+  connection = conn;
+  return conn;
+}
+
+async function connect() {
+  if (!sessionActive) return;
+
+  const conn = buildConnection();
+
   try {
-    await connection.start();
+    await conn.start();
+    retryDelay = 1000;
     log("Connected");
-    await fetchWorldData();
+    await loadInitialWorld();
   } catch (error) {
-    log(`Connection failed: ${error.message}`);
+    log(`Connection failed: ${error.message}. Retrying in ${retryDelay}ms...`);
+    scheduleRetry();
   }
 }
 
-async function fetchWorldData() {
-  if (!connection) return;
-  try {
-    const [homes, citizens, workplaces] = await Promise.all([
-      connection.invoke("GetAllHomes"),
-      connection.invoke("GetAllCitizens"),
-      connection.invoke("GetAllWorkplaces"),
-    ]);
-    world.homes = homes ?? [];
-    world.citizens = citizens ?? [];
-    world.workplaces = workplaces ?? [];
-    notifyWorldUpdate();
-  } catch (error) {
-    console.error("Failed to fetch world data:", error);
+export function connectToHub(onLogHandler, worldUpdateHandler) {
+  onLog = onLogHandler;
+  onWorldUpdate = worldUpdateHandler;
+
+  if (sessionActive) return;
+
+  sessionActive = true;
+  retryDelay = 1000;
+  clearTimeout(retryTimer);
+
+  if (connection?.state === "Connected") {
+    loadInitialWorld();
+  } else {
+    connect();
   }
+}
+
+export function resetConnection() {
+  sessionActive = false;
+  clearTimeout(retryTimer);
+  if (connection) {
+    connection.off("Event");
+    connection.stop().catch(() => {});
+    connection = undefined;
+  }
+  world.homes = [];
+  world.citizens = [];
+  world.workplaces = [];
+  notifyWorldUpdate();
 }
 
 function applyEvent(message) {

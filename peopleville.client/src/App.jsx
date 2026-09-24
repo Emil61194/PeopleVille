@@ -1,37 +1,58 @@
 import "./App.css";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MainGameButtons } from "./components/MainGameButtons.jsx";
 import { HomesCard } from "./components/HomesCard.jsx";
 import { CitizensCard } from "./components/CitizensCard.jsx";
 import { WorkplacesCard } from "./components/WorkplacesCard.jsx";
 import { LogCard } from "./components/LogCard.jsx";
 import { KontrolpanelCard } from "./components/KontrolpanelCard.jsx";
-import { connectToHub } from "./services/WSService.js";
+import { connectToHub, resetConnection } from "./services/WSService.js";
+import { getTime } from "./hooks/GetTime.js";
 import TimeShower from "./components/TimeShower.jsx";
-function formatTime(date) {
-  return date.toLocaleTimeString("da-DK", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 function App() {
   const [gameStarted, setGameStarted] = useState(false);
-  const [connectionReady, setConnectionReady] = useState(false);
   const [logs, setLogs] = useState([]);
   const [homes, setHomes] = useState([]);
   const [citizens, setCitizens] = useState([]);
   const [workplaces, setWorkplaces] = useState([]);
+  const currentGameTime = useRef(null);
 
   useEffect(() => {
     if (!gameStarted) return;
 
     let cancelled = false;
 
+    const updateGameTime = () =>
+      getTime()
+        .then((currentTime) => {
+          if (!cancelled) currentGameTime.current = currentTime;
+        })
+        .catch(() => {});
+
+    updateGameTime();
+    const interval = setInterval(updateGameTime, 1000);
+
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [gameStarted]);
+
+  useEffect(() => {
+    if (!gameStarted) return;
+
+    resetConnection();
+
     connectToHub(
-      (message) =>
+      (message, timestamp) =>
         setLogs((prev) => [
-          { time: formatTime(new Date()), message },
+          {
+            time: new Date(
+              timestamp ?? currentGameTime.current ?? Date.now(),
+            ),
+            message,
+          },
           ...prev,
         ]),
       ({ homes: h, citizens: c, workplaces: w }) => {
