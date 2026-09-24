@@ -149,25 +149,36 @@ namespace PeopleVille.Core.Models
 
                 if (foodConsumed <= house.FoodInventory && waterConsumed <= house.WaterInventory)
                 {
+                    PublishCitizenAction($"{FirstName} {LastName} ate {foodConsumed} food and drank {waterConsumed} water.");
                     house.FoodInventory -= foodConsumed;
                     house.WaterInventory -= waterConsumed;
+                }
+                else
+                {
+                    BegForMoney(home, rnd);
                 }
             }
             else if (home is Apartment apartment)
             {
                 if (foodConsumed <= apartment.FoodInventory && waterConsumed <= apartment.WaterInventory)
                 {
+                    PublishCitizenAction($"{FirstName} {LastName} ate {foodConsumed} food and drank {waterConsumed} water.");
                     apartment.FoodInventory -= foodConsumed;
                     apartment.WaterInventory -= waterConsumed;
+                }
+                else
+                {
+                    BegForMoney(home, rnd);
                 }
             }
         }
 
         private void BegForMoney(Building home, Random rnd)
         {
-
+            
             if (rnd.Next(0, 2) == 0) // 50% chance for begging to succeed
             {
+                
                 Building? homeWithMostFood = world.Houses
                     .Cast<Building>()
                     .Concat(world.Apartments)
@@ -194,7 +205,7 @@ namespace PeopleVille.Core.Models
                     {
                         currentApartment.FoodInventory += 10;
                     }
-
+                    PublishCitizenAction($"{FirstName} {LastName} begged for food and recieved 10 food.");
                 }
                 else if (homeWithMostFood != null && homeWithMostFood is Apartment apartment)
                 {
@@ -207,6 +218,7 @@ namespace PeopleVille.Core.Models
                     {
                         currentApartment.FoodInventory += 10;
                     }
+                    PublishCitizenAction($"{FirstName} {LastName} begged for food and recieved 10 food.");
                 }
 
                 if (homeWithMostWater != null && homeWithMostWater is House house2)
@@ -220,6 +232,7 @@ namespace PeopleVille.Core.Models
                     {
                         currentApartment.WaterInventory += 10;
                     }
+                    PublishCitizenAction($"{FirstName} {LastName} begged for water and recieved 10 water.");
                 }
                 else if (homeWithMostWater != null && homeWithMostWater is Apartment apartment2)
                 {
@@ -232,7 +245,12 @@ namespace PeopleVille.Core.Models
                     {
                         currentApartment.WaterInventory += 10;
                     }
+                    PublishCitizenAction($"{FirstName} {LastName} begged for water and recieved 10 water.");
                 }
+            }
+            else
+            {
+                PublishCitizenAction($"{FirstName} {LastName} begged for money and failed.");
             }
         }
 
