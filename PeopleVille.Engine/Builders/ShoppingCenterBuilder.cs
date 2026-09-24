@@ -8,13 +8,17 @@ namespace PeopleVille.Engine.Builders
     {
         public void Build(World world)
         {
-            List<ShoppingCenter> shoppingCenters = new List<ShoppingCenter>();
             List<string> addresses = Core.Data.Address.AddressList.ToList();
 
             Random rnd = new Random();
             int shoppingCenterCount = rnd.Next(5, 10);
             for (int i = 0; i < shoppingCenterCount; i++)
             {
+                if (addresses.Count == 0)
+                {
+                    break;
+                }
+
                 ShoppingCenter shoppingCenter = new ShoppingCenter
                 {
                     FoodPrice = rnd.Next(2, 5),
