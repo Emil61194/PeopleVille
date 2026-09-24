@@ -13,7 +13,7 @@ namespace PeopleVille.Engine.Builders
         public static void BuildCitizens(World world,ref Action tickAction, ConcurrentBag<object> actionsEachTick)
         {
             Random rnd = new();
-            int citizenAmount = rnd.Next(10, 15);
+            int citizenAmount = rnd.Next(15, 30);
 
             string[] lastNames = [.. LastName.LastNames];
 
