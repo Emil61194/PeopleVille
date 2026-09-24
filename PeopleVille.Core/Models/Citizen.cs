@@ -5,11 +5,11 @@ using PeopleVille.Core.Operations;
 
 namespace PeopleVille.Core.Models
 {
-    public class Citizen(World world, int id, string firstName, string lastName, DateTime birth, Genders gender, Family? family, FamilyRoles familialStatus, string homeAddress, ConcurrentBag<object>? actionSink = null)
+    public class Citizen(World world, int id, string firstName, string lastName, DateTime birth, Genders gender, Family? family, FamilyRoles familialStatus, int? homeId, ConcurrentBag<object>? actionSink = null)
     {
-        public Citizen(World world, int id, string firstName, string lastName, DateTime birth, Genders gender, string homeAddress)
+        public Citizen(World world, int id, string firstName, string lastName, DateTime birth, Genders gender, homeId)
             // Delegate to the primary constructor without creating a default family.
-            : this(world, id, firstName, lastName, birth, gender, null, FamilyRoles.Adult, homeAddress)
+            : this(world, id, firstName, lastName, birth, gender, null, FamilyRoles.Adult, null)
         {
         }
 
@@ -18,15 +18,17 @@ namespace PeopleVille.Core.Models
         public string LastName { get; } = lastName;
         public DateTime Birth { get; } = birth;
         public Genders Gender { get; } = gender;
-        public FamilyRoles FamilyRoles { get; set; } = familialStatus;
         public Family? Family { get; set; } = family;
+        public FamilyRoles FamilyRoles { get; set; } = familialStatus;
         public BankAccount BankAccount { get; set; } = new();
-        public string HomeAddress { get; set; } = homeAddress;
+        public int? HomeId { get; set; } = homeId;
         public Job? Job { get; set; }
 
         public required string CurrentLocation { get; set; }
         public School? School { get; set; }
 
+        private static readonly int percentage = 50;
+        private static readonly double multiplier = percentage / 100.0; // 0.XX
         private readonly ConcurrentBag<object>? _actionSink = actionSink;
 
         public void PerformHourlyRoutine()
@@ -44,7 +46,7 @@ namespace PeopleVille.Core.Models
                 yearsOld--;
             }
 
-            CurrentLocation = HomeAddress;
+            CurrentLocation = HomeId.Address;
 
             if (currentHour == 22) // eating time
             {
@@ -90,7 +92,7 @@ namespace PeopleVille.Core.Models
                 FirstName = FirstName,
                 LastName = LastName,
                 Gender = Gender.ToString(),
-                HomeAddress = HomeAddress,
+                HomeAddress = HomeId.Address,
                 CurrentLocation = CurrentLocation,
                 IsAdult = yearsOld >= 18,
                 IsEmployed = Job is not null,
@@ -104,36 +106,53 @@ namespace PeopleVille.Core.Models
             {
                 return;
             }
+
+            if (FamilyRoles is FamilyRoles.Child)
+            {
+                AppendSalaryToBalance(Job, true);
+                return;
+            }
             
-            BankAccount.Balance += Job.Workplace.Salary;
-            Family?.RefreshBalance();
+            AppendSalaryToBalance(Job, false);
+            return;
+        }
+
+        private void AppendSalaryToBalance(Job job, bool isChild)
+        {
+            lock (BankAccount.Balance)
+            {
+                if (isChild)
+                {
+                    int incomePool = Job.Workplace.Salary * multiplier; // under 18 pay
+                    HomeId.HouseholdFunds.Balance += incomePool * multiplier;
+                    BankAccount.Balance += incomePool;
+                } else {
+                    int incomePool = Job.Workplace.Salary;
+                    HomeId.HouseholdFunds.Balance += incomePool * multiplier; // might have issues if odd number turns into decimal unless handled elsewhere in code or generally rounded up/down
+                    BankAccount.Balance += incomePool;
+                }
+            }
+
             PublishCitizenAction($"Received salary of {Job.Workplace.Salary} at {world.currentDateTime}");
         }
 
         private Building FindHome()
         {
-            return world.Houses
-                .Cast<Building>()
+            return world.Houses.Cast<Building>()
                 .Concat(world.Apartments)
-                .FirstOrDefault(home => home.Address == HomeAddress)!; // no homeless yet so can be nullforgiven
+                .FirstOrDefault(home => home.HomeId == HomeId)!; // no homeless yet so can be nullforgiven
         }
 
         private bool GetHomeResources()
         {
             Building home = FindHome();
 
-            if (home is House house)
+            return home switch
             {
-                return house.FoodInventory < 5 || house.WaterInventory < 5;
-            }
-            else if (home is Apartment apartment)
-            {
-                return apartment.FoodInventory < 5 || apartment.WaterInventory < 5;
-            }
-            else
-            {
-                return false; // find solution for citizen with no found address
-            }
+                House house => house.FoodInventory < 5 || house.WaterInventory < 5,
+                Apartment apartment => apartment.FoodInventory < 5 || apartment.WaterInventory < 5,
+                _ => false // find solution for citizen with no found address
+            };
         }
 
         private void Eat()
@@ -144,29 +163,25 @@ namespace PeopleVille.Core.Models
             int foodConsumed = rnd.Next(2, 5);
             int waterConsumed = rnd.Next(2, 5);
 
-            if (home is House house)
+            switch (home)
             {
-
-                if (foodConsumed <= house.FoodInventory && waterConsumed <= house.WaterInventory)
-                {
+                case House house when foodConsumed <= house.FoodInventory && waterConsumed <= house.WaterInventory:
                     house.FoodInventory -= foodConsumed;
                     house.WaterInventory -= waterConsumed;
-                }
-            }
-            else if (home is Apartment apartment)
-            {
-                if (foodConsumed <= apartment.FoodInventory && waterConsumed <= apartment.WaterInventory)
-                {
+                    break;
+                case Apartment apartment when foodConsumed <= apartment.FoodInventory && waterConsumed <= apartment.WaterInventory:
                     apartment.FoodInventory -= foodConsumed;
                     apartment.WaterInventory -= waterConsumed;
-                }
+                    break;
+                default:
+                    break;
             }
         }
 
         private void BegForMoney(Building home, Random rnd)
         {
 
-            if (rnd.Next(0, 2) == 0) // 50% chance for begging to succeed
+            if (rnd.Next(0, 5) == 0) // 20% chance for begging to succeed
             {
                 Building? homeWithMostFood = world.Houses
                     .Cast<Building>()
@@ -182,31 +197,24 @@ namespace PeopleVille.Core.Models
                     .OrderByDescending(h => h is House h1 ? h1.WaterInventory : (h as Apartment)!.WaterInventory)
                     .FirstOrDefault();
 
-                if (homeWithMostFood != null && homeWithMostFood is House house)
+                switch (homeWithMostFood)
                 {
-                    house.FoodInventory -= 10;
-
-                    if (home is House currentHouse)
-                    {
-                        currentHouse.FoodInventory += 10;
-                    }
-                    else if (home is Apartment currentApartment)
-                    {
-                        currentApartment.FoodInventory += 10;
-                    }
-
+                    case House house:
+                        house.FoodInventory -= 10;
+                        break;
+                    case Apartment apartment:
+                        apartment.FoodInventory -= 10;
+                        break;
                 }
-                else if (homeWithMostFood != null && homeWithMostFood is Apartment apartment)
+
+                switch (home)
                 {
-                    apartment.FoodInventory -= 10;
-                    if (home is House currentHouse)
-                    {
+                    case House currentHouse:
                         currentHouse.FoodInventory += 10;
-                    }
-                    else if (home is Apartment currentApartment)
-                    {
+                        break;
+                    case Apartment currentApartment:
                         currentApartment.FoodInventory += 10;
-                    }
+                        break;
                 }
 
                 if (homeWithMostWater != null && homeWithMostWater is House house2)
@@ -242,30 +250,25 @@ namespace PeopleVille.Core.Models
             Random rnd = new();
             ShoppingCenter? shoppingCenter = world.ShoppingCenters[rnd.Next(world.ShoppingCenters.Count)];
 
-            if (home is House house)
+            lock (Citizen.BankAccount)
             {
-                if (house.BankAccount.Balance < shoppingCenter.FoodPrice * 5 || house.BankAccount.Balance < shoppingCenter.WaterPrice * 5)
+                switch (home)
                 {
-                    world.Citizens.Remove(this); // citizen dies
-                }
-                else
-                {
-                    house.BankAccount.Balance -= shoppingCenter.FoodPrice * 5;
-                    house.BankAccount.Balance -= shoppingCenter.WaterPrice * 5;
-                    CurrentLocation = shoppingCenter.Address;
-                }
-            }
-            else if (home is Apartment apartment)
-            {
-                if (apartment.BankAccount.Balance < shoppingCenter.FoodPrice * 5 || apartment.BankAccount.Balance < shoppingCenter.WaterPrice * 5)
-                {
-                    world.Citizens.Remove(this); // citizen dies
-                }
-                else
-                {
-                    apartment.BankAccount.Balance -= shoppingCenter.FoodPrice * 5;
-                    apartment.BankAccount.Balance -= shoppingCenter.WaterPrice * 5;
-                    CurrentLocation = shoppingCenter.Address;
+                    case House:
+                    case Apartment:
+                        if (Citizen.BankAccount.Balance <= shoppingCenter.FoodPrice * 5 && Citizen.BankAccount.Balance <= shoppingCenter.WaterPrice * 5)
+                        {
+                            world.Citizens.Remove(this); // citizen dies
+                        }
+                        else
+                        {
+                            Citizen.BankAccount.Balance -= shoppingCenter.FoodPrice * 5;
+                            balance -= shoppingCenter.WaterPrice * 5;
+                            CurrentLocation = shoppingCenter.Address;
+                        }
+                        break;
+                    default:
+                        break;
                 }
             }
         }

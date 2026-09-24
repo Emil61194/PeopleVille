@@ -4,7 +4,6 @@ namespace PeopleVille.Core.Models
     {
         public int Id { get; set; } = id;
         public int FamilyMembersCount { get; set; }
-        public BankAccount Balance { get; set; } = new();
         public List<Citizen> FamilyMembers { get; set; } = family;
 
         private readonly (int parents, int children) MaxAllowedFamilyMembers = (parents: 2, children: 3);
@@ -42,15 +41,6 @@ namespace PeopleVille.Core.Models
                 FamilyMembers.Add(citizen);
                 FamilyMembersCount = FamilyMembers.Count;
             }
-
-            RefreshBalance();
-        }
-
-        public void RefreshBalance()
-        {
-            Balance.Balance = FamilyMembers
-                .Where(member => member.FamilyRoles == Enum.FamilyRoles.Adult)
-                .Sum(parent => parent.BankAccount.Balance / 2);
         }
 
         private static Family CreateFamily(List<Citizen> citizens)

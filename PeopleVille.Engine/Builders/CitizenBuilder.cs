@@ -43,6 +43,7 @@ namespace PeopleVille.Engine.Builders
                 DateTime birth = DateTime.Now.AddYears(-rnd.Next(0, 70));
                 int yearsOld = DateTime.Now.Year - birth.Year;
                 FamilyRoles familialStatus = yearsOld < 18 ? FamilyRoles.Child : FamilyRoles.Adult;
+                Citizen homeId = Citizen citizen.HomeId[i];
 
                 Citizen citizen = new(world: world,
                     id: i + 1,
@@ -52,11 +53,11 @@ namespace PeopleVille.Engine.Builders
                     gender: gender,
                     family: null,
                     familialStatus: familialStatus,
-                    homeAddress: address,
+                    homeId: homeId,
                     actionSink: engine.actionsEachTick)
                 {
                     Job = chosenJob,
-                    CurrentLocation = address,
+                    CurrentLocation = homeId is null ? GetAddress(world, rnd) : address,
                 };
 
 
@@ -113,6 +114,31 @@ namespace PeopleVille.Engine.Builders
             citizen.Family = family;
         }
 
+        private static void AssignHome(Citizen citizen, World world)
+        {
+            // Checks if citizens already has a home, finds a random avaiable household, then checks if anyone occupies that to then check if the household's capacity has already reached.
+            if (citizen.HomeId is not null)
+            {
+                return;
+            }
+
+            (World, int) availableHousehold = GetAddress(world, rnd);
+
+            for (int i = 0; i < citizen.HomeId; i++)
+            if (availableHousehold is not null =>
+                .Where (c.homeId == c.homeId))
+            {
+                if (amountOfCitizens > householdCapacity)
+                    {
+                        citizen.HomeId = availableHousehold;
+                    }
+
+                return;
+            }
+
+            return;
+        }
+
         private static (string, World) GetAddress(World world, string lastName, Random rnd)
         {
             List<House> houses = [.. world.Houses.Select(h => h)];
@@ -122,7 +148,7 @@ namespace PeopleVille.Engine.Builders
 
             if (relatives.Count > 0 && relatives.Count < 5)
             {
-                string address = relatives[0].HomeAddress;
+                string address = relatives[0].HomeId.Address;
                 return (address, world);
             }
 

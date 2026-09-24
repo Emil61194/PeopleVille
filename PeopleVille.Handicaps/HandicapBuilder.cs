@@ -1,4 +1,6 @@
-﻿using PeopleVille.Core.Data;
+﻿// whole file should be refactored to have handicaps just be a citizen status rather than a whole new concept just because of dll as a sort of "DLC"
+
+using PeopleVille.Core.Data;
 using PeopleVille.Core.Enum;
 using PeopleVille.Core.Interfaces;
 using PeopleVille.Core.Models;
@@ -53,7 +55,7 @@ namespace PeopleVille.Handicaps
             }
         }
 
-        private void AssignFamily(Citizen citizen, World world)
+        private static void AssignFamily(Citizen citizen, World world)
         {
             Family? family = world.Citizens
                 .Where(existingCitizen => existingCitizen.LastName == citizen.LastName)
