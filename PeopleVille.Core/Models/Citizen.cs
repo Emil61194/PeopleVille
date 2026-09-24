@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using PeopleVille.Core.Enum;
+using PeopleVille.Core.Interfaces;
 using PeopleVille.Core.Models.Home;
 using PeopleVille.Core.Operations;
 
@@ -7,9 +8,9 @@ namespace PeopleVille.Core.Models
 {
     public class Citizen(World world, int id, string firstName, string lastName, DateTime birth, Genders gender, Family? family, FamilyRoles familialStatus, int? homeId, ConcurrentBag<object>? actionSink = null)
     {
-        public Citizen(World world, int id, string firstName, string lastName, DateTime birth, Genders gender, homeId)
+        public Citizen(World world, int id, string firstName, string lastName, DateTime birth, Genders gender, int? homeId)
             // Delegate to the primary constructor without creating a default family.
-            : this(world, id, firstName, lastName, birth, gender, null, FamilyRoles.Adult, null)
+            : this(world, id, firstName, lastName, birth, gender, null, FamilyRoles.Adult, homeId)
         {
         }
 
@@ -27,8 +28,8 @@ namespace PeopleVille.Core.Models
         public required string CurrentLocation { get; set; }
         public School? School { get; set; }
 
-        private static readonly int percentage = 50;
-        private static readonly double multiplier = percentage / 100.0; // 0.XX
+        private const decimal ContributionRate = 0.50m;
+        private const decimal ChildPayRate = 0.50m;
         private readonly ConcurrentBag<object>? _actionSink = actionSink;
 
         public void PerformHourlyRoutine()
@@ -46,7 +47,8 @@ namespace PeopleVille.Core.Models
                 yearsOld--;
             }
 
-            CurrentLocation = HomeId.Address;
+            Building? home = FindHome();
+            CurrentLocation = home?.Address ?? CurrentLocation;
 
             if (currentHour == 22) // eating time
             {
@@ -92,7 +94,7 @@ namespace PeopleVille.Core.Models
                 FirstName = FirstName,
                 LastName = LastName,
                 Gender = Gender.ToString(),
-                HomeAddress = HomeId.Address,
+                HomeAddress = FindHome()?.Address ?? string.Empty,
                 CurrentLocation = CurrentLocation,
                 IsAdult = yearsOld >= 18,
                 IsEmployed = Job is not null,
@@ -107,45 +109,43 @@ namespace PeopleVille.Core.Models
                 return;
             }
 
-            if (FamilyRoles is FamilyRoles.Child)
-            {
-                AppendSalaryToBalance(Job, true);
-                return;
-            }
-            
-            AppendSalaryToBalance(Job, false);
-            return;
+            AppendSalaryToBalance(Job);
         }
 
-        private void AppendSalaryToBalance(Job job, bool isChild)
+        private void AppendSalaryToBalance(Job job)
         {
-            lock (BankAccount.Balance)
+            decimal salary = job.Workplace.Salary;
+            if (FamilyRoles is FamilyRoles.Child)
             {
-                if (isChild)
+                salary *= ChildPayRate;
+            }
+
+            decimal householdContribution = salary * ContributionRate;
+            Building? home = FindHome();
+            BankAccount personalFunds = BankAccount;
+
+            lock (personalFunds)
+            {
+                personalFunds.Balance += salary;
+                if (home is IPrivateHome privateHome)
                 {
-                    int incomePool = Job.Workplace.Salary * multiplier; // under 18 pay
-                    HomeId.HouseholdFunds.Balance += incomePool * multiplier;
-                    BankAccount.Balance += incomePool;
-                } else {
-                    int incomePool = Job.Workplace.Salary;
-                    HomeId.HouseholdFunds.Balance += incomePool * multiplier; // might have issues if odd number turns into decimal unless handled elsewhere in code or generally rounded up/down
-                    BankAccount.Balance += incomePool;
+                    privateHome.HouseholdFunds.Balance += householdContribution;
                 }
             }
 
-            PublishCitizenAction($"Received salary of {Job.Workplace.Salary} at {world.currentDateTime}");
+            PublishCitizenAction($"Received salary of {salary} at {world.currentDateTime}");
         }
 
-        private Building FindHome()
+        private Building? FindHome()
         {
             return world.Houses.Cast<Building>()
                 .Concat(world.Apartments)
-                .FirstOrDefault(home => home.HomeId == HomeId)!; // no homeless yet so can be nullforgiven
+            .FirstOrDefault(home => home.HomeId == HomeId);
         }
 
         private bool GetHomeResources()
         {
-            Building home = FindHome();
+            Building? home = FindHome();
 
             return home switch
             {
@@ -157,7 +157,7 @@ namespace PeopleVille.Core.Models
 
         private void Eat()
         {
-            Building home = FindHome();
+            Building? home = FindHome();
             Random rnd = new();
 
             int foodConsumed = rnd.Next(2, 5);
@@ -246,29 +246,25 @@ namespace PeopleVille.Core.Models
 
         private void ReduceHomeBalance()
         {
-            Building home = FindHome();
+            Building? home = FindHome();
             Random rnd = new();
             ShoppingCenter? shoppingCenter = world.ShoppingCenters[rnd.Next(world.ShoppingCenters.Count)];
-
-            lock (Citizen.BankAccount)
+            if (home is not IPrivateHome privateHome || shoppingCenter is null)
             {
-                switch (home)
+                return;
+            }
+
+            decimal totalCost = (shoppingCenter.FoodPrice + shoppingCenter.WaterPrice) * 5;
+            lock (privateHome.HouseholdFunds)
+            {
+                if (privateHome.HouseholdFunds.Balance < totalCost)
                 {
-                    case House:
-                    case Apartment:
-                        if (Citizen.BankAccount.Balance <= shoppingCenter.FoodPrice * 5 && Citizen.BankAccount.Balance <= shoppingCenter.WaterPrice * 5)
-                        {
-                            world.Citizens.Remove(this); // citizen dies
-                        }
-                        else
-                        {
-                            Citizen.BankAccount.Balance -= shoppingCenter.FoodPrice * 5;
-                            balance -= shoppingCenter.WaterPrice * 5;
-                            CurrentLocation = shoppingCenter.Address;
-                        }
-                        break;
-                    default:
-                        break;
+                    world.Citizens.Remove(this); // citizen dies
+                }
+                else
+                {
+                    privateHome.HouseholdFunds.Balance -= totalCost;
+                    CurrentLocation = shoppingCenter.Address;
                 }
             }
         }

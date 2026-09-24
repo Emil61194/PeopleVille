@@ -38,13 +38,11 @@ namespace PeopleVille.Engine.Builders
 
                 Job chosenJob = jobs[rnd.Next(jobs.Count)];
 
-                (string address, world) = GetAddress(world, lastName, rnd);
+                (string address, int homeId) = GetAddress(world, lastName, rnd);
 
                 DateTime birth = DateTime.Now.AddYears(-rnd.Next(0, 70));
                 int yearsOld = DateTime.Now.Year - birth.Year;
                 FamilyRoles familialStatus = yearsOld < 18 ? FamilyRoles.Child : FamilyRoles.Adult;
-                Citizen homeId = Citizen citizen.HomeId[i];
-
                 Citizen citizen = new(world: world,
                     id: i + 1,
                     firstName: firstName,
@@ -57,7 +55,7 @@ namespace PeopleVille.Engine.Builders
                     actionSink: engine.actionsEachTick)
                 {
                     Job = chosenJob,
-                    CurrentLocation = homeId is null ? GetAddress(world, rnd) : address,
+                    CurrentLocation = address,
                 };
 
 
@@ -114,32 +112,7 @@ namespace PeopleVille.Engine.Builders
             citizen.Family = family;
         }
 
-        private static void AssignHome(Citizen citizen, World world)
-        {
-            // Checks if citizens already has a home, finds a random avaiable household, then checks if anyone occupies that to then check if the household's capacity has already reached.
-            if (citizen.HomeId is not null)
-            {
-                return;
-            }
-
-            (World, int) availableHousehold = GetAddress(world, rnd);
-
-            for (int i = 0; i < citizen.HomeId; i++)
-            if (availableHousehold is not null =>
-                .Where (c.homeId == c.homeId))
-            {
-                if (amountOfCitizens > householdCapacity)
-                    {
-                        citizen.HomeId = availableHousehold;
-                    }
-
-                return;
-            }
-
-            return;
-        }
-
-        private static (string, World) GetAddress(World world, string lastName, Random rnd)
+        private static (string Address, int HomeId) GetAddress(World world, string lastName, Random rnd)
         {
             List<House> houses = [.. world.Houses.Select(h => h)];
             List<Apartment> apartments = [.. world.Apartments.Select(a => a)];
@@ -148,8 +121,11 @@ namespace PeopleVille.Engine.Builders
 
             if (relatives.Count > 0 && relatives.Count < 5)
             {
-                string address = relatives[0].HomeId.Address;
-                return (address, world);
+                Building? relativeHome = FindHome(world, relatives[0].HomeId);
+                if (relativeHome is not null)
+                {
+                    return (relativeHome.Address, relativeHome.HomeId);
+                }
             }
 
 
@@ -157,16 +133,18 @@ namespace PeopleVille.Engine.Builders
             {
                 Apartment apartment = apartments[rnd.Next(apartments.Count)];
 
-                int currentApartmentsInAddress = world.Apartments.Count(a => a.Address.Contains(apartment.Address));
-
-                int addressFloor = currentApartmentsInAddress % apartment.Floors; // track apartment occupancy, might otherwise just maintain explicit floor/unit data
-
-                string apartmentAddress = $"{apartment.Address}, {addressFloor}. {currentApartmentsInAddress + 1}";
-                return (apartmentAddress, world);
+                return (apartment.Address, apartment.HomeId);
             }
 
             House house = houses[rnd.Next(houses.Count)];
-            return (house.Address, world);
+            return (house.Address, house.HomeId);
+        }
+
+        private static Building? FindHome(World world, int? homeId)
+        {
+            return world.Houses.Cast<Building>()
+                .Concat(world.Apartments)
+                .FirstOrDefault(home => home.HomeId == homeId);
         }
     }
 }

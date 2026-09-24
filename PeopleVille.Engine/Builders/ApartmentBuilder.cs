@@ -23,6 +23,7 @@ namespace PeopleVille.Engine.Builders
 
                 Apartment apartment = new Apartment
                 {
+                    HomeId = world.Houses.Count + world.Apartments.Count + 1,
                     Address = address,
                     Floors = floors,
                     Rent = rnd.Next(500, 2000),

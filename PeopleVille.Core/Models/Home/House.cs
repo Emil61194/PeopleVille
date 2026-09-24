@@ -4,7 +4,7 @@ namespace PeopleVille.Core.Models.Home
 {
     public class House : Building, IPrivateHome
     {
-        public int HomeId { get; set; }
+        public override int HomeId { get; set; }
         public int CitizenCapacity { get; set; }
         public override required string Address { get; set; }
         public int FoodInventory { get; set; }

@@ -43,14 +43,15 @@ public sealed class SaveService(IWebHostEnvironment environment)
                     LastName = c.LastName,
                     Birth = c.Birth,
                     Gender = c.Gender,
-                    HomeAddress = c.HomeAddress,
+                    HomeAddress = GetHomeAddress(world, c.HomeId),
+                    HomeId = c.HomeId,
+                    BankAccount = ToBankAccountDto(c.BankAccount),
                     CurrentLocation = c.CurrentLocation,
                     JobWorkplaceAddress = c.Job?.Workplace.Address,
                     SchoolAddress = c.School?.Address
                 })],
                 BankAccounts = [.. world.BankAccount.Select(account => new BankAccountSaveDto
                 {
-                    OwnerAddress = GetOwnerAddress(account),
                     Balance = account.Balance,
                     Transactions = account.Transactions is null ? null : [.. account.Transactions]
                 })],
@@ -84,7 +85,8 @@ public sealed class SaveService(IWebHostEnvironment environment)
                     CitizenCapacity = house.CitizenCapacity,
                     FoodInventory = house.FoodInventory,
                     WaterInventory = house.WaterInventory,
-                    BankAccount = ToBankAccountDto(house.BankAccount)
+                    HomeId = house.HomeId,
+                    BankAccount = ToBankAccountDto(house.HouseholdFunds)
                 })],
                 Apartments = [.. world.Apartments.Select(apartment => new ApartmentSaveDto
                 {
@@ -94,7 +96,8 @@ public sealed class SaveService(IWebHostEnvironment environment)
                     CitizenCapacity = apartment.CitizenCapacity,
                     FoodInventory = apartment.FoodInventory,
                     WaterInventory = apartment.WaterInventory,
-                    BankAccount = ToBankAccountDto(apartment.BankAccount)
+                    HomeId = apartment.HomeId,
+                    BankAccount = ToBankAccountDto(apartment.HouseholdFunds)
                 })],
                 Schools = [.. world.Schools.Select(school => new SchoolSaveDto
                 {
@@ -128,14 +131,15 @@ public sealed class SaveService(IWebHostEnvironment environment)
     {
         return new BankAccountSaveDto
         {
-            OwnerAddress = GetOwnerAddress(account),
             Balance = account.Balance,
             Transactions = account.Transactions is null ? null : [.. account.Transactions]
         };
     }
 
-    private static string? GetOwnerAddress(BankAccount account)
+    private static string GetHomeAddress(World world, int? homeId)
     {
-        return account.Owner is Building building ? building.Address : null;
+        return world.Houses.Cast<Building>()
+            .Concat(world.Apartments)
+            .FirstOrDefault(home => home.HomeId == homeId)?.Address ?? string.Empty;
     }
 }
