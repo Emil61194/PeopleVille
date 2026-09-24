@@ -58,7 +58,7 @@ namespace PeopleVille.Core.Models
 
             if (currentHour < 7 || currentHour > 22) // sleeping time
             {
-                PublishCitizenAction($"{FirstName} {LastName} is sleeping.");
+                PublishCitizenAction("is sleeping.");
                 return;
             }
 
@@ -98,7 +98,7 @@ namespace PeopleVille.Core.Models
                 CurrentLocation = CurrentLocation,
                 IsAdult = yearsOld >= 18,
                 IsEmployed = Job is not null,
-                Message = message
+                Message = $"{FirstName} {LastName}: {message}"
             });
         }
 
@@ -183,6 +183,7 @@ namespace PeopleVille.Core.Models
 
             if (rnd.Next(0, 5) == 0) // 20% chance for begging to succeed
             {
+                
                 Building? homeWithMostFood = world.Houses
                     .Cast<Building>()
                     .Concat(world.Apartments)
@@ -228,6 +229,7 @@ namespace PeopleVille.Core.Models
                     {
                         currentApartment.WaterInventory += 10;
                     }
+                    PublishCitizenAction($"{FirstName} {LastName} begged for water and recieved 10 water.");
                 }
                 else if (homeWithMostWater != null && homeWithMostWater is Apartment apartment2)
                 {
@@ -240,7 +242,12 @@ namespace PeopleVille.Core.Models
                     {
                         currentApartment.WaterInventory += 10;
                     }
+                    PublishCitizenAction($"{FirstName} {LastName} begged for water and recieved 10 water.");
                 }
+            }
+            else
+            {
+                PublishCitizenAction($"{FirstName} {LastName} begged for money and failed.");
             }
         }
 
