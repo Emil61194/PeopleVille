@@ -3,7 +3,9 @@ using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
 using PeopleVille.Engine.Builders;
 using System.Collections.Concurrent;
+using System.ComponentModel.Design;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -98,14 +100,27 @@ namespace PeopleVille.Engine
                 new HouseBuilder(),
                 new ApartmentBuilder()
             };
+            string dllPath = string.Empty;
 
-            string appDir = Path.GetFullPath(
-                Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..",
-                "PeopleVille.Handicaps", "bin", "Debug", "net10.0", "PeopleVille.Handicaps.dll"));
+            if (CheckIfRunningRelease())
+            {
+                dllPath = Path.GetFullPath(
+                    Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..",
+                    "PeopleVille.Handicaps", "bin", "Release", "net10.0", "PeopleVille.Handicaps.dll"));
+            }
+            else
+            {
+                dllPath = Path.GetFullPath(
+                    Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..",
+                    "PeopleVille.Handicaps", "bin", "Debug", "net10.0", "PeopleVille.Handicaps.dll"));
+            }
+            
+            if (File.Exists(dllPath))
+            {
+                builders.AddRange(CheckExternalBuilders(dllPath));
+            }
 
-            builders.AddRange(CheckExternalBuilders(appDir));
-
-            foreach (var builder in builders)
+            foreach (IBuilder builder in builders)
             {
                 builder.Build(save);
             }
@@ -113,6 +128,15 @@ namespace PeopleVille.Engine
             CitizenBuilder.BuildCitizens(save, ref Tick, actionsEachTick);
 
             return save;
+        }
+
+        private bool CheckIfRunningRelease()
+        {
+            #if DEBUG
+                return false;
+            #else
+                return true;
+            #endif
         }
 
         private IEnumerable<IBuilder> CheckExternalBuilders(string filePath)

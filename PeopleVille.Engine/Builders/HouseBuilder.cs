@@ -10,18 +10,21 @@ namespace PeopleVille.Engine.Builders
         {
             Random rnd = new Random();
             List<string> addresses = Core.Data.Address.AddressList.ToList();
-            string[] usedAddresses = world.Workplaces.SelectMany(w => w.Address).Select(a => a.ToString()).ToArray();
+            string[] usedAddresses = world.Workplaces.Select(w => w.Address).ToArray();
             addresses = addresses.Except(usedAddresses).ToList();
 
             int houseCount = rnd.Next(20, 50);
 
             for (int i = 0; i < houseCount; i++)
             {
-                int randomAddressNumber = rnd.Next(addresses.Count);
+                if (addresses.Count == 0)
+                {
+                    break;
+                }
 
                 House house = new()
                 {
-                    Address = addresses[randomAddressNumber],
+                    Address = addresses[rnd.Next(addresses.Count - 1)],
                     FoodInventory = rnd.Next(50, 300),
                     WaterInventory = rnd.Next(50, 300),
                     CitizenCapacity = rnd.Next(1, 5),
