@@ -30,9 +30,7 @@ namespace PeopleVille.Server
                 {
                     policy.WithOrigins(
                               "http://localhost:5173",
-                              "https://localhost:50733",
-                              "https://localhost:7039",
-                              "http://localhost:5045")
+                              "https://localhost:50733")
                           .AllowAnyMethod()
                           .AllowAnyHeader()
                           .AllowCredentials();
