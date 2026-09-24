@@ -42,8 +42,10 @@ export async function connectToHub(onLog, worldUpdateHandler) {
   connection.on("Event", (message) => {
     eventListeners.forEach((listener) => listener(message));
     const value =
-      typeof message === "string" ? message : JSON.stringify(message);
-    log(`Event: ${value}`);
+      typeof message === "string"
+        ? message
+        : (message?.message ?? JSON.stringify(message));
+    log(value);
     applyEvent(message);
   });
 
