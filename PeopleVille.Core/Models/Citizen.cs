@@ -54,7 +54,7 @@ namespace PeopleVille.Core.Models
 
             if (currentHour < 7 || currentHour > 22) // sleeping time
             {
-                PublishCitizenAction($"{FirstName} {LastName} is sleeping.");
+                PublishCitizenAction("is sleeping.");
                 return;
             }
 
@@ -94,7 +94,7 @@ namespace PeopleVille.Core.Models
                 CurrentLocation = CurrentLocation,
                 IsAdult = yearsOld >= 18,
                 IsEmployed = Job is not null,
-                Message = message
+                Message = $"{FirstName} {LastName}: {message}"
             });
         }
 
@@ -104,7 +104,7 @@ namespace PeopleVille.Core.Models
             {
                 return;
             }
-            
+
             BankAccount.Balance += Job.Workplace.Salary;
             Family?.RefreshBalance();
             PublishCitizenAction($"Received salary of {Job.Workplace.Salary} at {world.currentDateTime}");
