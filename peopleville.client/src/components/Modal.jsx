@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { IconX } from "@tabler/icons-react";
+import { IconX } from "../icons.js";
 
 export function Modal({ title, onClose, children }) {
   useEffect(() => {
