@@ -8,12 +8,6 @@ import { LogCard } from "./components/LogCard.jsx";
 import { KontrolpanelCard } from "./components/KontrolpanelCard.jsx";
 import { connectToHub } from "./services/WSService.js";
 import TimeShower from "./components/TimeShower.jsx";
-function formatTime(date) {
-  return date.toLocaleTimeString("da-DK", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 function App() {
   const [gameStarted, setGameStarted] = useState(false);
@@ -29,9 +23,9 @@ function App() {
     let cancelled = false;
 
     connectToHub(
-      (message) =>
+      (message, worldTime) =>
         setLogs((prev) => [
-          { time: formatTime(new Date()), message },
+            { time: worldTime ? worldTime : new Date(), message },
           ...prev,
         ]),
       ({ homes: h, citizens: c, workplaces: w }) => {

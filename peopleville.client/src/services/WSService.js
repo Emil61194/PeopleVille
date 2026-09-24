@@ -21,7 +21,7 @@ function notifyWorldUpdate() {
 export async function connectToHub(onLog, worldUpdateHandler) {
   if (connection) return;
 
-  const log = (message) => onLog?.(message);
+  const log = (message, worldTime) => onLog?.(message, worldTime);
   onWorldUpdate = worldUpdateHandler;
 
   connection = new HubConnectionBuilder()
@@ -45,7 +45,7 @@ export async function connectToHub(onLog, worldUpdateHandler) {
       typeof message === "string"
         ? message
         : (message?.message ?? JSON.stringify(message));
-    log(value);
+    log(value, message?.worldTime);
     applyEvent(message);
   });
 

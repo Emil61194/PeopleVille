@@ -15,5 +15,6 @@ namespace PeopleVille.Core.Operations
         public bool IsAdult { get; set; }
         public bool IsEmployed { get; set; }
         public required string Message { get; set; }
+        public required DateTime WorldTime { get; set; }
     }
 }
