@@ -97,7 +97,7 @@ namespace PeopleVille.Test
             (World world, Citizen citizen, House home) = CreateCitizen(8, 1990);
             home.FoodInventory = 4;
             home.WaterInventory = 10;
-            home.BankAccount.Balance = 100;
+            home.HouseholdFunds.Balance = 100;
 
             ShoppingCenter shoppingCenter = new ShoppingCenter
             {
@@ -133,6 +133,7 @@ namespace PeopleVille.Test
             House home = new()
             {
                 Address = "Home",
+                HomeId = 1,
                 FoodInventory = 10,
                 WaterInventory = 10
             };
@@ -146,8 +147,8 @@ namespace PeopleVille.Test
                 new DateTime(birthYear, 1, 1),
                 0,
                 null,
-                default,
-                home.Address)
+                default, 
+                home.HomeId)
             {
                 CurrentLocation = "Away"
             };

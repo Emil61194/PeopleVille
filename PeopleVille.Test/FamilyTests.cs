@@ -48,7 +48,7 @@ namespace PeopleVille.Test
         private static Citizen CreateCitizen(FamilyRoles familyRole, int id)
         {
             World world = new();
-            return new Citizen(world, id, $"Citizen{id}", "Family", DateTime.Today, 0, new Family(1, []), familyRole, "Home")
+            return new Citizen(world, id, $"Citizen{id}", "Family", DateTime.Today, 0, new Family(1, []), familyRole, null)
             {
                 CurrentLocation = "Home"
             };

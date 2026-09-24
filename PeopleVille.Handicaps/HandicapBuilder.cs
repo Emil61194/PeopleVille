@@ -1,4 +1,6 @@
-﻿using PeopleVille.Core.Data;
+﻿// whole file should be refactored to have handicaps just be a citizen status rather than a whole new concept just because of dll as a sort of "DLC"
+
+using PeopleVille.Core.Data;
 using PeopleVille.Core.Enum;
 using PeopleVille.Core.Interfaces;
 using PeopleVille.Core.Models;
@@ -21,17 +23,14 @@ namespace PeopleVille.Handicaps
             for (int i = 0; i < handicapAmount; i++)
             {
                 Genders gender = (Genders)rnd.Next(0, genderCount);
-                string[] firstNames;
-                if (!FirstName.FirstNames.TryGetValue(gender, out firstNames))
-                {
-                    firstNames = FirstName.FirstNames.Values.SelectMany(names => names).ToArray();
-                }
+                FirstName.FirstNames.TryGetValue(gender, out string[]? firstNames);
+                firstNames ??= FirstName.FirstNames.Values.SelectMany(names => names).ToArray();
                 string firstName = firstNames[rnd.Next(firstNames.Length)];
                 if (i > lastFamilyHandicapLoop || i % 5 == 0)
                 {
                     lastName = lastNames[rnd.Next(lastNames.Length)];
                 }
-                (string address, world) = GetAddress(world, lastName, rnd);
+                (string address, int homeId) = GetAddress(world, lastName, rnd);
                 DateTime age = DateTime.Now.AddYears(-rnd.Next(0, 70));
                 int yearsOld = DateTime.Now.Year - age.Year;
 
@@ -41,7 +40,7 @@ namespace PeopleVille.Handicaps
                     lastName: lastName,
                     birth: DateTime.Now.AddYears(-rnd.Next(0, 70)),
                     gender: gender,
-                    homeAddress: address,
+                    homeId: homeId,
                     actions: engine.actionsEachTick)
                 {
                     CurrentLocation = address
@@ -53,7 +52,7 @@ namespace PeopleVille.Handicaps
             }
         }
 
-        private void AssignFamily(Citizen citizen, World world)
+        private static void AssignFamily(Citizen citizen, World world)
         {
             Family? family = world.Citizens
                 .Where(existingCitizen => existingCitizen.LastName == citizen.LastName)
@@ -95,7 +94,7 @@ namespace PeopleVille.Handicaps
             citizen.Family = family;
         }
 
-        private static (string, World) GetAddress(World world, string lastName, Random rnd)
+        private static (string Address, int HomeId) GetAddress(World world, string lastName, Random rnd)
         {
             List<House> houses = [.. world.Houses.Select(h => h)];
             List<Apartment> apartments = [.. world.Apartments.Select(a => a)];
@@ -104,8 +103,11 @@ namespace PeopleVille.Handicaps
 
             if (relatives.Count > 0 && relatives.Count < 5)
             {
-                string address = relatives[0].HomeAddress;
-                return (address, world);
+                Building? relativeHome = FindHome(world, relatives[0].HomeId);
+                if (relativeHome is not null)
+                {
+                    return (relativeHome.Address, relativeHome.HomeId);
+                }
             }
 
 
@@ -113,16 +115,18 @@ namespace PeopleVille.Handicaps
             {
                 Apartment apartment = apartments[rnd.Next(apartments.Count)];
 
-                int currentApartmentsInAddress = world.Apartments.Count(a => a.Address.Contains(apartment.Address));
-
-                int addressFloor = currentApartmentsInAddress % apartment.Floors; // track apartment occupancy, might otherwise just maintain explicit floor/unit data
-
-                string apartmentAddress = $"{apartment.Address}, {addressFloor}. {currentApartmentsInAddress + 1}";
-                return (apartmentAddress, world);
+                return (apartment.Address, apartment.HomeId);
             }
 
             House house = houses[rnd.Next(houses.Count)];
-            return (house.Address, world);
+            return (house.Address, house.HomeId);
+        }
+
+        private static Building? FindHome(World world, int? homeId)
+        {
+            return world.Houses.Cast<Building>()
+                .Concat(world.Apartments)
+                .FirstOrDefault(home => home.HomeId == homeId);
         }
     }
 }

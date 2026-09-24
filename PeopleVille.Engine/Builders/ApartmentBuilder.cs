@@ -26,8 +26,9 @@ namespace PeopleVille.Engine.Builders
 
                 Apartment apartment = new Apartment
                 {
-                    Address = addresses[rnd.Next(addresses.Count)],
-                    Floors = rnd.Next(2, 5),
+                    HomeId = world.Houses.Count + world.Apartments.Count + 1,
+                    Address = address,
+                    Floors = floors,
                     Rent = rnd.Next(500, 2000),
                     FoodInventory = rnd.Next(50, 300),
                     WaterInventory = rnd.Next(50, 300),

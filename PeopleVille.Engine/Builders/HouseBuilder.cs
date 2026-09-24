@@ -24,7 +24,8 @@ namespace PeopleVille.Engine.Builders
 
                 House house = new()
                 {
-                    Address = addresses[rnd.Next(addresses.Count - 1)],
+                    HomeId = world.Houses.Count + world.Apartments.Count + 1,
+                    Address = addresses[randomAddressNumber],
                     FoodInventory = rnd.Next(50, 300),
                     WaterInventory = rnd.Next(50, 300),
                     CitizenCapacity = rnd.Next(1, 5),

@@ -80,15 +80,15 @@ namespace PeopleVille.Test
             BankAccount account = UseHome(world, home, true);
             account.Balance = 25;
             var otherHome = new House { Address = "Other home" };
-            otherHome.BankAccount.Balance = 75;
+            otherHome.HouseholdFunds.Balance = 75;
             world.Houses.Insert(0, otherHome);
             citizen.Job = new Job(new ShoppingCenter { Address = "Work", Salary = 200 });
 
             citizen.PerformHourlyRoutine();
 
             Assert.AreEqual((decimal)expectedBalance, citizen.BankAccount.Balance);
-            Assert.AreEqual(25m, account.Balance);
-            Assert.AreEqual(75m, otherHome.BankAccount.Balance);
+            Assert.AreEqual(hour == 0 ? 125m : 25m, account.Balance);
+            Assert.AreEqual(75m, otherHome.HouseholdFunds.Balance);
             Assert.AreEqual(home.Address, citizen.CurrentLocation);
         }
 
@@ -126,7 +126,7 @@ namespace PeopleVille.Test
         {
             var (world, citizen, home) = CreateCitizen(hour);
             home.FoodInventory = home.WaterInventory = inventory;
-            home.BankAccount.Balance = 100;
+            home.HouseholdFunds.Balance = 100;
             world.ShoppingCenters.Add(new ShoppingCenter
             {
                 Address = "Shop", FoodPrice = 1, WaterPrice = 1
@@ -135,7 +135,7 @@ namespace PeopleVille.Test
             citizen.PerformHourlyRoutine();
 
             Assert.AreEqual(location, citizen.CurrentLocation);
-            Assert.AreEqual((decimal)balance, home.BankAccount.Balance);
+            Assert.AreEqual((decimal)balance, home.HouseholdFunds.Balance);
         }
 
         [TestMethod]
@@ -143,12 +143,12 @@ namespace PeopleVille.Test
         {
             var (world, citizen, home) = CreateCitizen(8);
             home.FoodInventory = home.WaterInventory = 0;
-            home.BankAccount.Balance = 100;
+            home.HouseholdFunds.Balance = 100;
 
             citizen.PerformHourlyRoutine();
 
             Assert.AreEqual(home.Address, citizen.CurrentLocation);
-            Assert.AreEqual(100m, home.BankAccount.Balance);
+            Assert.AreEqual(100m, home.HouseholdFunds.Balance);
             Assert.IsTrue(world.Citizens.Contains(citizen));
         }
 
@@ -161,7 +161,7 @@ namespace PeopleVille.Test
             home.FoodInventory = 0;
             BankAccount account = UseHome(world, home, apartment);
             var neighbor = new Citizen(world, 2, "Other", "Citizen", new DateTime(1990, 1, 1),
-                0, "Other home") { CurrentLocation = "Other home" };
+                0, null) { CurrentLocation = "Other home" };
             world.Citizens.Add(neighbor);
             world.ShoppingCenters.Add(new ShoppingCenter
             {
@@ -178,26 +178,28 @@ namespace PeopleVille.Test
         private static BankAccount UseHome(World world, House home, bool apartment)
         {
             if (!apartment)
-                return home.BankAccount;
+                return home.HouseholdFunds;
 
             world.Houses.Remove(home);
             var replacement = new Apartment
             {
+                HomeId = home.HomeId,
                 Address = home.Address,
                 FoodInventory = home.FoodInventory,
-                WaterInventory = home.WaterInventory
+                WaterInventory = home.WaterInventory,
+                HouseholdFunds = home.HouseholdFunds
             };
             world.Apartments.Add(replacement);
-            return replacement.BankAccount;
+            return replacement.HouseholdFunds;
         }
 
         private static (World World, Citizen Citizen, House Home) CreateCitizen(int hour, DateTime? birth = null)
         {
             var world = new World { currentDateTime = new DateTime(2025, 6, 15, hour, 0, 0) };
-            var home = new House { Address = "Home", FoodInventory = 10, WaterInventory = 10 };
+            var home = new House { HomeId = 1, Address = "Home", FoodInventory = 10, WaterInventory = 10 };
             world.Houses.Add(home);
             var citizen = new Citizen(world, 1, "Test", "Citizen", birth ?? new DateTime(1990, 1, 1),
-                0, home.Address) { CurrentLocation = "Away" };
+                0, home.HomeId) { CurrentLocation = "Away" };
             world.Citizens.Add(citizen);
             return (world, citizen, home);
         }

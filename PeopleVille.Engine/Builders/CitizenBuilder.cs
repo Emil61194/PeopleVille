@@ -38,12 +38,11 @@ namespace PeopleVille.Engine.Builders
 
                 Job chosenJob = jobs[rnd.Next(jobs.Count)];
 
-                (string address, world) = GetAddress(world, lastName, rnd);
+                (string address, int homeId) = GetAddress(world, lastName, rnd);
 
                 DateTime birth = DateTime.Now.AddYears(-rnd.Next(0, 70));
                 int yearsOld = DateTime.Now.Year - birth.Year;
                 FamilyRoles familialStatus = yearsOld < 18 ? FamilyRoles.Child : FamilyRoles.Adult;
-
                 Citizen citizen = new(world: world,
                     id: i + 1,
                     firstName: firstName,
@@ -52,7 +51,7 @@ namespace PeopleVille.Engine.Builders
                     gender: gender,
                     family: null,
                     familialStatus: familialStatus,
-                    homeAddress: address,
+                    homeId: homeId,
                     actionSink: engine.actionsEachTick)
                 {
                     Job = chosenJob,
@@ -113,7 +112,7 @@ namespace PeopleVille.Engine.Builders
             citizen.Family = family;
         }
 
-        private static (string, World) GetAddress(World world, string lastName, Random rnd)
+        private static (string Address, int HomeId) GetAddress(World world, string lastName, Random rnd)
         {
             List<House> houses = [.. world.Houses.Select(h => h)];
             List<Apartment> apartments = [.. world.Apartments.Select(a => a)];
@@ -122,8 +121,11 @@ namespace PeopleVille.Engine.Builders
 
             if (relatives.Count > 0 && relatives.Count < 5)
             {
-                string address = relatives[0].HomeAddress;
-                return (address, world);
+                Building? relativeHome = FindHome(world, relatives[0].HomeId);
+                if (relativeHome is not null)
+                {
+                    return (relativeHome.Address, relativeHome.HomeId);
+                }
             }
 
 
@@ -131,16 +133,18 @@ namespace PeopleVille.Engine.Builders
             {
                 Apartment apartment = apartments[rnd.Next(apartments.Count)];
 
-                int currentApartmentsInAddress = world.Apartments.Count(a => a.Address.Contains(apartment.Address));
-
-                int addressFloor = currentApartmentsInAddress % apartment.Floors; // track apartment occupancy, might otherwise just maintain explicit floor/unit data
-
-                string apartmentAddress = $"{apartment.Address}, {addressFloor}. {currentApartmentsInAddress + 1}";
-                return (apartmentAddress, world);
+                return (apartment.Address, apartment.HomeId);
             }
 
             House house = houses[rnd.Next(houses.Count)];
-            return (house.Address, world);
+            return (house.Address, house.HomeId);
+        }
+
+        private static Building? FindHome(World world, int? homeId)
+        {
+            return world.Houses.Cast<Building>()
+                .Concat(world.Apartments)
+                .FirstOrDefault(home => home.HomeId == homeId);
         }
     }
 }
