@@ -1,19 +1,19 @@
 using PeopleVille.Core.Data;
 using PeopleVille.Core.Enum;
+using PeopleVille.Core.Interfaces;
 using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
-using System.Collections.Concurrent;
 
 namespace PeopleVille.Engine.Builders
 {
     public delegate void RoutineAction();
 
-    public class CitizenBuilder
+    public class CitizenBuilder(GameEngine engine) : IBuilder
     {
-        public static void BuildCitizens(World world,ref Action tickAction, ConcurrentBag<object> actionsEachTick)
+        public void Build(World world)
         {
             Random rnd = new();
-            int citizenAmount = rnd.Next(10, 15);
+            int citizenAmount = rnd.Next(15, 30);
 
             string[] lastNames = [.. LastName.LastNames];
 
@@ -53,7 +53,7 @@ namespace PeopleVille.Engine.Builders
                     family: null,
                     familialStatus: familialStatus,
                     homeAddress: address,
-                    actionSink: actionsEachTick)
+                    actionSink: engine.actionsEachTick)
                 {
                     Job = chosenJob,
                     CurrentLocation = address,
@@ -67,7 +67,7 @@ namespace PeopleVille.Engine.Builders
 
                 AssignFamily(citizen, world);
                 world.Citizens?.Add(citizen);
-                tickAction += citizen.PerformHourlyRoutine;
+                engine.Tick += citizen.PerformHourlyRoutine;
             }
         }
 

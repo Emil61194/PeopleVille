@@ -2,10 +2,11 @@ using PeopleVille.Core.Interfaces;
 using PeopleVille.Core.Models;
 using PeopleVille.Core.Models.Home;
 using PeopleVille.Engine.Builders;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace PeopleVille.Engine
 {
@@ -96,7 +97,8 @@ namespace PeopleVille.Engine
                 new SchoolBuilder(),
                 new JobsBuilder(),
                 new HouseBuilder(),
-                new ApartmentBuilder()
+                new ApartmentBuilder(),
+                new CitizenBuilder(this)
             };
 
             string appDir = Path.GetFullPath(
@@ -110,8 +112,6 @@ namespace PeopleVille.Engine
                 builder.Build(save);
             }
 
-            CitizenBuilder.BuildCitizens(save, ref Tick, actionsEachTick);
-
             return save;
         }
 
@@ -122,11 +122,11 @@ namespace PeopleVille.Engine
                 throw new FileNotFoundException($"The file {filePath} does not exist.");
             }
 
-            var assembly = System.Reflection.Assembly.LoadFrom(filePath);
-            var builderTypes = assembly.GetTypes()
+            Assembly assembly = Assembly.LoadFrom(filePath);
+            IEnumerable<Type> builderTypes = assembly.GetTypes()
                 .Where(t => typeof(IBuilder).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
 
-            foreach (var type in builderTypes)
+            foreach (Type type in builderTypes)
             {
                 object? instance = null;
                 try
