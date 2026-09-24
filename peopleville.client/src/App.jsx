@@ -7,7 +7,7 @@ import { WorkplacesCard } from "./components/WorkplacesCard.jsx";
 import { LogCard } from "./components/LogCard.jsx";
 import { KontrolpanelCard } from "./components/KontrolpanelCard.jsx";
 import { connectToHub } from "./services/WSService.js";
-
+import TimeShower from "./components/TimeShower.jsx";
 function formatTime(date) {
   return date.toLocaleTimeString("da-DK", {
     hour: "2-digit",
@@ -45,13 +45,13 @@ function App() {
   return (
     <div className="app">
       <h1 className="app-title">Peopleville</h1>
-
       {!gameStarted && (
         <MainGameButtons onGameStarted={() => setGameStarted(true)} />
       )}
 
-      {gameStarted && (
-        <div className="dashboard">
+          {gameStarted && (
+          <div className="dashboard">
+          <TimeShower />
           <div className="dashboard-top">
             <HomesCard homes={homes} citizens={citizens} logs={logs} />
             <CitizensCard citizens={citizens} logs={logs} />
