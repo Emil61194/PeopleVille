@@ -12,5 +12,6 @@ namespace PeopleVille.Core.Operations
         public int WaterInventory { get; set; }
         public int BankAccountBalance { get; set; }
         public required string Message { get; set; }
+        public required DateTime WorldTime { get; set; }
     }
 }
